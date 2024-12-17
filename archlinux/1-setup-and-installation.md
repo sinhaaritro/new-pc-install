@@ -21,7 +21,7 @@ timedatectl
 Partition is done with `gdisk`
 1. Use `lsblk` to find the device name where Arch will be installed. It is usually `sdc`, `sdd`, etc.
 2. **Consider** the device `sdz` (Change `sdz` in the following line to the proper device name).
-3. `gdisk \dev\sdz` to Edit Partition on the drive.
+3. `gdisk /dev/sdz` to Edit Partition on the drive.
    The basic commands are `p` (get details about all partitions), `d` (delete partition), `n` (create a new partition), and `w` (write the changes of the partition)
 4. View the partitions with `p`
 5. Clear all the partitions with `d`. In the next prompt enter partition number.
@@ -41,12 +41,12 @@ Partition is done with `gdisk`
 19. `mount /dev/sdz3 /mnt` for `root_partition`
 20. `swapon /dev/sdz2` for `swap_partition`
 21. `mount --mkdir /dev/sdz1 /mnt/boot` for `efi_system_partition`
-22. Use `lsblk` to check the correct mount points. we should have a `/boot`, `[swap]`, `/`
+22. Use `lsblk` to check the correct mount points. we should have a `/mnt/boot`, `[swap]`, `/mnt`
 # Install
 ## Select the mirrors 
 Using `reflector` we are going to update our mirror list and save the new mirrorlist in the ArchLinux
 ```bash
-reflector --country India --latest 5 --sort rate /etc/pacman.d/mirrorlist
+reflector --country India --latest 5 --sort rate --save /etc/pacman.d/mirrorlist
 ```
 ## Install essential packages
 ```bash
@@ -55,7 +55,8 @@ pacstrap -K /mnt base linux linux-firmware base-devel networkmanager amd-ucode v
 # Configure the system
 ## Fstab and Chroot
 1. Fstab `genfstab -U /mnt >> /mnt/etc/fstab`
-2. Chroot `arch-chroot /mnt`
+2. Check there are 3 entries in the file `cat /mnt/etc/fstab`
+3. Chroot `arch-chroot /mnt`
 ## Time, Clock, Network configuration (hostname)
 1. Timezone `ln -sf /usr/share/zoneinfo/Asia/Kolkata /etc/localtime`
 2. Update Clock `hwclock --systohc`
