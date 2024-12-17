@@ -36,7 +36,7 @@ systemctl can enable, start, stop service
 # Install nvidia drivers
 https://wiki.archlinux.org/title/NVIDIA
 ## Enable multilib repository 
-1. Run `sudo nano /etc/pacman.conf`
+1. Run `sudo nvim /etc/pacman.conf`
 2. Uncomment the line `[multilib]`
 3. Uncomment the line `Include = /etc/pacman.d/mirrorlist`
 4. Update pacman database `pacman -Syu`
@@ -58,15 +58,15 @@ https://wiki.archlinux.org/title/NVIDIA
 3. Run `pacman -S nvidia-open nvidia-utils lib32-nvidia-utils nvidia-settings`
 ## Setup the Kernel Parameter for GRUB users
 1. Edit GRUB file by `sudo nvim /etc/default/grub`
-2. Find the line with `GRUB_CMDLINE_LINUX_DEFAULT`
-3. New line will be `GRUB_CMDLINE_LINUX_DEFAULT="quiet splash nvidia-drm.modeset=1 nvidia-drm.fbdev=1"`
+2. Find the line with **GRUB_CMDLINE_LINUX_DEFAULT**
+3. New line will be `GRUB_CMDLINE_LINUX_DEFAULT="[...] nvidia-drm.modeset=1 nvidia-drm.fbdev=1"`
 3. Save `:wq`
 4. Update GRUB configuration `sudo grub-mkconfig -o /boot/grub/grub.cfg`
 ## Early Loading of NVIDIA Modules
 1. Edit `mkinitcpio.conf` file by `sudo nvim /etc/mkinitcpio.conf`
 2. Find the line that says `MODULES=()`
 3. New line will be `MODULES=(... nvidia nvidia_modeset nvidia_uvm nvidia_drm ...)`
-4. Find the line that says `HOOKS=()`
+4. Find the line that says `HOOKS=(...)`
 5. On the line delete the word `kms`
 6. Save `:wq`
 7. Regenerate the initramfs with `sudo mkinitcpio -P`
