@@ -17,7 +17,7 @@ Use timedatectl to ensure the system clock is synchronized
 ```bash
 timedatectl
 ```
-## Partition, Format, Mount disk
+## Partition
 Partition is done with `gdisk`
 1. Use `lsblk` to find the device name where Arch will be installed. It is usually `sdc`, `sdd`, etc.
 2. **Consider** the device `sdz` (Change `sdz` in the following line to the proper device name).
@@ -31,17 +31,19 @@ Partition is done with `gdisk`
 9. Create a `/` partition that will take all the remaining space, 8300 as the partition type
 10. Check if all partitions are ok with `p`
 11. Write all the partition info with `w`
-12. **Consider** sdz1 is `efi_system_partition`, sdz2 is `swap_partition`, sdz3 is `root_partition`.
-13. Using the https://wiki.archlinux.org/title/File_systems select the Btrfs for the `root_partition`. Commands are
-14. `mkfs.btrfs /dev/sdz3` for `root_partition`
-15. `mkswap /dev/sdz2` for `swap_partition`
-16. `mkfs.fat -F 32 /dev/sdz1` for `efi_system_partition`
-17. Use `lsblk` to check for correct sizes
-18. For mounting. We are using UEFI so, we have an extra `efi_system_partition`. Commands are
-19. `mount /dev/sdz3 /mnt` for `root_partition`
-20. `swapon /dev/sdz2` for `swap_partition`
-21. `mount --mkdir /dev/sdz1 /mnt/boot` for `efi_system_partition`
-22. Use `lsblk` to check the correct mount points. we should have a `/mnt/boot`, `[swap]`, `/mnt`
+## Format
+**Consider** sdz1 is `efi_system_partition`, sdz2 is `swap_partition`, sdz3 is `root_partition`.
+1. Using the https://wiki.archlinux.org/title/File_systems select the Btrfs for the `root_partition`. Commands are
+2. `mkfs.btrfs /dev/sdz3` for `root_partition`
+3. `mkswap /dev/sdz2` for `swap_partition`
+4. `mkfs.fat -F 32 /dev/sdz1` for `efi_system_partition`
+5. Use `lsblk` to check for correct sizes
+## Mount disk
+For mounting. We are using UEFI so, we have an extra `efi_system_partition`. Commands are
+1. `mount /dev/sdz3 /mnt` for `root_partition`
+2. `swapon /dev/sdz2` for `swap_partition`
+3. `mount --mkdir /dev/sdz1 /mnt/boot` for `efi_system_partition`
+4. Use `lsblk` to check the correct mount points. we should have a `/mnt/boot`, `[swap]`, `/mnt`
 # Install
 ## Select the mirrors 
 Using `reflector` we are going to update our mirror list and save the new mirrorlist in the ArchLinux
@@ -74,7 +76,7 @@ Set the password after typing the command `passwd`
 ## Boot loader
 Select a Boot loader. Here we are going to use `GRUB`
 1. Install the packages `pacman -S grub efibootmgr`
-2. Run `grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB` to set up `GRUB`
+2. Run `grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --removable` to set up `GRUB`
 3. Run `grub-mkconfig -o /boot/grub/grub.cfg` to generate config
 # Restart
 1. Run `exit` to get out of system
