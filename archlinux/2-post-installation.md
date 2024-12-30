@@ -15,24 +15,8 @@ You can add the following line to let people run some commands without sudo
 ```
 
 # Upgrading pacman
-# Install AUR helper
-AUR helpers automate the process of building packages. But it is better to build the package manually.
-## Making package
-1. Search the package from https://aur.archlinux.org/
-2. Copy its **Git Clone URL**
-3. Goto a repo folder and run `git clone [GIT URL FROM STEP 2]
-4. Go in the folder `cd [PACKAGE NAME]
-5. Run `makepkg -s` to make the package. This will create a .pkg.tar.zst file
-6. Run `sudo pacman -U [FILE NAME FROM STEP 5]
+`pacman -Syu` will update all packages of pacman
 
-Alternatively, in step 5 we can write `makepkg -si`. Here `s` will get all dependencies, and `i` will also install the file (no need for step 6)
-## Upgrading package
-1. Goto repo folder and run `git pull`
-2. Do steps 5 and 6 of Install AUR helper
-# Managing systemd processes with systemctl (Start networkmanager)
-systemctl can enable, start, stop service
-
-`systemctl enable NetworkManager` will auto start networkmanager. This will help us to connect to the Internet.
 # Install nvidia drivers
 https://wiki.archlinux.org/title/NVIDIA
 ## Enable multilib repository 
