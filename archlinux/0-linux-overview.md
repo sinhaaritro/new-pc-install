@@ -37,6 +37,10 @@ Useful packages: fzf,zoxide,podman,podman_desktop
 # Kitty
 # Status bar
 
+https://github.com/prasanthrangan/hyprdots
+https://wiki.hyprland.org/Configuring/Variables/#input
+https://github.com/prasanthrangan/hyprdots/issues/907
+
 # NeoVim Setup
 # Base setup
 # Plugin manager
@@ -57,18 +61,20 @@ mv ~/.config/kitty ~/dotfiles/p_kitty/.config/
 stow --adopt p_kitty
 git --reset hard
 
+hyprland
+kitty
+wofi
+waybar
+
 
 # SSH
 Add openssh to list package
 
 Type-Name-Variant
 
+You NEED to know this before using an AUR Helper...
+https://www.youtube.com/watch?v=goOrF8zAkqU
 
 
 
-
-hyprland
-kitty
-wofi
-waybar
 
