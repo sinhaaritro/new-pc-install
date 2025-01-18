@@ -50,6 +50,10 @@ Using `reflector` we are going to update our mirror list and save the new mirror
 ```bash
 reflector --country India --latest 5 --sort rate --save /etc/pacman.d/mirrorlist
 ```
+## Upgrade keyring
+```bash
+pacman -Sy archlinux-keyring
+```
 ## Install essential packages
 ```bash
 pacstrap -K /mnt base linux linux-firmware base-devel networkmanager amd-ucode vi neovim man-db man-pages 
