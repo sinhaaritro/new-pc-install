@@ -56,7 +56,7 @@ pacman -Sy archlinux-keyring
 ```
 ## Install essential packages
 ```bash
-pacstrap -K /mnt base linux linux-firmware base-devel networkmanager amd-ucode vi neovim man-db man-pages 
+pacstrap -K /mnt linux linux-firmware base base-devel networkmanager amd-ucode neovim man-db man-pages 
 ```
 # Configure the system
 ## Fstab and Chroot
