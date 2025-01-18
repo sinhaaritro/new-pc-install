@@ -42,7 +42,7 @@ Partition is done with `gdisk`
 For mounting. We are using UEFI so, we have an extra `efi_system_partition`. Commands are
 1. `mount /dev/sdz3 /mnt` for `root_partition`
 2. `swapon /dev/sdz2` for `swap_partition`
-3. `mount --mkdir /dev/sdz1 /mnt/boot` for `efi_system_partition`
+3. `mount --mkdir /dev/sdz1 /mnt/boot/efi` for `efi_system_partition`
 4. Use `lsblk` to check the correct mount points. we should have a `/mnt/boot`, `[swap]`, `/mnt`
 # Install
 ## Select the mirrors 
@@ -80,7 +80,7 @@ Set the password after typing the command `passwd`
 ## Boot loader
 Select a Boot loader. Here we are going to use `GRUB`
 1. Install the packages `pacman -S grub efibootmgr`
-2. Run `grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --removable` to set up `GRUB`
+2. Run `grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --removable` to set up `GRUB`
 3. Run `grub-mkconfig -o /boot/grub/grub.cfg` to generate config
 # Restart
 1. Run `exit` to get out of system
