@@ -39,6 +39,9 @@ Partition is done with `gdisk`
 4. `mkfs.fat -F 32 /dev/sdz1` for `efi_system_partition`
 5. Use `lsblk` to check for correct sizes
 ## Mount disk
+> [!NOTE]
+> When using BTRFS for `root_partition` look at the recovery guide to properly set up BTRFS snapshots with snapper
+
 For mounting. We are using UEFI so, we have an extra `efi_system_partition`. Commands are
 1. `mount /dev/sdz3 /mnt` for `root_partition`
 2. `swapon /dev/sdz2` for `swap_partition`
@@ -66,7 +69,8 @@ pacstrap -K /mnt linux linux-firmware base base-devel networkmanager amd-ucode n
 ## Time, Clock, Network configuration (hostname)
 1. Timezone `ln -sf /usr/share/zoneinfo/Asia/Kolkata /etc/localtime`
 2. Update Clock `hwclock --systohc`
-2. Hostname `echo "ArchUSB64" >> /etc/hostname`
+3. Hostname `echo "ArchUSB64" >> /etc/hostname`
+4. Edit hosts file
 ## Localization
 1. Write the command `nvim /etc/locale.gen` to open the file `/etc/locale.gen`
 2. Use the `/` and type US to find the line with US
