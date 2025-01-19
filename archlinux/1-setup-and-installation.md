@@ -1,94 +1,222 @@
+# Arch Linux Installation Guide
+
 # Pre-installation
-## Setup and boot to live environment
-1. Goto https://archlinux.org/download/ and download the latest ISO file
-2. Flash the ISO in the USB. Can use memtest86's iso burner.
-3. Restart the PC. Boot with the USB
-## Verify the boot mode
-Check if the system is UEFI (mine is UEFI)
+
+## Setup and Boot to Live Environment
+
+1. **Download the ISO**:
+   - Visit [Arch Linux Download](https://archlinux.org/download/) and download the latest **ISO file**.
+2. **Flash the ISO**:
+   - Use tools like **memtest86's ISO burner** to flash the ISO to a USB.
+3. **Restart the PC**:
+   - Boot using the USB.
+
+## Verify the Boot Mode
+
+Check if the system is running in **UEFI mode**:
 ```bash
 cat /sys/firmware/efi/fw_platform_size
 ```
-## Connect to the internet and clock
-Check if there is `UP` on one of the internet connection
-```bash
-ip link
-```
-Use timedatectl to ensure the system clock is synchronized
-```bash
-timedatectl
-```
-## Partition
-Partition is done with `gdisk`
-1. Use `lsblk` to find the device name where Arch will be installed. It is usually `sdc`, `sdd`, etc.
-2. **Consider** the device `sdz` (Change `sdz` in the following line to the proper device name).
-3. `gdisk /dev/sdz` to Edit Partition on the drive.
-   The basic commands are `p` (get details about all partitions), `d` (delete partition), `n` (create a new partition), and `w` (write the changes of the partition)
-4. View the partitions with `p`
-5. Clear all the partitions with `d`. In the next prompt enter partition number.
-6. Add new partitions with `n`. We will need 3 partitions because of the UEFI system
-7. Create a `boot` partition of 2Gb, EF00 as partition type
-8. Create a `[swap]` partition of 5Gb (actually 1.5x of total RAM if possible), 8200 as partition type
-9. Create a `/` partition that will take all the remaining space, 8300 as the partition type
-10. Check if all partitions are ok with `p`
-11. Write all the partition info with `w`
-## Format
-**Consider** sdz1 is `efi_system_partition`, sdz2 is `swap_partition`, sdz3 is `root_partition`.
-1. Using the https://wiki.archlinux.org/title/File_systems select the Btrfs for the `root_partition`. Commands are
-2. `mkfs.btrfs /dev/sdz3` for `root_partition`
-3. `mkswap /dev/sdz2` for `swap_partition`
-4. `mkfs.fat -F 32 /dev/sdz1` for `efi_system_partition`
-5. Use `lsblk` to check for correct sizes
-## Mount disk
+
+## Connect to the Internet and Synchronize Clock
+
+1. Verify an active internet connection:
+   ```bash
+   ip link
+   ```
+   - Look for `UP` on one of the interfaces.
+2. Synchronize the system clock:
+   ```bash
+   timedatectl
+   ```
+
+---
+
+# Partition
+**Partitioning** is done using `gdisk`:
+
+1. Identify the target device:
+   ```bash
+   lsblk
+   ```
+   - Usually named **sdc**, **sdd**, etc.
+2. Assume the device name is `sdz` (replace `sdz` with the actual device name):
+   ```bash
+   gdisk /dev/sdz
+   ```
+3. Key commands in `gdisk`:
+   - **`p`**: Print partition details.
+   - **`d`**: Delete a partition.
+   - **`n`**: Create a new partition.
+   - **`w`**: Write changes to disk.
+4. Steps to partition:
+   - **Delete all partitions** using `d`.
+   - **Create new partitions**:
+     - **Boot Partition**: 2GB, type **EF00**.
+     - **Swap Partition**: 5GB (or 1.5x the total RAM), type **8200**.
+     - **Root Partition**: Remaining space, type **8300**.
+   - Verify partitions with `p`.
+   - Save changes with `w`.
+
+---
+
+# Format
+
+**Assume** the following partitions:
+- `sdz1`: **EFI system partition**
+- `sdz2`: **Swap partition**
+- `sdz3`: **Root partition**
+
+Commands to format:
+
+1. Format the **root partition** with Btrfs:
+   ```bash
+   mkfs.btrfs /dev/sdz3
+   ```
+2. Format the **swap partition**:
+   ```bash
+   mkswap /dev/sdz2
+   ```
+3. Format the **EFI partition**:
+   ```bash
+   mkfs.fat -F 32 /dev/sdz1
+   ```
+4. Verify partition sizes:
+   ```bash
+   lsblk
+   ```
+
+---
+
+# Mount disk
 > [!NOTE]
 > When using BTRFS for `root_partition` look at the recovery guide to properly set up BTRFS snapshots with snapper
 
-For mounting. We are using UEFI so, we have an extra `efi_system_partition`. Commands are
-1. `mount /dev/sdz3 /mnt` for `root_partition`
-2. `swapon /dev/sdz2` for `swap_partition`
-3. `mount --mkdir /dev/sdz1 /mnt/boot/efi` for `efi_system_partition`
-4. Use `lsblk` to check the correct mount points. we should have a `/mnt/boot`, `[swap]`, `/mnt`
-# Install
-## Select the mirrors 
-Using `reflector` we are going to update our mirror list and save the new mirrorlist in the ArchLinux
+1. Mount the **root partition**:
+   ```bash
+   mount /dev/sdz3 /mnt
+   ```
+2. Enable swap:
+   ```bash
+   swapon /dev/sdz2
+   ```
+3. Mount the **EFI partition**:
+   ```bash
+   mount --mkdir /dev/sdz1 /mnt/boot/efi
+   ```
+4. Verify mount points:
+   ```bash
+   lsblk
+   ```
+
+---
+
+# Installation
+## Select Mirrors
+
+Update the mirror list using `reflector`:
 ```bash
 reflector --country India --latest 5 --sort rate --save /etc/pacman.d/mirrorlist
 ```
-## Upgrade keyring
+
+## Upgrade Keyring
+
+Ensure the latest keyring:
 ```bash
 pacman -Sy archlinux-keyring
 ```
-## Install essential packages
+
+## Install Essential Packages
+
+Install the required packages:
 ```bash
-pacstrap -K /mnt linux linux-firmware base base-devel networkmanager amd-ucode neovim man-db man-pages 
+pacstrap -K /mnt linux linux-firmware base base-devel networkmanager amd-ucode neovim man-db man-pages
 ```
+
+---
+
 # Configure the system
 ## Fstab and Chroot
-1. Fstab `genfstab -U /mnt >> /mnt/etc/fstab`
-2. Check there are 3 entries in the file `cat /mnt/etc/fstab`
-3. Chroot `arch-chroot /mnt`
-## Time, Clock, Network configuration (hostname)
-1. Timezone `ln -sf /usr/share/zoneinfo/Asia/Kolkata /etc/localtime`
-2. Update Clock `hwclock --systohc`
-3. Hostname `echo "ArchUSB64" >> /etc/hostname`
-4. Edit hosts file
+
+1. Generate the **fstab file**:
+   ```bash
+   genfstab -U /mnt >> /mnt/etc/fstab
+   ```
+2. Verify entries in `fstab`:
+   ```bash
+   cat /mnt/etc/fstab
+   ```
+3. Change root to the new system:
+   ```bash
+   arch-chroot /mnt
+   ```
+
+## Time, Clock, and Network Configuration
+
+1. Set the timezone:
+   ```bash
+   ln -sf /usr/share/zoneinfo/Asia/Kolkata /etc/localtime
+   ```
+2. Synchronize hardware clock:
+   ```bash
+   hwclock --systohc
+   ```
+3. Set the hostname:
+   ```bash
+   echo "ArchUSB64" >> /etc/hostname
+   ```
+4. Edit the hosts file as required.
+
 ## Localization
-1. Write the command `nvim /etc/locale.gen` to open the file `/etc/locale.gen`
-2. Use the `/` and type US to find the line with US
-3. Uncomment the line
-4. `:wq` to save the file
-5. Run the command `locale-gen` to generate locale
-6. Run `echo "LANG=en_US.UTF-8" >> /etc/locale.conf` to set the Language variable
-7. Run `cat /etc/locale.conf` to view the same file
-## Root password
-Set the password after typing the command `passwd`
-## Boot loader
-Select a Boot loader. Here we are going to use `GRUB`
-1. Install the packages `pacman -S grub efibootmgr`
-2. Run `grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --removable` to set up `GRUB`
-3. Run `grub-mkconfig -o /boot/grub/grub.cfg` to generate config
-# Restart
-1. Run `exit` to get out of system
-2. Run `umount -R /mnt` to unmount drives
-3. Run `reboot` to restart sytsem
+
+1. Edit the locale configuration:
+   ```bash
+   nvim /etc/locale.gen
+   ```
+   - Find and uncomment the **US locale** line (e.g., `en_US.UTF-8`).
+2. Generate the locale:
+   ```bash
+   locale-gen
+   ```
+3. Set the language environment variable:
+   ```bash
+   echo "LANG=en_US.UTF-8" >> /etc/locale.conf
+   ```
+4. Verify the language settings:
+   ```bash
+   cat /etc/locale.conf
+   ```
+
+### Install Bootloader
+
+1. Install GRUB and related packages:
+   ```bash
+   pacman -S grub efibootmgr
+   ```
+2. Install GRUB for UEFI:
+   ```bash
+   grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --removable
+   ```
+3. Generate GRUB configuration:
+   ```bash
+   grub-mkconfig -o /boot/grub/grub.cfg
+   ```
+
 ---
-RESTART remove the Live Environment
+
+## Restart
+
+1. Exit the chroot environment:
+   ```bash
+   exit
+   ```
+2. Unmount all partitions:
+   ```bash
+   umount -R /mnt
+   ```
+3. Restart the system:
+   ```bash
+   reboot
+   ```
+
+Remove the live environment and boot into your new Arch Linux system!
