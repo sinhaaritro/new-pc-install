@@ -5,7 +5,7 @@ Enable Service `systemctl enable --now bluetooth.service`
 Run the `bluetoothcli` interactive command
 Power on the ArchLinux Controller `power on`
 Scan for devices with `scan on`
-Pair with `pain MAC_ADDRESS`. Put Mac address of the device
+Pair with `pair MAC_ADDRESS`. Put Mac address of the device
 Once you have the device turn scan off with `scan off`
 Put the device on trust list with `trust MAC_ADDRESS`
 Connect with `connect MAC_ADDRESS`
