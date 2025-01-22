@@ -15,7 +15,14 @@ Connect with `connect MAC_ADDRESS`
 # Wifi
 
 Install packaages `iwd impala`
-Enable Service `systemctl enable --now iwd.service`
+## Using iwd with NetworkManager
+Create file at `sudo nvim /etc/NetworkManager/conf.d/wifi_backend.conf`
+Add the following lines
+```text
+[device]
+wifi.backend=iwd
+```
+## Usage with iwcli
 Run the `iwctl` interactive command
 Ge the list of devices with `device list`. The devices are wireless port on you PC.
 Power on the device with `device name set-property Powered on`
