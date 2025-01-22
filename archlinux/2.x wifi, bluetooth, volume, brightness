@@ -14,3 +14,17 @@ Connect with `connect MAC_ADDRESS`
 
 # Wifi
 
+Install packaages `iwd impala`
+Enable Service `systemctl enable --now iwd.service`
+Run the `iwctl` interactive command
+Ge the list of devices with `device list`. The devices are wireless port on you PC.
+Power on the device with `device name set-property Powered on`
+Scan for netwrorks with `station name scan`. name here is the device name.
+`station name get-networks` will list the devices scanned
+Use `station name connect SSID` to coneect to devices
+
+# Volume
+
+
+
+# Power
