@@ -1,6 +1,6 @@
 # Bluetooth
 
-Install packaages `bluez bluez-utils`
+Install packaages `bluez bluez-utils bluetui`
 Enable Service `systemctl enable --now bluetooth.service`
 Run the `bluetoothcli` interactive command
 Power on the ArchLinux Controller `power on`
