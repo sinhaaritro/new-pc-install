@@ -1,0 +1,101 @@
+{
+  "name": "Shorty Zero.1",
+  "vendorProductId": 1414753074,
+  "macros": ["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+  "layers": [
+    [
+      "OSL(5)",
+      "KC_LSFT",
+      "KC_LCTL",
+      "TO(4)",
+      "TO(2)",
+      "KC_LGUI",
+      "TO(3)",
+      "TO(1)",
+      "KC_RALT",
+      "RGB_MOD",
+      "KC_NO",
+      "KC_NO"
+    ],
+    [
+      "TO(0)",
+      "KC_TRNS",
+      "KC_TRNS",
+      "KC_TRNS",
+      "KC_TRNS",
+      "KC_TRNS",
+      "KC_TRNS",
+      "KC_TRNS",
+      "KC_TRNS",
+      "RGB_MOD",
+      "KC_NO",
+      "KC_NO"
+    ],
+    [
+      "TO(0)",
+      "KC_TRNS",
+      "KC_TRNS",
+      "G(KC_PSCR)",
+      "KC_TRNS",
+      "KC_TRNS",
+      "KC_TRNS",
+      "KC_TRNS",
+      "KC_TRNS",
+      "RGB_MOD",
+      "KC_NO",
+      "KC_NO"
+    ],
+    [
+      "TO(0)",
+      "KC_TRNS",
+      "KC_TRNS",
+      "KC_TRNS",
+      "KC_TRNS",
+      "KC_TRNS",
+      "KC_TRNS",
+      "KC_TRNS",
+      "KC_TRNS",
+      "RGB_MOD",
+      "KC_NO",
+      "KC_NO"
+    ],
+    [
+      "TO(0)",
+      "A(KC_R)",
+      "A(KC_F1)",
+      "A(KC_Z)",
+      "LSA(KC_R)",
+      "A(KC_F9)",
+      "LSA(KC_F10)",
+      "LCA(KC_R)",
+      "A(KC_F10)",
+      "RGB_MOD",
+      "KC_NO",
+      "KC_NO"
+    ],
+    [
+      "G(KC_1)",
+      "G(KC_4)",
+      "G(KC_7)",
+      "G(KC_2)",
+      "G(KC_5)",
+      "G(KC_8)",
+      "G(KC_3)",
+      "G(KC_6)",
+      "G(KC_9)",
+      "RGB_MOD",
+      "KC_NO",
+      "KC_NO"
+    ]
+  ],
+  "encoders": [
+    [
+      ["KC_VOLD", "KC_VOLU"],
+      ["KC_TRNS", "KC_TRNS"],
+      ["KC_TRNS", "KC_TRNS"],
+      ["KC_TRNS", "KC_TRNS"],
+      ["KC_TRNS", "KC_TRNS"],
+      ["KC_TRNS", "KC_TRNS"]
+    ]
+  ]
+}
