@@ -15,7 +15,7 @@
 
 1.  Proceed to the disk partitioning stage within the installer.
 2.  **Delete ALL existing partitions** on the target installation drive.
-    *   > **❗️ Very Important:** If other drives are connected (e.g., with Linux), **you MUST delete their partitions too**, especially any **EFI partition**. Failure to do so can cause the Windows Boot Manager to install on the wrong drive.
+3.  > **❗️ Very Important:** If other drives are connected (e.g., with Linux), **you MUST delete their partitions too**, especially any **EFI partition**. Failure to do so can cause the Windows Boot Manager to install on the wrong drive.
 
 ---
 
@@ -53,45 +53,24 @@
 
 1.  **Reboot** the computer.
 2.  Install **Motherboard-Specific Drivers**:
-    *   Follow your manufacturer's method (e.g., download from their website, use included media).
+    *   Follow your manufacturer's method. See [BIOS setup](../../hardware/bios/setup.md) for related settings.
     *   *> Example: For ASRock boards, you might enable the 'Auto Driver Installer' in the BIOS/UEFI to automatically get Wi-Fi, Bluetooth, LAN, Audio, etc.*
 
 ---
 
 ## VII. Adjusting Login Settings 🔑
 
-1.  **Configure Windows Hello Sign-in Options:**
-    *   Navigate to: `Settings` > `Accounts` > `Sign-in options`.
-    *   Scroll down to **'Additional Settings'**.
-    *   Ensure the switch for **'For improved security, only allow Windows Hello Sign-in for Microsoft accounts on this device (Recommended)'** is toggled **OFF**.
-2.  **Set Up Automatic Login (via `netplwiz`):**
-    *   Press `Win + R`, type `netplwiz`, and press `Enter`.
-    *   Select your user account in the list.
-    *   **Manage the Checkbox:**
-        *   If **'Users must enter a user name and password to use this computer'** is *unchecked*, **CHECK IT** and click **Apply**.
-        *   Now, **UNCHECK** the box **'Users must enter a user name and password to use this computer'** and click **Apply**.
-    *   **Enter Credentials Carefully:**
-        *   A pop-up window titled 'Automatically sign in' appears.
-        *   > **❗️ CRITICAL:** ERASE any pre-filled username.
-        *   **Username:** Enter your **FULL Microsoft account email address**.
-        *   **Password:** Enter your **Microsoft account password**.
-        *   **Confirm Password:** Re-enter your password. *Accuracy is vital here!*
-        *   Click **OK**.
-    *   Click **OK** again on the main `netplwiz` window.
-3.  **Restart** the computer to apply the auto-login setting.
+*   [**(Optional) Enable Automatic Login Setup**](./optional-login.md)
 
 ---
 
 ## VIII. System Configuration Tweaks 🛠️
 
 1.  **Turn OFF Fast Startup:**
-    *   Open **Control Panel**.
-    *   Go to `Hardware and Sound` > `Power Options`.
-    *   Click **'Choose what the power buttons do'** (left sidebar).
-    *   Click **'Change settings that are currently unavailable'** (requires admin rights).
-    *   **UNCHECK** the box for **'Turn on fast startup (recommended)'**.
-    *   Click **'Save changes'**.
-    *   *> Reason: Fast Startup keeps the disk partially mounted, which can prevent other OSes (like Linux) from accessing it safely, potentially leading to data corruption warnings or mount failures.*
+    *   Open **Control Panel** > `Hardware and Sound` > `Power Options`.
+    *   Click **'Choose what the power buttons do'** > **'Change settings that are currently unavailable'**.
+    *   **UNCHECK** the box for **'Turn on fast startup (recommended)'** and save.
+    *   *> Reason: Fast Startup keeps the disk partially mounted, preventing other OSes (like Linux) from accessing it safely.*
 
 ---
 
@@ -99,60 +78,47 @@
 
 1.  **Install Media Features (Required for Windows N):**
     *   Go to `Settings` > `Apps` > `Optional features`.
-    *   Click **'View features'** (next to 'Add an optional feature').
-    *   Search for **`Media Feature Pack`**, select it, and click **'Next'** then **'Install'**.
-    *   *(Audio software installation is in a separate step below).*
-2.  Install **Graphics Drivers**:
-    *   Download and install the **Nvidia App** / **GeForce Experience** (or AMD Adrenalin Software).
-    *   Ensure you get the latest drivers for your GPU.
+    *   Search for **`Media Feature Pack`**, select it, and install.
+2.  **Install Graphics Drivers**:
+    *   Download and install the **Nvidia App / GeForce Experience** (or AMD Adrenalin Software).
 
 ---
 
 ## X. 💾 Drive Partitioning (Post-Setup)
 
-1.  **Shrink Windows Partition & Create New Volume:**
-    *   Right-click the **Start Button** and select **'Disk Management'**.
-    *   Locate your main Windows partition (usually **C:**).
-    *   Right-click the **C:** partition and select **'Shrink Volume...'**.
-    *   In the field **'Enter the amount of space to shrink in MB'**, enter a value that leaves your desired amount for C:.
-        *   *> Example: To leave Windows with exactly **250 GB** (which is roughly **256,000 MB**), calculate `Total Size (MB) - 256000 = Amount to Shrink (MB)`. Enter the result.*
-    *   Click **'Shrink'**.
-    *   You'll see **'Unallocated'** space appear.
-    *   Right-click the **'Unallocated'** space and select **'New Simple Volume...'**.
-    *   Follow the wizard to create a new partition (assign a drive letter, format it - usually NTFS). This new partition can be used for data, other installs, etc.
+*   [**(Optional) Shrink Windows Partition for Dual Boot**](./optional-partitioning.md)
 
 ---
 
-## XI. 🎧 Audio Software Setup
+## XI. 🔊 Audio & Peripheral Setup
 
-1.  Install preferred audio software (e.g., **VoiceMeeter**).
-2.  Configure the audio software.
-    *   *> Note: Remember to use the specific **VoiceMeeter settings files and reference images** available in the repository for consistent setup.*
+Since everyone's hardware varies, specific configurations are modularized.
+Choose what matches your current setup:
 
----
-
-## XII. Peripheral & Aesthetic Software 💡
-
-1.  Install **RGB Control Software** for your components (Motherboard, RAM, GPU, Mouse, etc.) if desired.
-
----
-
-## XIII. Application & Game Installation 🎮
-
-1.  Install your standard **Desktop Applications** (Productivity, Utilities, etc.).
-2.  Install apps from the **Microsoft Store**.
-3.  Install your **Games** (via Steam, Epic Games Launcher, GOG Galaxy, etc.).
+*   **Audio Routing:** [Install & Configure Voicemeeter Potato](../../software/audio/voicemeeter-potato/README.md) (optional)
+*   **Mouse Software:** [Setup Logitech G502 Macros](../../peripherals/mouse/logitech-g502/README.md)
+*   **Keyboard Layouts:** [Flash RK-R65 / Shorty Zero 1 Layouts](../../peripherals/keyboards/README.md) (via QMK/VIA)
+*   **RGB Lighting:**
+    *   [ASRock Polychrome](../../hardware/lighting/asrock/windows-setup.md)
+    *   [G.Skill RAM](../../hardware/lighting/gskill/windows-setup.md)
+    *   [Zotac GPU Lighting (FireStorm)](../../hardware/lighting/zotac/windows-setup.md)
 
 ---
 
-## XIV. Final Personalization & Tweaks ✨
+## XII. 💻 Applications & Workloads
 
-1.  **Organize Files:** If you prefer a different path than the default libraries, create custom folders (**'Pseudo' Folders**) for `Downloads`, `Pictures`, `Videos`, and `Documents` in a different drive/partition. Link them to the new folders.
-2.  **Set Discord Default Monitor (for Multi-Monitor setups):**
-    *   Open Discord.
-    *   Ensure the Discord window is **NOT maximized**.
-    *   Drag the **small Discord window** to your desired secondary monitor.
-    *   **Close Discord** while it's still small and on that monitor.
-    *   Re-open Discord. It should now default to opening on that screen. You can maximize it normally afterwards.
+### 1. Developer Tools 💻
+*   Install **Git** for Windows (Download from [git-scm.com](https://git-scm.com/))
+*   [**VSCodium Setup & Extensions**](../../software/development/vscodium/windows-setup.md)
+
+### 2. Optional Workloads 🎮 🎨 
+Depending on your use-case, follow these extended guides:
+*   [**Microsoft Office Setup** (Download & MAS Activation)](../../software/office/windows-setup.md)
+*   [**Gaming Setup** (Steam, Epic, Discord fixes)](../../software/gaming/windows-setup.md)
+*   [**Creative Workflow** (DaVinci Resolve)](../../software/creative/davinci-resolve/windows-setup.md)
 
 ---
+
+## XIII. Final Personalization ✨
+
+1.  **Organize Files:** If you prefer a different path than the default libraries, create **'Pseudo' Folders** for `Downloads`, `Pictures`, `Videos`, and `Documents` in a data drive. Update Windows settings to point to them instead of Drive C:.
