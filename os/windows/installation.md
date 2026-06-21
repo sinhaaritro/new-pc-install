@@ -80,7 +80,8 @@
     *   Go to `Settings` > `Apps` > `Optional features`.
     *   Search for **`Media Feature Pack`**, select it, and install.
 2.  **Install Graphics Drivers**:
-    *   Download and install the **Nvidia App / GeForce Experience** (or AMD Adrenalin Software).
+    *   Download and install the **Nvidia App** (or AMD Adrenalin Software).
+        *   [**Nvidia App**](../../software/graphics/nvidia/windows-setup.md)
 
 ---
 
@@ -108,7 +109,7 @@ Choose what matches your current setup:
 ## XII. 💻 Applications & Workloads
 
 ### 1. Developer Tools 💻
-*   Install **Git** for Windows (Download from [git-scm.com](https://git-scm.com/))
+*   [**Git for Windows Setup & SSH Configuration**](../../software/development/git/windows-setup.md)
 *   [**VSCodium Setup & Extensions**](../../software/development/vscodium/windows-setup.md)
 
 ### 2. Optional Workloads 🎮 🎨 

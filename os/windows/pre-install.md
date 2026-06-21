@@ -16,6 +16,7 @@
 
 1.  **Backup Personal Files:**
     *   Carefully review and copy important data from primary user folders: `Downloads`, `Desktop`, `Documents`, `Pictures`, `Videos`, and `Music`.
+    *   **SSH Keys:** Export or copy your `.ssh` directory from `%USERPROFILE%\.ssh` (ensure you have your private keys and `config` file).
 2.  **Prepare Secondary Partitions:**
     *   Clean up or backup any other partitions on your drives, especially if you plan to wipe them entirely during reinstallation.
 
