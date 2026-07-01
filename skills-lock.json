@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "skills": {
+    "agent-router": {
+      "source": "sinhaaritro/dev-agent",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/agent-router/SKILL.md",
+      "computedHash": "6525345b5643978007b3a2fc17111835d148378d2e14258be54db056eb68a532"
+    },
+    "agentic-code-start": {
+      "source": "sinhaaritro/dev-agent",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/agentic-code-start/SKILL.md",
+      "computedHash": "d656a52508cec948b610fe85973610f9cf09b725f4400765516273f3a3b7309d"
+    },
+    "alignment-protocol": {
+      "source": "sinhaaritro/dev-agent",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/alignment-protocol/SKILL.md",
+      "computedHash": "ed992627767a28c9551145beacf7f8efa820e44d9b50ef7bb2f28d7e2cb6e4cd"
+    },
+    "behavioral-modes": {
+      "source": "sinhaaritro/dev-agent",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/behavioral-modes/SKILL.md",
+      "computedHash": "5f9d868702444791ce7e3acc1a35b1faf206f4b461b3feef4a7918b55294e782"
+    },
+    "caveman": {
+      "source": "JuliusBrussee/skills",
+      "sourceType": "github",
+      "skillPath": "skills/caveman/SKILL.md",
+      "computedHash": "b0e7741886c0c32270cedc1a2fc21c2879d90964d3ce00f24952de7064613404"
+    },
+    "collaborative-memory": {
+      "source": "sinhaaritro/dev-agent",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/collaborative-memory/SKILL.md",
+      "computedHash": "a2c2d8a7cbd9798c162414a79f6b017eb8caaf6b18b521acbc0fac45dc92f5e2"
+    },
+    "git-worktree": {
+      "source": "sinhaaritro/dev-agent",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/git-worktree/SKILL.md",
+      "computedHash": "84104bb8891fc95ea4df4f8572fc41ad8fedcaa95bdd1626f4116ba48f398232"
+    },
+    "map-generator": {
+      "source": "sinhaaritro/dev-agent",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/map-generator/SKILL.md",
+      "computedHash": "335fbd232a4b6a94e3c5a05773ffd540eef77c21a361a28b3c0f9052437a8551"
+    },
+    "task-planner": {
+      "source": "sinhaaritro/dev-agent",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/task-planner/SKILL.md",
+      "computedHash": "3970b3e46e4719b4449884a45ca06b5ce43c210c51626979bc79e59883c044be"
+    },
+    "workflow-protocol": {
+      "source": "sinhaaritro/dev-agent",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/workflow-protocol/SKILL.md",
+      "computedHash": "56a95ec4b10a0e8c0da0e6cc48cd86617455c9c4bdb8e83408bed54a1e7c3d1d"
+    }
+  }
+}
