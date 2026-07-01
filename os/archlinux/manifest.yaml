@@ -153,9 +153,9 @@ phases:
         name: "Wi-Fi & Bluetooth"
         file: "phase-2-system-hardening/networking.md"
         required: optional
-        packages: [iwd, impala, bluez, bluez-utils, bluetui]
-        prerequisites: [first-reboot]
-        description: "iwd Wi-Fi backend, bluetui TUI, NetworkManager integration"
+        packages: [bluez, bluez-utils, bluetui] # wlctl-bin is installed via AUR
+        prerequisites: [first-reboot, aur]
+        description: "wlctl Wi-Fi/Ethernet TUI, bluetui Bluetooth TUI, NetworkManager integration"
 
       - id: clock-sync
         name: "Clock Sync (Dual-Boot)"

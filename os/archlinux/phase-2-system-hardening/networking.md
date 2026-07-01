@@ -1,58 +1,52 @@
-# Wi-Fi & Bluetooth
+# Wi-Fi, Ethernet & Bluetooth
 
 > **Phase**: 2 — System Hardening
-> **Prerequisites**: [First Reboot](../phase-1-base-system/08-first-reboot.md)
-> **Packages**: `iwd impala bluez bluez-utils bluetui`
+> **Prerequisites**: [AUR Helper (yay)](./aur-helper.md)
+> **Packages**: `bluez bluez-utils bluetui` (and `wlctl-bin` via AUR)
 
 ---
 
 ## Overview
 
-Configure Wi-Fi via `iwd` (backend for NetworkManager) and Bluetooth via `bluez` with a TUI interface.
+Configure networking (Wi-Fi, Ethernet, VPN) using **wlctl** (a terminal user interface that directly manages NetworkManager) and Bluetooth using **bluez** with the **bluetui** TUI.
 
-## Wi-Fi
+Using `wlctl` eliminates the need to configure `iwd` or rewrite NetworkManager backends, preserving stability and default system configs.
 
-### Step 1: Install Packages
+---
 
-```bash
-sudo pacman -S iwd impala
-```
+## Wi-Fi, Ethernet & VPN (wlctl)
 
-### Step 2: Configure iwd as NetworkManager Backend
+### Step 1: Install wlctl
 
-Create the configuration file:
-```bash
-sudo nvim /etc/NetworkManager/conf.d/wifi_backend.conf
-```
-
-Add:
-```ini
-[device]
-wifi.backend=iwd
-```
-
-Restart NetworkManager:
-```bash
-sudo systemctl restart NetworkManager
-```
-
-### Step 3: Connect via iwctl
+Since `wlctl` is in the Arch User Repository, install it using `yay`:
 
 ```bash
-iwctl
+yay -S wlctl-bin
 ```
 
-Inside the interactive prompt:
-```
-device list
-device DEVICE_NAME set-property Powered on
-station DEVICE_NAME scan
-station DEVICE_NAME get-networks
-station DEVICE_NAME connect SSID
+### Step 2: Manage Connections
+
+Launch the interactive TUI:
+
+```bash
+wlctl
 ```
 
-> [!TIP]
-> `impala` provides a TUI for Wi-Fi management as an alternative to `iwctl`.
+#### Keybindings & Controls
+
+- **Arrow keys** or **j/k** to navigate connections.
+- **Enter** to connect/disconnect.
+- **Tab** to switch between adapters or panels.
+- **v** to view detailed properties.
+- **q** to quit.
+
+#### Diagnostics
+
+Run the built-in diagnostic doctor to verify hardware, rfkill, driver, and IP status:
+
+```bash
+wlctl doctor
+```
 
 ---
 
@@ -99,7 +93,8 @@ power off
 ## Verification
 
 ```bash
-# Wi-Fi
+# Wi-Fi & Ethernet
+wlctl doctor
 nmcli device status
 
 # Bluetooth

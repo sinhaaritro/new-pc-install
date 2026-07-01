@@ -30,7 +30,7 @@
 | Btrfs Snapshots & Recovery | `snapper`, `snap-pac`, `grub-btrfs`, `btrfs-assistant`, `rsync` | ⚡ Recommended |
 | AUR Helper (yay) | — | ⚡ Recommended |
 | Sound (PipeWire) | `pipewire`, `wireplumber`, `pipewire-alsa`, `pipewire-pulse`, `pipewire-jack`, `helvum` | ⚡ Recommended |
-| Wi-Fi & Bluetooth | `iwd`, `impala`, `bluez`, `bluez-utils`, `bluetui` | 💡 Optional |
+| Wi-Fi & Bluetooth | `bluez`, `bluez-utils`, `bluetui` | 💡 Optional |
 | Clock Sync (Dual-Boot) | — | 💡 Optional |
 | Firewall | `ufw` | 💡 Optional |
 | External Drives & NTFS | `ntfs-3g`, `udisks2`, `udiskie` | 💡 Optional |
@@ -92,9 +92,9 @@
 
 ---
 
-**Total unique packages:** 75
+**Total unique packages:** 73
 
 **Full list (alphabetical):**
 ```
-amd-ucode base base-devel bluetui bluez bluez-utils btrfs-assistant btrfs-progs clipse dosfstools efibootmgr fzf git greetd greetd-tuigreet grim grub grub-btrfs helvum hypridle hyprland hyprlock impala iwd kitty lib32-nvidia-utils linux linux-firmware linux-headers mangohud mpv mtools nano neovim networkmanager noto-fonts noto-fonts-emoji ntfs-3g nvidia-container-toolkit nvidia-open nvidia-settings nvidia-utils obs-studio openssh os-prober pipewire pipewire-alsa pipewire-jack pipewire-pulse podman qt5-wayland qt6-wayland rofi-wayland rsync slurp snap-pac snapper steam stow swappy swaync swww thunar ttf-jetbrains-mono-nerd udiskie udisks2 ufw waybar wayland wireplumber wl-clipboard xdg-desktop-portal-hyprland yazi zoxide zsh
+amd-ucode base base-devel bluetui bluez bluez-utils btrfs-assistant btrfs-progs clipse dosfstools efibootmgr fzf git greetd greetd-tuigreet grim grub grub-btrfs helvum hypridle hyprland hyprlock kitty lib32-nvidia-utils linux linux-firmware linux-headers mangohud mpv mtools nano neovim networkmanager noto-fonts noto-fonts-emoji ntfs-3g nvidia-container-toolkit nvidia-open nvidia-settings nvidia-utils obs-studio openssh os-prober pipewire pipewire-alsa pipewire-jack pipewire-pulse podman qt5-wayland qt6-wayland rofi-wayland rsync slurp snap-pac snapper steam stow swappy swaync swww thunar ttf-jetbrains-mono-nerd udiskie udisks2 ufw waybar wayland wireplumber wl-clipboard xdg-desktop-portal-hyprland yazi zoxide zsh
 ```

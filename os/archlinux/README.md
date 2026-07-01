@@ -22,101 +22,131 @@ A modular, phased installation guide for Arch Linux with Hyprland. Each phase pr
 
 ```mermaid
 flowchart TD
-    subgraph phase_0["📋 Phase 0: Pre-Install"]
-        overview(["Overview"])
+
+    subgraph phase_0["📋 Phase: Pre-Install"]
+        overview(["System Overview"])
         pre_flight(["Pre-Flight Checklist"])
-        overview --> pre_flight
     end
 
-    subgraph phase_1["🖥️ Phase 1: Base System"]
+    subgraph phase_1["🖥️ Phase: Base System"]
         verify_boot(["Verify Boot & Network"])
         partitioning(["Partitioning"])
-        filesystems(["Filesystems & Btrfs"])
-        install_base(["Install Base"])
-        system_config(["System Config"])
+        filesystems(["Filesystems & Btrfs Subvolumes"])
+        install_base(["Install Base Packages"])
+        system_config(["System Configuration"])
         users_sudo(["Users & Sudo"])
-        bootloader(["Bootloader GRUB"])
+        bootloader(["Bootloader (GRUB)"])
         first_reboot(["First Reboot"])
-
-        verify_boot --> partitioning --> filesystems --> install_base
-        install_base --> system_config --> users_sudo --> bootloader --> first_reboot
     end
 
-    subgraph phase_2["🛡️ Phase 2: System Hardening"]
+    subgraph phase_2["🛡️ Phase: System Hardening"]
         nvidia(["NVIDIA Drivers"])
-        snapshots(["Btrfs Snapshots"])
-        aur(["AUR Helper"])
-        sound(["Sound PipeWire"])
+        snapshots(["Btrfs Snapshots & Recovery"])
+        aur(["AUR Helper (yay)"])
+        sound(["Sound (PipeWire)"])
         networking{{"Wi-Fi & Bluetooth"}}
-        clock_sync{{"Clock Sync"}}
+        clock_sync{{"Clock Sync (Dual-Boot)"}}
         firewall{{"Firewall"}}
-        ext_drives{{"External Drives"}}
-        ssh_mod(["SSH & Git"])
+        external_drives{{"External Drives & NTFS"}}
+        ssh(["SSH & Git"])
     end
 
-    subgraph phase_3["🪟 Phase 3: Desktop"]
-        subgraph hyprland["Hyprland"]
-            hypr_install(["Install"])
-            hypr_config(["Core Config"])
-            hypr_lock(["Lock & Idle"])
-            hypr_wall{{"Wallpaper"}}
-            hypr_share(["Screen Sharing"])
-            hypr_install --> hypr_config
-            hypr_config --> hypr_lock
-            hypr_config --> hypr_wall
-        end
-        shell(["Shell & Terminal"])
-        launcher(["App Launcher"])
-        bar(["Status Bar"])
-        notif(["Notifications"])
-        dm{{"Display Manager"}}
-        clip(["Clipboard"])
-        shots{{"Screenshots"}}
-        filemgr(["File Manager"])
-        fonts_mod(["Fonts"])
+    subgraph phase_3["🪟 Phase: Desktop"]
+        hyprland_install(["Install Hyprland"])
+        hyprland_config(["Hyprland Core Config"])
+        hyprland_lock(["Lock & Idle"])
+        hyprland_wallpaper{{"Wallpaper"}}
+        hyprland_screenshare(["Screen Sharing"])
+        shell_terminal(["Shell & Terminal"])
+        app_launcher(["App Launcher"])
+        status_bar(["Status Bar"])
+        notifications(["Notifications"])
+        display_manager{{"Display Manager"}}
+        clipboard(["Clipboard"])
+        screenshots{{"Screenshots"}}
+        file_manager(["File Manager"])
+        fonts(["Fonts"])
     end
 
-    subgraph phase_4["🚀 Phase 4: Workflow"]
-        subgraph profile_dev["🛠️ Developer"]
-            neovim_mod(["NeoVim"])
-            containers{{"Containers"}}
-            devpod_mod{{"DevPod"}}
-            local_ai{{"Local AI"}}
-            languages{{"Languages"}}
-            api_test{{"API Testing"}}
-            containers --> devpod_mod
+    subgraph phase_4["🚀 Phase: Workflow"]
+        dotfiles(["Dotfiles Backup (GNU Stow)"])
+        subgraph profile_dev["Developer"]
+            neovim(["NeoVim"])
+            containers{{"Containers (Podman)"}}
+            devpod{{"DevPod"}}
+            local_ai{{"Local AI Models"}}
+            languages{{"Language Runtimes"}}
+            api_testing{{"API Testing"}}
         end
-        subgraph profile_gaming["🎮 Gaming"]
-            steam_mod(["Steam"])
-            proton_mod(["Proton"])
-            heroic{{"Heroic"}}
-            mangohud_mod{{"MangoHud"}}
-            controllers_mod{{"Controllers"}}
-            steam_mod --> proton_mod
+        subgraph profile_gaming["Gaming"]
+            steam(["Steam"])
+            proton(["Proton & ProtonGE"])
+            heroic{{"Heroic Launcher"}}
+            mangohud{{"MangoHud"}}
+            controllers{{"Controllers"}}
         end
-        subgraph profile_creative["🎨 Creative"]
-            obs_mod{{"OBS"}}
+        subgraph profile_creative["Creative"]
+            obs{{"OBS Studio"}}
             davinci{{"DaVinci Resolve"}}
-            media{{"Media Players"}}
+            media_players{{"Media Players"}}
         end
-        dotfiles(["Dotfiles Backup"])
     end
 
-    %% Cross-phase dependencies
+    %% Prerequisites
+    overview --> pre_flight
     pre_flight --> verify_boot
-    first_reboot --> nvidia & snapshots & aur & sound & networking & clock_sync & firewall & ext_drives & ssh_mod
-    nvidia --> hypr_install
-    hypr_config --> shell & launcher & bar & notif & dm & clip & shots & filemgr & fonts_mod
-    sound --> hypr_share
-    hypr_install --> neovim_mod
-    shell --> neovim_mod
-    nvidia --> local_ai & steam_mod & heroic & mangohud_mod & davinci
+    verify_boot --> partitioning
+    partitioning --> filesystems
+    filesystems --> install_base
+    install_base --> system_config
+    system_config --> users_sudo
+    users_sudo --> bootloader
+    bootloader --> first_reboot
+    first_reboot --> nvidia
+    first_reboot --> snapshots
+    first_reboot --> aur
+    first_reboot --> sound
+    first_reboot --> networking
+    aur --> networking
+    first_reboot --> clock_sync
+    first_reboot --> firewall
+    first_reboot --> external_drives
+    first_reboot --> ssh
+    nvidia --> hyprland_install
+    hyprland_install --> hyprland_config
+    hyprland_config --> hyprland_lock
+    hyprland_config --> hyprland_wallpaper
+    hyprland_config --> hyprland_screenshare
+    sound --> hyprland_screenshare
+    hyprland_install --> shell_terminal
+    hyprland_install --> app_launcher
+    hyprland_install --> status_bar
+    hyprland_install --> notifications
+    hyprland_install --> display_manager
+    hyprland_install --> clipboard
+    hyprland_install --> screenshots
+    hyprland_install --> file_manager
+    hyprland_install --> fonts
+    ssh --> dotfiles
+    hyprland_install --> neovim
+    shell_terminal --> neovim
+    first_reboot --> containers
+    containers --> devpod
     containers --> local_ai
-    sound --> obs_mod & media
-    hypr_share --> obs_mod
-    ssh_mod --> dotfiles
+    nvidia --> local_ai
+    first_reboot --> languages
+    first_reboot --> api_testing
+    nvidia --> steam
+    steam --> proton
+    nvidia --> heroic
+    nvidia --> mangohud
+    first_reboot --> controllers
+    hyprland_screenshare --> obs
+    sound --> obs
+    nvidia --> davinci
+    sound --> media_players
 
-    %% Phase styles
+    %% Phase Styles
     style phase_0 fill:#1a1a2e,stroke:#e94560,color:#fff
     style phase_1 fill:#16213e,stroke:#0f3460,color:#fff
     style phase_2 fill:#1a1a2e,stroke:#533483,color:#fff

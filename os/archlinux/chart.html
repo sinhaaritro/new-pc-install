@@ -133,7 +133,7 @@
 <body>
     <div class="header">
         <h1>Arch Linux Installation Guide — Dependency Map</h1>
-        <p>Interactive visualization of 48 modules across 5 phases &middot; 75 unique packages</p>
+        <p>Interactive visualization of 48 modules across 5 phases &middot; 73 unique packages</p>
     </div>
 
     <div class="stats-bar">
@@ -176,7 +176,7 @@
         <div class="stat-card">
             <h3>Total</h3>
             <div class="number">48</div>
-            <div class="detail">75 unique packages</div>
+            <div class="detail">73 unique packages</div>
         </div>
     </div>
 
@@ -274,6 +274,7 @@ flowchart TD
     first_reboot --> aur
     first_reboot --> sound
     first_reboot --> networking
+    aur --> networking
     first_reboot --> clock_sync
     first_reboot --> firewall
     first_reboot --> external_drives
