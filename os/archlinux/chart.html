@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arch Linux Guide — Dependency Map</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0d1117;
+            color: #e6edf3;
+            font-family: 'Segoe UI', Inter, -apple-system, sans-serif;
+            min-height: 100vh;
+        }
+        .header {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            padding: 2rem 3rem;
+            border-bottom: 1px solid #30363d;
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #e94560, #533483);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        .header p { color: #8b949e; font-size: 0.95rem; }
+        .stats-bar {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 3rem;
+            background: #161b22;
+            border-bottom: 1px solid #21262d;
+            overflow-x: auto;
+        }
+        .stat-card {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 0.8rem 1.2rem;
+            min-width: 180px;
+            flex-shrink: 0;
+        }
+        .stat-card h3 {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #8b949e;
+            margin-bottom: 0.3rem;
+        }
+        .stat-card .number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #e94560;
+        }
+        .stat-card .detail {
+            font-size: 0.7rem;
+            color: #6e7681;
+            margin-top: 0.2rem;
+        }
+        .legend {
+            display: flex;
+            gap: 1.5rem;
+            padding: 0.8rem 3rem;
+            background: #161b22;
+            border-bottom: 1px solid #21262d;
+            font-size: 0.8rem;
+            color: #8b949e;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .legend-shape {
+            width: 24px;
+            height: 16px;
+            border-radius: 8px;
+            border: 2px solid;
+        }
+        .legend-shape.required { border-color: #e94560; background: rgba(233,69,96,0.15); }
+        .legend-shape.recommended { border-color: #533483; background: rgba(83,52,131,0.15); }
+        .legend-shape.optional {
+            border-color: #6e7681;
+            background: rgba(110,118,129,0.1);
+            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+            border-radius: 0;
+        }
+        .chart-container {
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            overflow: auto;
+            min-height: 60vh;
+        }
+        .mermaid {
+            max-width: 100%;
+        }
+        .mermaid svg {
+            max-width: none !important;
+        }
+        .controls {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 100;
+        }
+        .controls button {
+            background: #21262d;
+            border: 1px solid #30363d;
+            color: #e6edf3;
+            padding: 0.5rem 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.2s;
+        }
+        .controls button:hover { background: #30363d; }
+        .footer {
+            padding: 1rem 3rem;
+            border-top: 1px solid #21262d;
+            color: #6e7681;
+            font-size: 0.75rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Arch Linux Installation Guide — Dependency Map</h1>
+        <p>Interactive visualization of 48 modules across 5 phases &middot; 75 unique packages</p>
+    </div>
+
+    <div class="stats-bar">
+
+        <div class="stat-card">
+            <h3>Pre-Install</h3>
+            <div class="number">2</div>
+            <div class="detail">2 required &middot; 0 recommended &middot; 0 optional</div>
+            <div class="detail" style="color:#8b949e;margin-top:4px">Ready to install Arch Linux</div>
+        </div>
+
+        <div class="stat-card">
+            <h3>Base System</h3>
+            <div class="number">8</div>
+            <div class="detail">8 required &middot; 0 recommended &middot; 0 optional</div>
+            <div class="detail" style="color:#8b949e;margin-top:4px">Bootable CLI-only Arch Linux (TTY)</div>
+        </div>
+
+        <div class="stat-card">
+            <h3>System Hardening</h3>
+            <div class="number">9</div>
+            <div class="detail">0 required &middot; 5 recommended &middot; 4 optional</div>
+            <div class="detail" style="color:#8b949e;margin-top:4px">Stable system with drivers, snapshots, audio, and security</div>
+        </div>
+
+        <div class="stat-card">
+            <h3>Desktop</h3>
+            <div class="number">14</div>
+            <div class="detail">2 required &middot; 9 recommended &middot; 3 optional</div>
+            <div class="detail" style="color:#8b949e;margin-top:4px">Full graphical desktop environment with Hyprland</div>
+        </div>
+
+        <div class="stat-card">
+            <h3>Workflow</h3>
+            <div class="number">15</div>
+            <div class="detail">0 required &middot; 4 recommended &middot; 11 optional</div>
+            <div class="detail" style="color:#8b949e;margin-top:4px">Productive daily driver (pick your profile)</div>
+        </div>
+
+        <div class="stat-card">
+            <h3>Total</h3>
+            <div class="number">48</div>
+            <div class="detail">75 unique packages</div>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item"><div class="legend-shape required"></div> Required</div>
+        <div class="legend-item"><div class="legend-shape recommended"></div> Recommended</div>
+        <div class="legend-item"><div class="legend-shape optional"></div> Optional</div>
+    </div>
+
+    <div class="chart-container">
+        <pre class="mermaid">
+flowchart TD
+
+    subgraph phase_0["📋 Phase: Pre-Install"]
+        overview(["System Overview"])
+        pre_flight(["Pre-Flight Checklist"])
+    end
+
+    subgraph phase_1["🖥️ Phase: Base System"]
+        verify_boot(["Verify Boot & Network"])
+        partitioning(["Partitioning"])
+        filesystems(["Filesystems & Btrfs Subvolumes"])
+        install_base(["Install Base Packages"])
+        system_config(["System Configuration"])
+        users_sudo(["Users & Sudo"])
+        bootloader(["Bootloader (GRUB)"])
+        first_reboot(["First Reboot"])
+    end
+
+    subgraph phase_2["🛡️ Phase: System Hardening"]
+        nvidia(["NVIDIA Drivers"])
+        snapshots(["Btrfs Snapshots & Recovery"])
+        aur(["AUR Helper (yay)"])
+        sound(["Sound (PipeWire)"])
+        networking{{"Wi-Fi & Bluetooth"}}
+        clock_sync{{"Clock Sync (Dual-Boot)"}}
+        firewall{{"Firewall"}}
+        external_drives{{"External Drives & NTFS"}}
+        ssh(["SSH & Git"])
+    end
+
+    subgraph phase_3["🪟 Phase: Desktop"]
+        hyprland_install(["Install Hyprland"])
+        hyprland_config(["Hyprland Core Config"])
+        hyprland_lock(["Lock & Idle"])
+        hyprland_wallpaper{{"Wallpaper"}}
+        hyprland_screenshare(["Screen Sharing"])
+        shell_terminal(["Shell & Terminal"])
+        app_launcher(["App Launcher"])
+        status_bar(["Status Bar"])
+        notifications(["Notifications"])
+        display_manager{{"Display Manager"}}
+        clipboard(["Clipboard"])
+        screenshots{{"Screenshots"}}
+        file_manager(["File Manager"])
+        fonts(["Fonts"])
+    end
+
+    subgraph phase_4["🚀 Phase: Workflow"]
+        dotfiles(["Dotfiles Backup (GNU Stow)"])
+        subgraph profile_dev["Developer"]
+            neovim(["NeoVim"])
+            containers{{"Containers (Podman)"}}
+            devpod{{"DevPod"}}
+            local_ai{{"Local AI Models"}}
+            languages{{"Language Runtimes"}}
+            api_testing{{"API Testing"}}
+        end
+        subgraph profile_gaming["Gaming"]
+            steam(["Steam"])
+            proton(["Proton & ProtonGE"])
+            heroic{{"Heroic Launcher"}}
+            mangohud{{"MangoHud"}}
+            controllers{{"Controllers"}}
+        end
+        subgraph profile_creative["Creative"]
+            obs{{"OBS Studio"}}
+            davinci{{"DaVinci Resolve"}}
+            media_players{{"Media Players"}}
+        end
+    end
+
+    %% Prerequisites
+    overview --> pre_flight
+    pre_flight --> verify_boot
+    verify_boot --> partitioning
+    partitioning --> filesystems
+    filesystems --> install_base
+    install_base --> system_config
+    system_config --> users_sudo
+    users_sudo --> bootloader
+    bootloader --> first_reboot
+    first_reboot --> nvidia
+    first_reboot --> snapshots
+    first_reboot --> aur
+    first_reboot --> sound
+    first_reboot --> networking
+    first_reboot --> clock_sync
+    first_reboot --> firewall
+    first_reboot --> external_drives
+    first_reboot --> ssh
+    nvidia --> hyprland_install
+    hyprland_install --> hyprland_config
+    hyprland_config --> hyprland_lock
+    hyprland_config --> hyprland_wallpaper
+    hyprland_config --> hyprland_screenshare
+    sound --> hyprland_screenshare
+    hyprland_install --> shell_terminal
+    hyprland_install --> app_launcher
+    hyprland_install --> status_bar
+    hyprland_install --> notifications
+    hyprland_install --> display_manager
+    hyprland_install --> clipboard
+    hyprland_install --> screenshots
+    hyprland_install --> file_manager
+    hyprland_install --> fonts
+    ssh --> dotfiles
+    hyprland_install --> neovim
+    shell_terminal --> neovim
+    first_reboot --> containers
+    containers --> devpod
+    containers --> local_ai
+    nvidia --> local_ai
+    first_reboot --> languages
+    first_reboot --> api_testing
+    nvidia --> steam
+    steam --> proton
+    nvidia --> heroic
+    nvidia --> mangohud
+    first_reboot --> controllers
+    hyprland_screenshare --> obs
+    sound --> obs
+    nvidia --> davinci
+    sound --> media_players
+
+    %% Phase Styles
+    style phase_0 fill:#1a1a2e,stroke:#e94560,color:#fff
+    style phase_1 fill:#16213e,stroke:#0f3460,color:#fff
+    style phase_2 fill:#1a1a2e,stroke:#533483,color:#fff
+    style phase_3 fill:#0f3460,stroke:#e94560,color:#fff
+    style phase_4 fill:#533483,stroke:#e94560,color:#fff
+
+    %% Interactive click links
+    click overview "phase-0-pre-install/overview.md" "Open System Overview module"
+    click pre_flight "phase-0-pre-install/pre-flight-checklist.md" "Open Pre-Flight Checklist module"
+    click verify_boot "phase-1-base-system/01-verify-boot-and-network.md" "Open Verify Boot & Network module"
+    click partitioning "phase-1-base-system/02-partitioning.md" "Open Partitioning module"
+    click filesystems "phase-1-base-system/03-filesystems-and-btrfs.md" "Open Filesystems & Btrfs Subvolumes module"
+    click install_base "phase-1-base-system/04-install-base.md" "Open Install Base Packages module"
+    click system_config "phase-1-base-system/05-system-config.md" "Open System Configuration module"
+    click users_sudo "phase-1-base-system/06-users-and-sudo.md" "Open Users & Sudo module"
+    click bootloader "phase-1-base-system/07-bootloader-grub.md" "Open Bootloader (GRUB) module"
+    click first_reboot "phase-1-base-system/08-first-reboot.md" "Open First Reboot module"
+    click nvidia "phase-2-system-hardening/nvidia-drivers.md" "Open NVIDIA Drivers module"
+    click snapshots "phase-2-system-hardening/btrfs-snapshots.md" "Open Btrfs Snapshots & Recovery module"
+    click aur "phase-2-system-hardening/aur-helper.md" "Open AUR Helper (yay) module"
+    click sound "phase-2-system-hardening/sound-pipewire.md" "Open Sound (PipeWire) module"
+    click networking "phase-2-system-hardening/networking.md" "Open Wi-Fi & Bluetooth module"
+    click clock_sync "phase-2-system-hardening/clock-sync.md" "Open Clock Sync (Dual-Boot) module"
+    click firewall "phase-2-system-hardening/firewall.md" "Open Firewall module"
+    click external_drives "phase-2-system-hardening/external-drives.md" "Open External Drives & NTFS module"
+    click ssh "phase-2-system-hardening/ssh.md" "Open SSH & Git module"
+    click hyprland_install "phase-3-desktop/hyprland/01-install.md" "Open Install Hyprland module"
+    click hyprland_config "phase-3-desktop/hyprland/02-core-config.md" "Open Hyprland Core Config module"
+    click hyprland_lock "phase-3-desktop/hyprland/03-lock-idle.md" "Open Lock & Idle module"
+    click hyprland_wallpaper "phase-3-desktop/hyprland/04-wallpaper.md" "Open Wallpaper module"
+    click hyprland_screenshare "phase-3-desktop/hyprland/05-screen-sharing.md" "Open Screen Sharing module"
+    click shell_terminal "phase-3-desktop/shell-and-terminal.md" "Open Shell & Terminal module"
+    click app_launcher "phase-3-desktop/app-launcher.md" "Open App Launcher module"
+    click status_bar "phase-3-desktop/status-bar.md" "Open Status Bar module"
+    click notifications "phase-3-desktop/notifications.md" "Open Notifications module"
+    click display_manager "phase-3-desktop/display-manager.md" "Open Display Manager module"
+    click clipboard "phase-3-desktop/clipboard.md" "Open Clipboard module"
+    click screenshots "phase-3-desktop/screenshots.md" "Open Screenshots module"
+    click file_manager "phase-3-desktop/file-manager.md" "Open File Manager module"
+    click fonts "phase-3-desktop/fonts.md" "Open Fonts module"
+    click dotfiles "phase-4-workflow/dotfiles-backup.md" "Open Dotfiles Backup (GNU Stow) module"
+    click neovim "phase-4-workflow/profile-dev/neovim.md" "Open NeoVim module"
+    click containers "phase-4-workflow/profile-dev/containers.md" "Open Containers (Podman) module"
+    click devpod "phase-4-workflow/profile-dev/devpod.md" "Open DevPod module"
+    click local_ai "phase-4-workflow/profile-dev/local-ai.md" "Open Local AI Models module"
+    click languages "phase-4-workflow/profile-dev/languages.md" "Open Language Runtimes module"
+    click api_testing "phase-4-workflow/profile-dev/api-testing.md" "Open API Testing module"
+    click steam "phase-4-workflow/profile-gaming/steam.md" "Open Steam module"
+    click proton "phase-4-workflow/profile-gaming/proton.md" "Open Proton & ProtonGE module"
+    click heroic "phase-4-workflow/profile-gaming/heroic.md" "Open Heroic Launcher module"
+    click mangohud "phase-4-workflow/profile-gaming/mangohud.md" "Open MangoHud module"
+    click controllers "phase-4-workflow/profile-gaming/controllers.md" "Open Controllers module"
+    click obs "phase-4-workflow/profile-creative/obs.md" "Open OBS Studio module"
+    click davinci "phase-4-workflow/profile-creative/davinci-resolve.md" "Open DaVinci Resolve module"
+    click media_players "phase-4-workflow/profile-creative/media-players.md" "Open Media Players module"
+        </pre>
+    </div>
+
+    <div class="controls">
+        <button onclick="resetZoom()">Reset View</button>
+        <button onclick="toggleFullscreen()">Fullscreen</button>
+    </div>
+
+    <div class="footer">
+        Generated from <code>manifest.yaml</code> by <code>generate-chart.py --html</code>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            themeVariables: {
+                primaryColor: '#1a1a2e',
+                primaryTextColor: '#e6edf3',
+                primaryBorderColor: '#e94560',
+                lineColor: '#6e7681',
+                secondaryColor: '#16213e',
+                tertiaryColor: '#0f3460',
+                fontSize: '14px',
+            },
+            flowchart: {
+                curve: 'basis',
+                padding: 20,
+                htmlLabels: true,
+                useMaxWidth: false,
+            },
+        });
+
+        function resetZoom() {
+            const container = document.querySelector('.chart-container');
+            container.scrollTo(0, 0);
+        }
+
+        function toggleFullscreen() {
+            const el = document.querySelector('.chart-container');
+            if (!document.fullscreenElement) {
+                el.requestFullscreen().catch(() => {});
+            } else {
+                document.exitFullscreen();
+            }
+        }
+    </script>
+</body>
+</html>

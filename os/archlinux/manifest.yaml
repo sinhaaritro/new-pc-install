@@ -1,0 +1,461 @@
+# Arch Linux Installation Guide — Module Manifest
+# This is the single source of truth for phases, modules, prerequisites, and packages.
+# Used by: scripts/generate-chart.py, routing README.md files, reference/package-list.md
+
+meta:
+  distro: archlinux
+  name: "Arch Linux Installation Guide"
+  description: "Modular, phased installation guide with milestone checkpoints"
+  package_manager: pacman
+  aur_helper: yay
+
+# =============================================================================
+# PHASE 0: Pre-Install
+# =============================================================================
+phases:
+  - id: phase-0
+    name: "Pre-Install"
+    milestone: "Ready to install Arch Linux"
+    modules:
+      - id: overview
+        name: "System Overview"
+        file: "phase-0-pre-install/overview.md"
+        required: true
+        packages: []
+        prerequisites: []
+        description: "Linux stack choices, tool decisions, and system architecture overview"
+
+      - id: pre-flight
+        name: "Pre-Flight Checklist"
+        file: "phase-0-pre-install/pre-flight-checklist.md"
+        required: true
+        packages: []
+        prerequisites: [overview]
+        description: "BIOS settings, Secure Boot, Fast Startup, USB preparation"
+
+  # ===========================================================================
+  # PHASE 1: Base System
+  # ===========================================================================
+  - id: phase-1
+    name: "Base System"
+    milestone: "Bootable CLI-only Arch Linux (TTY)"
+    modules:
+      - id: verify-boot
+        name: "Verify Boot & Network"
+        file: "phase-1-base-system/01-verify-boot-and-network.md"
+        required: true
+        packages: []
+        prerequisites: [pre-flight]
+        description: "UEFI verification, internet connection, clock sync"
+
+      - id: partitioning
+        name: "Partitioning"
+        file: "phase-1-base-system/02-partitioning.md"
+        required: true
+        packages: []
+        prerequisites: [verify-boot]
+        description: "gdisk partitioning with EFI, optional swap, and root"
+        options:
+          swap:
+            description: "Swap partition (RAM-size recommended, may skip on 64GB+)"
+            default: recommended
+
+      - id: filesystems
+        name: "Filesystems & Btrfs Subvolumes"
+        file: "phase-1-base-system/03-filesystems-and-btrfs.md"
+        required: true
+        packages: [btrfs-progs]
+        prerequisites: [partitioning]
+        description: "Format partitions, create flat Btrfs subvolume layout, mount with optimal options"
+
+      - id: install-base
+        name: "Install Base Packages"
+        file: "phase-1-base-system/04-install-base.md"
+        required: true
+        packages: [base, base-devel, linux, linux-headers, linux-firmware, amd-ucode, btrfs-progs, nano, git]
+        prerequisites: [filesystems]
+        description: "pacstrap base system with AMD microcode and essentials"
+
+      - id: system-config
+        name: "System Configuration"
+        file: "phase-1-base-system/05-system-config.md"
+        required: true
+        packages: [networkmanager]
+        prerequisites: [install-base]
+        description: "fstab, chroot, timezone, locale, hostname, NetworkManager"
+
+      - id: users-sudo
+        name: "Users & Sudo"
+        file: "phase-1-base-system/06-users-and-sudo.md"
+        required: true
+        packages: []
+        prerequisites: [system-config]
+        description: "Create user account, set passwords, configure sudo via visudo"
+
+      - id: bootloader
+        name: "Bootloader (GRUB)"
+        file: "phase-1-base-system/07-bootloader-grub.md"
+        required: true
+        packages: [grub, efibootmgr, os-prober, mtools, dosfstools]
+        prerequisites: [users-sudo]
+        description: "Install GRUB, configure os-prober for dual-boot Windows detection"
+
+      - id: first-reboot
+        name: "First Reboot"
+        file: "phase-1-base-system/08-first-reboot.md"
+        required: true
+        packages: []
+        prerequisites: [bootloader]
+        description: "Exit chroot, unmount, reboot, verify GRUB menu"
+
+  # ===========================================================================
+  # PHASE 2: System Hardening
+  # ===========================================================================
+  - id: phase-2
+    name: "System Hardening"
+    milestone: "Stable system with drivers, snapshots, audio, and security"
+    modules:
+      - id: nvidia
+        name: "NVIDIA Drivers"
+        file: "phase-2-system-hardening/nvidia-drivers.md"
+        required: recommended
+        packages: [nvidia-open, nvidia-utils, lib32-nvidia-utils, nvidia-settings]
+        prerequisites: [first-reboot]
+        tags: [gpu, nvidia]
+        description: "nvidia-open driver, KMS, mkinitcpio modules, pacman hook"
+
+      - id: snapshots
+        name: "Btrfs Snapshots & Recovery"
+        file: "phase-2-system-hardening/btrfs-snapshots.md"
+        required: recommended
+        packages: [snapper, snap-pac, grub-btrfs, btrfs-assistant, rsync]
+        prerequisites: [first-reboot]
+        tags: [backup, btrfs]
+        description: "Snapper config, snap-pac for auto pre/post snapshots, grub-btrfs for boot menu, boot backup hook"
+
+      - id: aur
+        name: "AUR Helper (yay)"
+        file: "phase-2-system-hardening/aur-helper.md"
+        required: recommended
+        packages: [] # yay is built from AUR itself
+        prerequisites: [first-reboot]
+        description: "Install yay, manual AUR build process, package management"
+
+      - id: sound
+        name: "Sound (PipeWire)"
+        file: "phase-2-system-hardening/sound-pipewire.md"
+        required: recommended
+        packages: [pipewire, wireplumber, pipewire-alsa, pipewire-pulse, pipewire-jack, helvum]
+        prerequisites: [first-reboot]
+        description: "PipeWire audio stack, WirePlumber session manager, playerctl"
+
+      - id: networking
+        name: "Wi-Fi & Bluetooth"
+        file: "phase-2-system-hardening/networking.md"
+        required: optional
+        packages: [iwd, impala, bluez, bluez-utils, bluetui]
+        prerequisites: [first-reboot]
+        description: "iwd Wi-Fi backend, bluetui TUI, NetworkManager integration"
+
+      - id: clock-sync
+        name: "Clock Sync (Dual-Boot)"
+        file: "phase-2-system-hardening/clock-sync.md"
+        required: optional
+        packages: []
+        prerequisites: [first-reboot]
+        tags: [dual-boot]
+        description: "Fix UTC/localtime conflict between Linux and Windows"
+
+      - id: firewall
+        name: "Firewall"
+        file: "phase-2-system-hardening/firewall.md"
+        required: optional
+        packages: [ufw]
+        prerequisites: [first-reboot]
+        description: "ufw firewall setup and basic rules"
+
+      - id: external-drives
+        name: "External Drives & NTFS"
+        file: "phase-2-system-hardening/external-drives.md"
+        required: optional
+        packages: [ntfs-3g, udisks2, udiskie]
+        prerequisites: [first-reboot]
+        description: "NTFS support, fstab mapping, auto-mount with udiskie"
+
+      - id: ssh
+        name: "SSH & Git"
+        file: "phase-2-system-hardening/ssh.md"
+        required: recommended
+        packages: [openssh]
+        prerequisites: [first-reboot]
+        description: "SSH key generation, agent setup, GitHub config, multi-key, git signing"
+
+  # ===========================================================================
+  # PHASE 3: Desktop
+  # ===========================================================================
+  - id: phase-3
+    name: "Desktop"
+    milestone: "Full graphical desktop environment with Hyprland"
+    modules:
+      # --- Hyprland (Window Manager) ---
+      - id: hyprland-install
+        name: "Install Hyprland"
+        file: "phase-3-desktop/hyprland/01-install.md"
+        required: true
+        packages: [hyprland, wayland, xdg-desktop-portal-hyprland, kitty, qt5-wayland, qt6-wayland]
+        prerequisites: [nvidia]
+        tags: [wm, hyprland]
+        description: "Install Wayland, Hyprland, Kitty terminal, first launch from TTY"
+
+      - id: hyprland-config
+        name: "Hyprland Core Config"
+        file: "phase-3-desktop/hyprland/02-core-config.md"
+        required: true
+        packages: []
+        prerequisites: [hyprland-install]
+        tags: [wm, hyprland]
+        description: "Keybinds, monitors, window rules, input config, workspaces"
+
+      - id: hyprland-lock
+        name: "Lock & Idle"
+        file: "phase-3-desktop/hyprland/03-lock-idle.md"
+        required: recommended
+        packages: [hyprlock, hypridle]
+        prerequisites: [hyprland-config]
+        tags: [wm, hyprland]
+        description: "hyprlock screen lock, hypridle timeout management"
+
+      - id: hyprland-wallpaper
+        name: "Wallpaper"
+        file: "phase-3-desktop/hyprland/04-wallpaper.md"
+        required: optional
+        packages: [swww]
+        prerequisites: [hyprland-config]
+        tags: [wm, hyprland]
+        description: "swww animated wallpaper daemon"
+
+      - id: hyprland-screenshare
+        name: "Screen Sharing"
+        file: "phase-3-desktop/hyprland/05-screen-sharing.md"
+        required: recommended
+        packages: [xdg-desktop-portal-hyprland]
+        prerequisites: [hyprland-config, sound]
+        tags: [wm, hyprland]
+        description: "xdg-desktop-portal for screen sharing in video calls"
+
+      # --- Shared Desktop Modules ---
+      - id: shell-terminal
+        name: "Shell & Terminal"
+        file: "phase-3-desktop/shell-and-terminal.md"
+        required: recommended
+        packages: [zsh, fzf, zoxide]
+        prerequisites: [hyprland-install]
+        description: "Kitty config, zsh + oh-my-zsh, fzf fuzzy finder, zoxide jump"
+
+      - id: app-launcher
+        name: "App Launcher"
+        file: "phase-3-desktop/app-launcher.md"
+        required: recommended
+        packages: [rofi-wayland]
+        prerequisites: [hyprland-install]
+        description: "rofi-wayland application launcher config"
+
+      - id: status-bar
+        name: "Status Bar"
+        file: "phase-3-desktop/status-bar.md"
+        required: recommended
+        packages: [waybar]
+        prerequisites: [hyprland-install]
+        description: "waybar status bar with modules and custom CSS"
+
+      - id: notifications
+        name: "Notifications"
+        file: "phase-3-desktop/notifications.md"
+        required: recommended
+        packages: [swaync]
+        prerequisites: [hyprland-install]
+        description: "swaync notification center (Action Center equivalent)"
+
+      - id: display-manager
+        name: "Display Manager"
+        file: "phase-3-desktop/display-manager.md"
+        required: optional
+        packages: [greetd, greetd-tuigreet]
+        prerequisites: [hyprland-install]
+        description: "greetd + tuigreet login screen"
+
+      - id: clipboard
+        name: "Clipboard"
+        file: "phase-3-desktop/clipboard.md"
+        required: recommended
+        packages: [wl-clipboard, clipse]
+        prerequisites: [hyprland-install]
+        description: "wl-clipboard + clipse clipboard manager"
+
+      - id: screenshots
+        name: "Screenshots"
+        file: "phase-3-desktop/screenshots.md"
+        required: optional
+        packages: [grim, slurp, swappy]
+        prerequisites: [hyprland-install]
+        description: "grim + slurp screen capture, swappy annotation"
+
+      - id: file-manager
+        name: "File Manager"
+        file: "phase-3-desktop/file-manager.md"
+        required: recommended
+        packages: [yazi, thunar]
+        prerequisites: [hyprland-install]
+        description: "yazi TUI file manager + thunar GUI fallback"
+
+      - id: fonts
+        name: "Fonts"
+        file: "phase-3-desktop/fonts.md"
+        required: recommended
+        packages: [noto-fonts, noto-fonts-emoji, ttf-jetbrains-mono-nerd]
+        prerequisites: [hyprland-install]
+        description: "Nerd Fonts, Noto fonts, emoji support"
+
+  # ===========================================================================
+  # PHASE 4: Workflow Profiles
+  # ===========================================================================
+  - id: phase-4
+    name: "Workflow"
+    milestone: "Productive daily driver (pick your profile)"
+    profiles:
+      # --- Developer Profile ---
+      - id: profile-dev
+        name: "Developer"
+        description: "Development tools, containers, editors, language runtimes"
+        modules:
+          - id: neovim
+            name: "NeoVim"
+            file: "phase-4-workflow/profile-dev/neovim.md"
+            required: recommended
+            packages: [neovim]
+            prerequisites: [hyprland-install, shell-terminal]
+            description: "NeoVim setup with plugin manager, LSP, treesitter"
+
+          - id: containers
+            name: "Containers (Podman)"
+            file: "phase-4-workflow/profile-dev/containers.md"
+            required: optional
+            packages: [podman]
+            prerequisites: [first-reboot]
+            description: "Podman rootless containers, lazydocker integration"
+
+          - id: devpod
+            name: "DevPod"
+            file: "phase-4-workflow/profile-dev/devpod.md"
+            required: optional
+            packages: []
+            prerequisites: [containers]
+            description: "DevPod CLI dev environments with podman provider"
+
+          - id: local-ai
+            name: "Local AI Models"
+            file: "phase-4-workflow/profile-dev/local-ai.md"
+            required: optional
+            packages: [nvidia-container-toolkit]
+            prerequisites: [containers, nvidia]
+            description: "Ollama via podman, nvidia-container-toolkit, Open WebUI"
+
+          - id: languages
+            name: "Language Runtimes"
+            file: "phase-4-workflow/profile-dev/languages.md"
+            required: optional
+            packages: []
+            prerequisites: [first-reboot]
+            description: "Python/uv, Go, Node.js, Java, Rust runtimes"
+
+          - id: api-testing
+            name: "API Testing"
+            file: "phase-4-workflow/profile-dev/api-testing.md"
+            required: optional
+            packages: []
+            prerequisites: [first-reboot]
+            description: "posting TUI, curl, httpie"
+
+      # --- Gaming Profile ---
+      - id: profile-gaming
+        name: "Gaming"
+        description: "Steam, Proton, game launchers, overlays"
+        modules:
+          - id: steam
+            name: "Steam"
+            file: "phase-4-workflow/profile-gaming/steam.md"
+            required: recommended
+            packages: [steam]
+            prerequisites: [nvidia]
+            description: "Steam client with multilib, Proton runtime"
+
+          - id: proton
+            name: "Proton & ProtonGE"
+            file: "phase-4-workflow/profile-gaming/proton.md"
+            required: recommended
+            packages: []
+            prerequisites: [steam]
+            description: "Proton compatibility layer, ProtonGE custom builds"
+
+          - id: heroic
+            name: "Heroic Launcher"
+            file: "phase-4-workflow/profile-gaming/heroic.md"
+            required: optional
+            packages: []
+            prerequisites: [nvidia]
+            description: "Epic Games and GOG via Heroic launcher"
+
+          - id: mangohud
+            name: "MangoHud"
+            file: "phase-4-workflow/profile-gaming/mangohud.md"
+            required: optional
+            packages: [mangohud]
+            prerequisites: [nvidia]
+            description: "FPS overlay, frame timing, GPU/CPU monitoring"
+
+          - id: controllers
+            name: "Controllers"
+            file: "phase-4-workflow/profile-gaming/controllers.md"
+            required: optional
+            packages: []
+            prerequisites: [first-reboot]
+            description: "Xbox, PS4/PS5 controller support"
+
+      # --- Creative Profile ---
+      - id: profile-creative
+        name: "Creative"
+        description: "Media production, streaming, video editing"
+        modules:
+          - id: obs
+            name: "OBS Studio"
+            file: "phase-4-workflow/profile-creative/obs.md"
+            required: optional
+            packages: [obs-studio]
+            prerequisites: [hyprland-screenshare, sound]
+            description: "OBS with Wayland capture and PipeWire audio"
+
+          - id: davinci
+            name: "DaVinci Resolve"
+            file: "phase-4-workflow/profile-creative/davinci-resolve.md"
+            required: optional
+            packages: []
+            prerequisites: [nvidia]
+            description: "DaVinci Resolve video editor setup on Linux"
+
+          - id: media-players
+            name: "Media Players"
+            file: "phase-4-workflow/profile-creative/media-players.md"
+            required: optional
+            packages: [mpv]
+            prerequisites: [sound]
+            description: "mpv video player, ncmpcpp + mpd music"
+
+    # --- Shared Phase 4 Modules ---
+    modules:
+      - id: dotfiles
+        name: "Dotfiles Backup (GNU Stow)"
+        file: "phase-4-workflow/dotfiles-backup.md"
+        required: recommended
+        packages: [stow]
+        prerequisites: [ssh]
+        description: "GNU Stow dotfile management with git version control"
