@@ -56,22 +56,27 @@ sudo pacman -S nvidia-open nvidia-utils lib32-nvidia-utils nvidia-settings
 
 ### Step 3: Configure Kernel Parameters (GRUB)
 
-> [!NOTE]
-> If you followed [Phase 1: Bootloader](../phase-1-base-system/07-bootloader-grub.md), the NVIDIA kernel parameters were already added to GRUB. Verify they're present:
+To enable early Kernel Mode Setting (KMS) and improve framebuffer TTY support, add the NVIDIA parameters to your GRUB configuration:
 
-```bash
-grep nvidia_drm /etc/default/grub
-```
+1. Open `/etc/default/grub` in your editor:
+   ```bash
+   sudo nvim /etc/default/grub
+   ```
 
-The `GRUB_CMDLINE_LINUX_DEFAULT` line should contain:
-```text
-nvidia_drm.modeset=1 nvidia_drm.fbdev=1
-```
+2. Find the `GRUB_CMDLINE_LINUX_DEFAULT` line and append the parameters:
+   ```text
+   GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet nvidia_drm.modeset=1 nvidia_drm.fbdev=1"
+   ```
 
-If missing, edit `/etc/default/grub` and add them, then regenerate:
-```bash
-sudo grub-mkconfig -o /boot/grub/grub.cfg
-```
+3. Regenerate the GRUB configuration:
+   
+   > [!WARNING]
+   > Since your Windows installation is on a separate drive (the WD SSD), **you must temporarily mount the Windows EFI partition before running `grub-mkconfig`**. Refer to [Phase 1 Bootloader: Step 3](../phase-1-base-system/07-bootloader-grub.md#step-3-mount-windows-efi-partition-for-os-prober) for the exact mounting steps. If you do not mount it, `os-prober` will not detect Windows, and you will lose the Windows entry in your GRUB menu.
+
+   ```bash
+   # Mount the Windows EFI partition first (see Phase 1 Bootloader: Step 3), then run:
+   sudo grub-mkconfig -o /boot/grub/grub.cfg
+   ```
 
 ### Step 4: Early Loading of NVIDIA Modules
 

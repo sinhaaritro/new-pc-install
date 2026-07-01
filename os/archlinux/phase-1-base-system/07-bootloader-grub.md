@@ -18,23 +18,14 @@ Install GRUB as the bootloader and configure `os-prober` to detect your Windows 
 pacman -S grub efibootmgr os-prober mtools dosfstools
 ```
 
-### Step 2: Configure GRUB
+### Step 2: Configure GRUB for Dual-Boot
 
-Edit the GRUB defaults:
+Open `/etc/default/grub` in your editor:
 ```bash
 nano /etc/default/grub
 ```
 
-**2a.** Add NVIDIA DRM kernel parameter to the `GRUB_CMDLINE_LINUX_DEFAULT` line:
-```text
-GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet nvidia_drm.modeset=1 nvidia_drm.fbdev=1"
-```
-
-> [!NOTE]
-> `nvidia_drm.modeset=1` enables Kernel Mode Setting (required for Wayland/Hyprland).
-> `nvidia_drm.fbdev=1` enables the framebuffer device (improves TTY and boot splash quality).
-
-**2b.** Enable os-prober to detect Windows. Add or uncomment this line at the bottom of the file:
+Enable `os-prober` to detect your Windows installation. Find and uncomment (or add) this line at the bottom of the file:
 ```text
 GRUB_DISABLE_OS_PROBER=false
 ```
@@ -63,7 +54,7 @@ mount /dev/nvmeYn1pX /tmp/win_efi
 ### Step 4: Install GRUB to the EFI Partition
 
 ```bash
-grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --removable
 ```
 
 | Flag | Purpose |
@@ -71,6 +62,7 @@ grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
 | `--target=x86_64-efi` | Install for 64-bit UEFI |
 | `--efi-directory=/boot/efi` | Location of the EFI System Partition |
 | `--bootloader-id=GRUB` | Name shown in BIOS boot menu |
+| `--removable` | Creates a fallback bootloader payload (highly recommended for UEFI portability/stability) |
 
 ### Step 5: Generate GRUB Configuration
 
