@@ -2,7 +2,7 @@
 
 > **Phase**: 2 — System Hardening
 > **Prerequisites**: [First Reboot](../phase-1-base-system/08-first-reboot.md)
-> **Packages**: `iwd impala bluez bluez-utils bluetui wl-clipboard clipse`
+> **Packages**: `iwd impala bluez bluez-utils bluetui`
 
 ---
 
@@ -96,27 +96,6 @@ power off
 > [!TIP]
 > `bluetui` provides a TUI interface for Bluetooth management. Just run `bluetui` for a visual device list.
 
----
-
-## Clipboard
-
-### Install
-
-```bash
-sudo pacman -S wl-clipboard clipse
-```
-
-| Package | Purpose |
-|---------|---------|
-| `wl-clipboard` | `wl-copy` and `wl-paste` commands for Wayland clipboard |
-| `clipse` | TUI clipboard history manager |
-
----
-
-## Volume & Power
-
-*(These are configured via Hyprland keybinds and waybar modules in [Phase 3](../phase-3-desktop/README.md))*
-
 ## Verification
 
 ```bash
@@ -125,8 +104,4 @@ nmcli device status
 
 # Bluetooth
 bluetoothctl show
-
-# Clipboard
-echo "test" | wl-copy
-wl-paste
 ```

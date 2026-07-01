@@ -42,6 +42,18 @@ makepkg -si
 
 ---
 
+## Directory Mapping (Where do AUR packages go?)
+
+When dealing with the AUR, there are three types of folders to keep track of:
+
+| Data Type | Location | Excluded from Snapshots? | Notes |
+|---|---|---|---|
+| **Manual Source Clones** | `~/aur/` (User Home) | ✅ Yes (lives in `/home` which is `@home`) | Where you manually git-clone and build packages |
+| **`yay` Build & Source Cache** | `~/.cache/yay/` (User Home) | ✅ Yes (lives in `/home` which is `@home`) | `yay` automatically downloads PKGBUILDs and compiles packages here |
+| **System Binaries & Files** | Root filesystem (`/usr/bin`, etc.) | ❌ No (lives in `@` root) | Once installed via `pacman -U` or `yay -S`, files reside in standard system paths and are captured in Snapper snapshots |
+
+---
+
 ## Install yay (AUR Helper)
 
 ### Step 1: Clone yay
