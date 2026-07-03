@@ -80,12 +80,55 @@ grub-mkconfig -o /boot/grub/grub.cfg
 > 2. Verify `GRUB_DISABLE_OS_PROBER=false` is set in `/etc/default/grub`
 > 3. Re-run `grub-mkconfig -o /boot/grub/grub.cfg`
 
-### Step 6: Clean Up
+### Step 6: (Optional) Set Windows as the Default Boot Entry
+
+By default, GRUB boots the first entry (usually Arch Linux). If you want to make Windows the default:
+
+1. **Find the exact Windows menu entry name**:
+   ```bash
+   grep -i "windows" /boot/grub/grub.cfg | grep menuentry
+   ```
+   This will output something like:
+   `menuentry 'Windows Boot Manager (on /dev/nvme0n1p1)' --class windows ...`
+
+2. **Configure GRUB default**:
+   Open `/etc/default/grub`:
+   ```bash
+   nano /etc/default/grub
+   ```
+
+   Choose one of the following methods:
+
+   - **Method A: Static Default (Direct Name)**
+     Set `GRUB_DEFAULT` to the exact title of the Windows entry (enclosed in double quotes):
+     ```text
+     GRUB_DEFAULT="Windows Boot Manager (on /dev/nvme0n1p1)"
+     ```
+     *(Make sure to match the partition path /dev/nvmeYn1pX with your actual Windows EFI partition).*
+
+   - **Method B: Dynamic Default (Remember Last Selection)**
+     Set `GRUB_DEFAULT` to `saved` and enable saving the default:
+     ```text
+     GRUB_DEFAULT=saved
+     GRUB_SAVEDEFAULT=true
+     ```
+     If you want to explicitly select Windows as the starting default without waiting for the next reboot, run:
+     ```bash
+     grub-set-default "Windows Boot Manager (on /dev/nvme0n1p1)"
+     ```
+
+3. **Regenerate GRUB configuration** (required if you modified `/etc/default/grub`):
+   ```bash
+   grub-mkconfig -o /boot/grub/grub.cfg
+   ```
+
+### Step 7: Clean Up
 
 Unmount the Windows EFI partition:
 ```bash
 umount /tmp/win_efi
 ```
+
 
 ## Verification
 

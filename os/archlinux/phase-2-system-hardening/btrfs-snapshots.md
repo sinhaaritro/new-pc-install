@@ -66,18 +66,24 @@ sudo chmod 750 /.snapshots
 > [!WARNING]
 > Verify that `/.snapshots` is correctly mounted from fstab. Run `findmnt /.snapshots` — it should show the `@snapshots` subvolume.
 
-### Step 3: Configure Snapper Retention Policy
+### Step 3: Configure Snapper Permissions & Retention Policy
 
 Edit the Snapper configuration:
 ```bash
 sudo nvim /etc/snapper/configs/root
 ```
 
-Find and modify these settings:
+Modify or add the following settings:
 
 ```text
 # Allow your user to access snapshots
 ALLOW_USERS="username"
+
+# Allow users of these groups to operate on this config and view snapshots
+ALLOW_GROUPS="wheel"
+
+# Sync ACLs so these groups have read access to the .snapshots directory
+SYNC_ACL="yes"
 
 # Retention policy (reduce from defaults to save space)
 TIMELINE_MIN_AGE="1800"
@@ -89,6 +95,21 @@ TIMELINE_LIMIT_YEARLY="0"
 ```
 
 *(Replace `username` with your actual username)*
+
+#### Granting Group Access (Alternative & Details)
+
+By default, only root can access and manage snapper configurations. To grant access to users in specific system groups (like `sudo` or `wheel`), configure `ALLOW_GROUPS` and `SYNC_ACL`.
+
+- **Command Line Alternative**:
+  Instead of editing the file, you can apply these settings safely from the command line:
+  ```bash
+  sudo snapper -c root set-config "ALLOW_GROUPS=wheel sudo" SYNC_ACL="yes"
+  ```
+  *(Note: Group names are space-separated. For Arch Linux, `wheel` is typical; for Debian/Ubuntu, `sudo` is standard. Including both is safe).*
+
+- **Why `SYNC_ACL="yes"` is necessary**:
+  Setting `ALLOW_GROUPS` permits group members to run `snapper` commands (like listing snapshots). However, they won't be able to browse the physical `/.snapshots` directory to retrieve individual files unless `SYNC_ACL="yes"` is enabled. This setting instructs Snapper to automatically synchronize standard POSIX Access Control Lists (ACLs) onto the `/.snapshots` directory so that permitted groups can read the files within them.
+
 
 ### Step 4: Enable Snapper Timers
 
