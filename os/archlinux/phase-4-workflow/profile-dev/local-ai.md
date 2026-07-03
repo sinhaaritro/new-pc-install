@@ -63,24 +63,37 @@ llama-server --version
 ### Step 3: Create Model Directory
 
 ```bash
-mkdir -p ~/Models
+mkdir -p ~/models
 ```
 
 ### Step 4: Download a Model
 
-Use `llama-server`'s built-in Hugging Face downloader to fetch the model. The `-hf` flag downloads and caches the GGUF file automatically:
+Use `llama-server`'s built-in Hugging Face downloader to fetch the model. The `-hf` flag downloads and caches the GGUF files automatically.
+
+By default, `-hf` stores files under `~/.cache/huggingface/` in a repo-specific subfolder (e.g. `gemma-4-E2B-it-qat-q4_0-gguf/`). To keep everything in `~/models` instead, set the `LLAMA_CACHE` environment variable:
 
 ```bash
-llama-server -hf google/gemma-4-E2B-it-qat-q4_0-gguf --host 127.0.0.1 --port 8080 -ngl 99
+LLAMA_CACHE=~/models llama-server \
+  -hf google/gemma-4-E2B-it-qat-q4_0-gguf \
+  --host 127.0.0.1 \
+  --port 8080 \
+  -ngl 99
 ```
 
-This will download the model to `~/.cache/llama.cpp/` on first run and start serving immediately.
+This downloads the model files into `~/models/` on first run and starts serving immediately.
 
-Alternatively, download the GGUF file manually with `curl` or `wget` into `~/Models/`:
+> [!TIP]
+> To make this permanent, export the variable in your shell profile:
+> ```bash
+> echo 'export LLAMA_CACHE=~/models' >> ~/.config/zsh/.zshenv
+> ```
+> After that, plain `llama-server -hf ...` commands will use `~/models` automatically.
+
+Alternatively, download the GGUF file manually with `curl` or `wget` into `~/models/`:
 
 ```bash
 # Example: download manually (check HuggingFace for exact filename)
-cd ~/Models
+cd ~/models
 wget "https://huggingface.co/google/gemma-4-E2B-it-qat-q4_0-gguf/resolve/main/gemma-4-E2B-it-qat-q4_0.gguf"
 ```
 
@@ -90,7 +103,7 @@ Run the server locally to verify everything works:
 
 ```bash
 llama-server \
-  -m ~/Models/gemma-4-E2B-it-qat-q4_0.gguf \
+  -m ~/models/gemma-4-E2B-it-qat-q4_0.gguf \
   --host 127.0.0.1 \
   --port 8080 \
   -ngl 99
@@ -121,7 +134,7 @@ Once the local test passes, bind to all interfaces:
 
 ```bash
 llama-server \
-  -m ~/Models/gemma-4-E2B-it-qat-q4_0.gguf \
+  -m ~/models/gemma-4-E2B-it-qat-q4_0.gguf \
   --host 0.0.0.0 \
   --port 8080 \
   -ngl 99
@@ -165,8 +178,9 @@ Wants=network-online.target
 
 [Service]
 Type=simple
+Environment=LLAMA_CACHE=%h/models
 ExecStart=/usr/bin/llama-server \
-    -m %h/Models/gemma-4-E2B-it-qat-q4_0.gguf \
+    -m %h/models/gemma-4-E2B-it-qat-q4_0.gguf \
     --host 0.0.0.0 \
     --port 8080 \
     -ngl 99
@@ -229,7 +243,7 @@ Add to `~/.config/zsh/aliases.zsh` (or `~/.bashrc`):
 
 ```bash
 # Quick-start llama server (foreground, for testing)
-alias llama-start='llama-server -m ~/Models/gemma-4-E2B-it-qat-q4_0.gguf --host 0.0.0.0 --port 8080 -ngl 99'
+alias llama-start='llama-server -m ~/models/gemma-4-E2B-it-qat-q4_0.gguf --host 0.0.0.0 --port 8080 -ngl 99'
 
 # Quick chat via API
 function llm() {
