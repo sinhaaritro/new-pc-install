@@ -353,12 +353,12 @@ phases:
             description: "DevPod CLI dev environments with podman provider"
 
           - id: local-ai
-            name: "Local AI Models"
+            name: "Local AI (llama.cpp)"
             file: "phase-4-workflow/profile-dev/local-ai.md"
             required: optional
-            packages: [nvidia-container-toolkit]
-            prerequisites: [containers, nvidia]
-            description: "Ollama via podman, nvidia-container-toolkit, Open WebUI"
+            packages: [cuda]  # llama-cpp-cuda installed via AUR
+            prerequisites: [nvidia, aur]
+            description: "llama.cpp native GPU inference, llama-server OpenAI-compatible API, systemd service, LAN access"
 
           - id: languages
             name: "Language Runtimes"
