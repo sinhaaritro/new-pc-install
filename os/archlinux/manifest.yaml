@@ -352,14 +352,6 @@ phases:
             prerequisites: [containers]
             description: "DevPod CLI dev environments with podman provider"
 
-          - id: local-ai
-            name: "Local AI (llama.cpp)"
-            file: "phase-4-workflow/profile-dev/local-ai.md"
-            required: optional
-            packages: [cuda]  # llama-cpp-cuda installed via AUR
-            prerequisites: [nvidia, aur]
-            description: "llama.cpp native GPU inference, llama-server OpenAI-compatible API, systemd service, LAN access"
-
           - id: languages
             name: "Language Runtimes"
             file: "phase-4-workflow/profile-dev/languages.md"
@@ -375,6 +367,51 @@ phases:
             packages: []
             prerequisites: [first-reboot]
             description: "posting TUI, curl, httpie"
+
+      # --- AI Profile ---
+      - id: profile-ai
+        name: "AI"
+        description: "Local inference, coding harnesses, IDE integration, autonomous agents, training"
+        modules:
+          - id: inference
+            name: "Local Inference (llama.cpp)"
+            file: "phase-4-workflow/profile-ai/inference.md"
+            required: recommended
+            packages: [cuda]  # llama-cpp-cuda installed via AUR
+            prerequisites: [nvidia, aur]
+            description: "llama.cpp native GPU inference, llama-server OpenAI-compatible API, systemd service, LAN access"
+
+          - id: harness
+            name: "AI Harness Tools"
+            file: "phase-4-workflow/profile-ai/harness.md"
+            required: recommended
+            packages: []  # installed via npm/go/pip per tool
+            prerequisites: [inference]
+            description: "Pi Agent, Kilo Code, OpenCode, Claude Code, Gemini CLI — terminal-based AI coding assistants"
+
+          - id: ide-integration
+            name: "IDE Integration"
+            file: "phase-4-workflow/profile-ai/ide-integration.md"
+            required: recommended
+            packages: []  # installed via plugin managers per IDE
+            prerequisites: [inference]
+            description: "AI plugins for Neovim (avante.nvim, codecompanion), VS Code (Continue, Cline), Antigravity"
+
+          - id: agents
+            name: "Autonomous Agents"
+            file: "phase-4-workflow/profile-ai/agents.md"
+            required: optional
+            packages: []  # varies per agent
+            prerequisites: [inference]
+            description: "Hermes function-calling models, Claude Desktop with MCP tool use"
+
+          - id: training
+            name: "AI Training"
+            file: "phase-4-workflow/profile-ai/training.md"
+            required: optional
+            packages: []  # TBD — torch, transformers, etc.
+            prerequisites: [inference, nvidia]
+            description: "Fine-tuning (LoRA/QLoRA), dataset preparation, model evaluation (planned)"
 
       # --- Gaming Profile ---
       - id: profile-gaming

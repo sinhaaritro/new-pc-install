@@ -8,7 +8,7 @@ A modular, phased installation guide for Arch Linux with Hyprland. Each phase pr
 | [**Phase 1: Base System**](./phase-1-base-system/README.md) | Bootable CLI (TTY) | Btrfs, GRUB, dual-boot |
 | [**Phase 2: System Hardening**](./phase-2-system-hardening/README.md) | Stable + drivers | NVIDIA, snapshots, audio, SSH |
 | [**Phase 3: Desktop**](./phase-3-desktop/README.md) | Graphical desktop | Hyprland + desktop tools |
-| [**Phase 4: Workflow**](./phase-4-workflow/README.md) | Daily driver | Dev / Gaming / Creative profiles |
+| [**Phase 4: Workflow**](./phase-4-workflow/README.md) | Daily driver | Dev / AI / Gaming / Creative profiles |
 
 ## Quick Links
 
@@ -74,9 +74,15 @@ flowchart TD
             neovim(["NeoVim"])
             containers{{"Containers (Podman)"}}
             devpod{{"DevPod"}}
-            local_ai{{"Local AI Models"}}
             languages{{"Language Runtimes"}}
             api_testing{{"API Testing"}}
+        end
+        subgraph profile_ai["AI"]
+            inference(["Local Inference"])
+            harness(["AI Harness Tools"])
+            ide_integration(["IDE Integration"])
+            agents{{"Autonomous Agents"}}
+            training{{"AI Training"}}
         end
         subgraph profile_gaming["Gaming"]
             steam(["Steam"])
@@ -132,10 +138,15 @@ flowchart TD
     shell_terminal --> neovim
     first_reboot --> containers
     containers --> devpod
-    containers --> local_ai
-    nvidia --> local_ai
     first_reboot --> languages
     first_reboot --> api_testing
+    nvidia --> inference
+    aur --> inference
+    inference --> harness
+    inference --> ide_integration
+    inference --> agents
+    inference --> training
+    nvidia --> training
     nvidia --> steam
     steam --> proton
     nvidia --> heroic

@@ -9,7 +9,8 @@ Pick one or more profiles based on how you'll use this system. Profiles are **in
 
 | Profile | Description | Modules |
 |---------|-------------|---------|
-| 🛠️ [**Developer**](./profile-dev/README.md) | NeoVim, containers, DevPod, local AI, language runtimes | 6 modules |
+| 🛠️ [**Developer**](./profile-dev/README.md) | NeoVim, containers, DevPod, language runtimes | 5 modules |
+| 🤖 [**AI**](./profile-ai/README.md) | Local inference, coding harnesses, IDE integration, agents, training | 5 modules |
 | 🎮 [**Gaming**](./profile-gaming/README.md) | Steam, Proton, Heroic, MangoHud, controllers | 5 modules |
 | 🎨 [**Creative**](./profile-creative/README.md) | OBS, DaVinci Resolve, media players | 3 modules |
 
