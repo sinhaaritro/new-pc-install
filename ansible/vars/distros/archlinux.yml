@@ -1,0 +1,61 @@
+---
+# Option A distro layer: per-distro package names, commands, paths, and
+# layout constants. Selected via the ansible_distro inventory var.
+# Adding a distro = adding a file here, no role rewrites (spec 002).
+distro_packages:
+  base:
+    - base
+    - base-devel
+    - linux
+    - linux-headers
+    - linux-firmware
+    - amd-ucode
+    - btrfs-progs
+    - nano
+    - git
+  chroot_core:
+    - networkmanager
+  bootloader:
+    - grub
+    - efibootmgr
+    - os-prober
+    - mtools
+    - dosfstools
+distro_commands:
+  pacstrap: pacstrap
+  genfstab: genfstab
+  arch_chroot: arch-chroot
+  pacman: pacman
+  systemctl: systemctl
+distro_paths:
+  efi_mount: /boot/efi
+  locale_gen: /etc/locale.gen
+  locale_conf: /etc/locale.conf
+  hostname_file: /etc/hostname
+  fstab: /etc/fstab
+  grub_default: /etc/default/grub
+  grub_cfg: /boot/grub/grub.cfg
+  sudoers_wheel: /etc/sudoers.d/wheel
+  zoneinfo_dir: /usr/share/zoneinfo
+btrfs:
+  subvolumes:
+    - name: "@"
+      mount: /
+    - name: "@home"
+      mount: /home
+    - name: "@snapshots"
+      mount: /.snapshots
+    - name: "@var_log"
+      mount: /var/log
+    - name: "@pkg"
+      mount: /var/cache/pacman/pkg
+  mount_options: "noatime,compress=zstd:3,ssd,space_cache=v2"
+  fs_label: ARCH
+  mkfs_args: -L ARCH
+partitioning:
+  efi_code: ef00
+  swap_code: 8200
+  root_code: 8300
+sudo_group: wheel
+sudo_shell: /bin/bash
+keyring_package: archlinux-keyring

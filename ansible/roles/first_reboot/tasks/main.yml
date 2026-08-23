@@ -1,0 +1,54 @@
+---
+# Role: first_reboot (manifest module id: first-reboot)
+# Module 08: final checks on the live-USB host, unmount all, reboot.
+
+- name: Final check - fstab is complete (module first-reboot)
+  ansible.builtin.shell: test -s {{ mount_point }}/etc/fstab
+  args:
+    executable: /bin/bash
+  changed_when: false
+
+- name: Final check - GRUB config was generated
+  ansible.builtin.shell: test -s {{ mount_point }}/boot/grub/grub.cfg
+  args:
+    executable: /bin/bash
+  changed_when: false
+
+- name: Final check - end user exists
+  ansible.builtin.shell: grep -q "^{{ end_user }}:" {{ mount_point }}/etc/passwd
+  args:
+    executable: /bin/bash
+  changed_when: false
+
+- name: Final check - root is a btrfs subvolume mount
+  ansible.builtin.shell: >-
+    findmnt -n -o FSTYPE {{ mount_point }}
+  args:
+    executable: /bin/bash
+  register: first_reboot_root_fstype
+  changed_when: false
+  when: fstype == 'btrfs'
+
+- name: Assert root is mounted as btrfs
+  ansible.builtin.assert:
+    that:
+      - first_reboot_root_fstype.stdout == 'btrfs'
+    fail_msg: >-
+      {{ mount_point }} is mounted as
+      {{ first_reboot_root_fstype.stdout | default('nothing') }}, expected btrfs.
+      Check the subvolume mounts in the filesystems_btrfs role output.
+  when: fstype == 'btrfs'
+
+- name: Unmount all filesystems recursively
+  ansible.builtin.shell: umount -R {{ mount_point }}
+  args:
+    executable: /bin/bash
+  register: first_reboot_umount
+  failed_when: first_reboot_umount.rc not in [0, 17]
+
+- name: Warn to remove the USB installer
+  ansible.builtin.debug:
+    msg: "Remove the USB installer when the system powers off during POST."
+
+- name: Reboot into the new system
+  ansible.builtin.command: reboot

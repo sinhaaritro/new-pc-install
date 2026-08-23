@@ -1,0 +1,20 @@
+---
+# Role: install_base (manifest module id: install-base)
+# Module 04: reflector mirror selection, keyring upgrade, pacstrap base.
+
+- name: Select mirrors for the country (module install-base)
+  ansible.builtin.shell: reflector --country {{ country }} --latest 5 --sort rate --save /etc/pacman.d/mirrorlist
+  args:
+    executable: /bin/bash
+  register: install_base_reflector
+  changed_when: install_base_reflector.rc == 0
+
+- name: Upgrade archlinux keyring
+  ansible.builtin.command: pacman -Sy archlinux-keyring
+  register: install_base_keyring
+  changed_when: install_base_keyring.rc == 0
+
+- name: pacstrap base system (module install-base)
+  ansible.builtin.shell: pacstrap -K {{ mount_point }} {{ base_packages | join(' ') }}
+  args:
+    executable: /bin/bash

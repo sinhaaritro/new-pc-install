@@ -1,0 +1,34 @@
+---
+# Play 1 — Live-USB install through first reboot (Phase 0-1).
+# Runs on the live USB (root@archiso). See ansible/README.md for the user flow.
+# Distro selected via the ansible_distro inventory var (Option A layer).
+- name: Arch Linux live-USB install (Phase 0-1)
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - vars/distros/{{ ansible_distro }}.yml
+  roles:
+    - role: preflight
+      tags:
+        - preflight
+    - role: partitioning
+      tags:
+        - partitioning
+    - role: filesystems_btrfs
+      tags:
+        - filesystems_btrfs
+    - role: install_base
+      tags:
+        - install_base
+    - role: system_config
+      tags:
+        - system_config
+    - role: users_sudo
+      tags:
+        - users_sudo
+    - role: bootloader_grub
+      tags:
+        - bootloader_grub
+    - role: first_reboot
+      tags:
+        - first_reboot

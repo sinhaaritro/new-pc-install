@@ -1,0 +1,78 @@
+---
+# Role: users_sudo (manifest module id: users-sudo)
+# Module 06: create end user in wheel group + sudoers.d drop-in (chroot-stage).
+# Password flow (spec 003): both root and end user get an interactive prompt;
+# a non-empty inventory value pre-fills (skips the keyboard read), an empty or
+# absent value prompts. Both are set via chroot chpasswd with no_log: true.
+
+- name: Create end user in sudo group (module users-sudo)
+  ansible.builtin.shell: arch-chroot {{ mount_point }} useradd -m -G {{ sudo_group }} -s {{ sudo_shell }} {{ end_user }}
+  args:
+    executable: /bin/bash
+  register: users_sudo_useradd
+  changed_when: users_sudo_useradd.rc == 0 and 'already exists' not in users_sudo_useradd.stderr | default('')
+
+- name: Resolve root password (inventory value, pre-filled or empty)
+  ansible.builtin.set_fact:
+    users_sudo_root_pw: "{{ root_password | default('') }}"
+
+- name: Prompt for root password
+  ansible.builtin.pause:
+    prompt: "Enter a password for root (press Enter to skip for now): "
+  register: users_sudo_root_prompt
+  when: root_password is not defined or root_password | length == 0
+
+- name: Set root password via chroot
+  ansible.builtin.shell: >-
+    arch-chroot {{ mount_point }} sh -c
+    'echo "root:{{ (users_sudo_root_pw | length) > 0 and users_sudo_root_pw or users_sudo_root_prompt.user_input }}" | chpasswd'
+  args:
+    executable: /bin/bash
+  register: users_sudo_root_chpasswd
+  changed_when: >-
+    users_sudo_root_chpasswd.rc == 0 and
+    ((users_sudo_root_pw | length) > 0 or
+     (users_sudo_root_prompt.user_input | default('') | length) > 0)
+  when: >-
+    (users_sudo_root_pw | length) > 0 or
+    (users_sudo_root_prompt.user_input | default('') | length) > 0
+  no_log: true
+
+- name: Resolve end user password (inventory value, pre-filled or empty)
+  ansible.builtin.set_fact:
+    users_sudo_user_pw: "{{ end_user_password | default('') }}"
+
+- name: Prompt for end user password
+  ansible.builtin.pause:
+    prompt: "Enter a password for {{ end_user }} (press Enter to skip for now): "
+  register: users_sudo_user_prompt
+  when: end_user_password is not defined or end_user_password | length == 0
+
+- name: Set end user password via chroot
+  ansible.builtin.shell: >-
+    arch-chroot {{ mount_point }} sh -c
+    'echo "{{ end_user }}:{{ (users_sudo_user_pw | length) > 0 and users_sudo_user_pw or users_sudo_user_prompt.user_input }}" | chpasswd'
+  args:
+    executable: /bin/bash
+  register: users_sudo_user_chpasswd
+  changed_when: >-
+    users_sudo_user_chpasswd.rc == 0 and
+    ((users_sudo_user_pw | length) > 0 or
+     (users_sudo_user_prompt.user_input | default('') | length) > 0)
+  when: >-
+    (users_sudo_user_pw | length) > 0 or
+    (users_sudo_user_prompt.user_input | default('') | length) > 0
+  no_log: true
+
+- name: Write sudoers drop-in for wheel group
+  ansible.builtin.copy:
+    dest: "{{ mount_point }}/etc/sudoers.d/wheel"
+    content: "%wheel ALL=(ALL:ALL) ALL\n"
+    mode: "0440"
+    validate: "visudo -cf %s"
+
+- name: Validate sudoers configuration
+  ansible.builtin.shell: arch-chroot {{ mount_point }} visudo -c
+  args:
+    executable: /bin/bash
+  changed_when: false

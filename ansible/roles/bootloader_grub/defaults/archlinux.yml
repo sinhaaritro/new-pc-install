@@ -1,0 +1,3 @@
+---
+# Module 07 (bootloader): GRUB package list sourced from vars/distros/archlinux.yml.
+bootloader_packages: "{{ distro_packages.bootloader }}"

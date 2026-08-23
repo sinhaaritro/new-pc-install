@@ -1,0 +1,99 @@
+---
+# Role: partitioning (manifest module id: partitioning)
+# Module 02: detect-all-drives fact, target selection + validation,
+# destructive gate, gdisk (templated script).
+
+- name: Collect all drives as a list fact (module partitioning)
+  ansible.builtin.shell: |
+    lsblk -dn -o NAME,SIZE,MODEL | awk '{print $1 "|" $2 "|" $3}'
+  args:
+    executable: /bin/bash
+  register: partitioning_all_drives_raw
+  changed_when: false
+
+- name: Store all detected drives as a list fact
+  ansible.builtin.set_fact:
+    partitioning_all_drives: >-
+      {{ partitioning_all_drives_raw.stdout_lines
+         | map('split', '|')
+         | map('dict', keys=['name', 'size', 'model'])
+         | list }}
+
+- name: Display detected drives for confirmation
+  ansible.builtin.debug:
+    msg: "Detected drives: {{ partitioning_all_drives }}"
+
+- name: Assert target_drive was selected
+  ansible.builtin.assert:
+    that:
+      - target_drive is defined
+      - target_drive | length > 0
+    fail_msg: >-
+      target_drive is empty. Pick a drive from the list above and set
+      target_drive in ansible/inventory/hosts.yml.
+    success_msg: target_drive = {{ target_drive }}
+
+- name: Assert target drive exists in detected drives
+  ansible.builtin.assert:
+    that:
+      - partitioning_all_drives | selectattr('name', 'equalto', target_drive) | list | length > 0
+    fail_msg: >-
+      target_drive {{ target_drive }} is not present on this system.
+      Detected: {{ partitioning_all_drives | map(attribute='name') | list }}
+    success_msg: target drive found
+
+- name: Validate target drive model
+  ansible.builtin.assert:
+    that:
+      - target_drive_model is defined
+      - target_drive_model | length > 0
+      - (partitioning_all_drives | selectattr('name', 'equalto', target_drive) | first).model is search(target_drive_model)
+    fail_msg: >-
+      target_drive_model does not match the detected model for {{ target_drive }}.
+      Refuse to continue: confirm the drive identity with 'lsblk -o NAME,SIZE,MODEL'
+      and update target_drive_model in ansible/inventory/hosts.yml.
+    success_msg: target drive model matches
+
+- name: Validate target drive size (informational)
+  ansible.builtin.assert:
+    that:
+      - target_drive_size is defined
+      - target_drive_size | length > 0
+      - (partitioning_all_drives | selectattr('name', 'equalto', target_drive) | first).size is search(target_drive_size)
+    fail_msg: >-
+      target_drive_size does not match the detected size for {{ target_drive }}.
+      Confirm the drive and update target_drive_size in ansible/inventory/hosts.yml.
+    success_msg: target drive size matches
+
+- name: Destructive gate - require explicit confirmation
+  ansible.builtin.assert:
+    that:
+      - confirm_destructive | bool
+    fail_msg: >-
+      This play will DESTROY all data on /dev/{{ target_drive }}.
+      Re-run with --confirm-destructive to proceed, e.g.:
+      ansible-playbook playbooks/10-install.yml --confirm-destructive
+    success_msg: Destructive action confirmed for /dev/{{ target_drive }}
+
+- name: Template gdisk script (module partitioning)
+  ansible.builtin.template:
+    src: gdisk-script.j2
+    dest: /root/gdisk-script.sh
+    mode: "0700"
+
+- name: Run gdisk script on target drive
+  ansible.builtin.shell: /root/gdisk-script.sh
+  args:
+    executable: /bin/bash
+  register: partitioning_gdisk
+
+- name: Verify new partition table
+  ansible.builtin.shell: lsblk /dev/{{ target_drive }}
+  args:
+    executable: /bin/bash
+  register: partitioning_lsblk
+  changed_when: false
+
+- name: Show resulting partition layout
+  ansible.builtin.debug:
+    msg: "{{ partitioning_lsblk.stdout_lines }}"

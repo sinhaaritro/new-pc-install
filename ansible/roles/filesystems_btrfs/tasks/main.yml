@@ -1,0 +1,84 @@
+---
+# Role: filesystems_btrfs (manifest module id: filesystems)
+# Module 03: mkfs.fat, mkswap/swapon, mkfs.btrfs, subvolume create loop,
+# templated subvolume mounts.
+
+- name: Assert supported filesystem type
+  ansible.builtin.assert:
+    that:
+      - fstype in ['btrfs']
+    fail_msg: >-
+      fstype={{ fstype }} is not implemented yet; only btrfs is supported
+      in this playbook. Set fstype: btrfs in ansible/inventory/hosts.yml
+      or wait for ext4/xfs support.
+    success_msg: fstype is {{ fstype }}
+
+- name: Set partition device names (module filesystems)
+  ansible.builtin.set_fact:
+    efi_device: "/dev/{{ target_drive }}p1"
+    swap_device: "{{ '/dev/' + target_drive + 'p2' if swap | bool else '' }}"
+    root_device: "{{ '/dev/' + target_drive + ('p3' if swap | bool else 'p2') }}"
+
+- name: Format EFI partition as FAT32
+  ansible.builtin.command: mkfs.fat -F 32 {{ efi_device }}
+
+- name: Initialize swap partition
+  ansible.builtin.command: mkswap {{ swap_device }}
+  when: swap | bool
+
+- name: Enable swap partition
+  ansible.builtin.command: swapon {{ swap_device }}
+  when: swap | bool
+
+- name: Format root partition as btrfs
+  ansible.builtin.command: mkfs.btrfs {{ distro_btrfs.mkfs_args }} {{ root_device }}
+
+- name: Temporarily mount btrfs root
+  ansible.builtin.mount:
+    path: "{{ mount_point }}"
+    src: "{{ root_device }}"
+    state: mounted
+    fstype: btrfs
+
+- name: Create flat btrfs subvolumes (module filesystems)
+  ansible.builtin.command: btrfs subvolume create {{ mount_point }}/{{ item.name }}
+  loop: "{{ distro_btrfs.subvolumes }}"
+  loop_control:
+    label: "{{ item.name }}"
+  register: filesystems_subvolumes
+  changed_when: "'already exists' not in filesystems_subvolumes.stderr | default('')"
+
+- name: Unmount temporary btrfs root
+  ansible.builtin.mount:
+    path: "{{ mount_point }}"
+    state: absent
+
+- name: Create mount point directories
+  ansible.builtin.file:
+    path: "{{ mount_point }}/{{ item | regex_replace('^/', '') }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - boot/efi
+    - home
+    - .snapshots
+    - var/log
+    - var/cache/pacman/pkg
+
+- name: Mount btrfs subvolumes with optimal options (module filesystems)
+  ansible.builtin.mount:
+    path: "{{ mount_point }}{{ item.mount if item.mount != '/' else '' }}"
+    src: "{{ root_device }}"
+    state: mounted
+    fstype: btrfs
+    opts: "{{ distro_btrfs.mount_options }},subvol={{ item.name }}"
+  loop: "{{ distro_btrfs.subvolumes }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Mount EFI partition
+  ansible.builtin.mount:
+    path: "{{ mount_point }}/boot/efi"
+    src: "{{ efi_device }}"
+    state: mounted
+    fstype: vfat

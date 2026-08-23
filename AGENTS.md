@@ -15,8 +15,8 @@ A modular PC installation and configuration guide. Documentation is split into l
 - `hardware/` - BIOS, lighting, motherboard config
 - `peripherals/` - keyboards, mice, accessories (QMK/VIA definitions)
 - `software/` - app configs per OS (audio, graphics, etc.)
-- `docs/` - shared space: `specs/`, `decisions/`, `reference/`, and `temp/` (gitignored scratchpad); human landing page at `docs/README.md`
-- `.agents/` - machine space: `MAP.md` (generated skill index), `rules/`, `skills/`, `scripts/`
+- `docs/` - shared space: `docs/specs/`, `docs/decisions/`, `docs/reference/`, and `docs/temp/` (gitignored scratchpad); human landing page at `docs/README.md`
+- `.agents/` - machine space: `MAP.md` (generated skill index), `.agents/rules/`, `.agents/skills/`, `.agents/scripts/`
 - `README.md` - human landing page / domain index
 
 ## Commands

@@ -1,0 +1,70 @@
+---
+# Role: system_config (manifest module id: system-config)
+# Module 05: genfstab on host; chroot-stage timezone, locale.gen template +
+# locale-gen, hostname, NetworkManager enable.
+
+- name: Generate fstab for all mounts
+  ansible.builtin.shell: genfstab -U {{ mount_point }} >> {{ mount_point }}/etc/fstab
+  args:
+    executable: /bin/bash
+  register: system_config_genfstab
+  changed_when: system_config_genfstab.rc == 0
+
+- name: Verify fstab contains the expected entries
+  ansible.builtin.shell: cat {{ mount_point }}/etc/fstab
+  args:
+    executable: /bin/bash
+  register: system_config_fstab
+  changed_when: false
+
+- name: Assert fstab has btrfs subvolume entries
+  ansible.builtin.assert:
+    that:
+      - system_config_fstab.stdout is search('subvol=@')
+    fail_msg: fstab is missing btrfs subvol entries. Check the output above.
+  when: fstype == 'btrfs'
+
+- name: Set timezone via chroot (module system-config)
+  ansible.builtin.shell: arch-chroot {{ mount_point }} ln -sf /usr/share/zoneinfo/{{ timezone }} /etc/localtime
+  args:
+    executable: /bin/bash
+
+- name: Sync hardware clock after timezone change
+  ansible.builtin.shell: arch-chroot {{ mount_point }} hwclock --systohc
+  args:
+    executable: /bin/bash
+  changed_when: false
+
+- name: Template locale.gen into new system
+  ansible.builtin.template:
+    src: locale.gen.j2
+    dest: "{{ mount_point }}/etc/locale.gen"
+
+- name: Run locale-gen in new system
+  ansible.builtin.shell: arch-chroot {{ mount_point }} locale-gen
+  args:
+    executable: /bin/bash
+  register: system_config_locale_gen
+  changed_when: system_config_locale_gen.rc == 0
+
+- name: Write locale.conf
+  ansible.builtin.shell: arch-chroot {{ mount_point }} sh -c 'echo "LANG={{ locale }}" > /etc/locale.conf'
+  args:
+    executable: /bin/bash
+
+- name: Set hostname in new system
+  ansible.builtin.shell: arch-chroot {{ mount_point }} sh -c 'echo "{{ hostname }}" > /etc/hostname'
+  args:
+    executable: /bin/bash
+
+- name: Install NetworkManager in new system
+  ansible.builtin.shell: arch-chroot {{ mount_point }} pacman -S --noconfirm {{ chroot_core_packages | join(' ') }}
+  args:
+    executable: /bin/bash
+  register: system_config_nm
+  changed_when: system_config_nm.rc == 0
+
+- name: Enable NetworkManager
+  ansible.builtin.shell: arch-chroot {{ mount_point }} systemctl enable NetworkManager
+  args:
+    executable: /bin/bash

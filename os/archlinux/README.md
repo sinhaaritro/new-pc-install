@@ -10,6 +10,10 @@ A modular, phased installation guide for Arch Linux with Hyprland. Each phase pr
 | [**Phase 3: Desktop**](./phase-3-desktop/README.md) | Graphical desktop | Hyprland + desktop tools |
 | [**Phase 4: Workflow**](./phase-4-workflow/README.md) | Daily driver | Dev / AI / Gaming / Creative profiles |
 
+## Automation Companion
+
+- [Ansible Play 1](../../ansible/README.md) — automates Phase 0 (gate) through Phase 1 from the live USB (partition → pacstrap → chroot config → GRUB dual-boot → reboot). Safety-gated with `--confirm-destructive`; module/package parity is checked against this manifest.
+
 ## Quick Links
 
 - [Feature Parity Reference](./reference/feature-parity.md) — Windows → Linux equivalents

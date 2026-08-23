@@ -1,0 +1,13 @@
+---
+extends: default
+
+ignore: |
+  inventory/hosts.yml
+
+rules:
+  line-length:
+    max: 160
+  comments:
+    min-spaces-from-content: 1
+  truthy: disable
+  document-start: disable

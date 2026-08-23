@@ -16,8 +16,4 @@ __pycache__/
 Thumbs.db
 
 # Runtime docs (generated per-session / local to developer)
-docs/handoffs/
-docs/plans/
-docs/tests/
-docs/audits/
-docs/changes/
+docs/temp
