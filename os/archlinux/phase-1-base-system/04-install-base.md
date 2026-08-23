@@ -2,7 +2,8 @@
 
 > **Phase**: 1 — Base System
 > **Prerequisites**: [Filesystems & Btrfs](./03-filesystems-and-btrfs.md)
-> **Packages**: `base base-devel linux linux-headers linux-firmware amd-ucode btrfs-progs nano git`
+> **Packages**: `base base-devel linux linux-headers linux-firmware <ucode> <fstool> nano git`
+> (`<ucode>` = `amd-ucode` on AMD / `intel-ucode` on Intel; `<fstool>` = `btrfs-progs` on btrfs — see Step 3)
 
 ---
 
@@ -29,9 +30,16 @@ pacman -Sy archlinux-keyring
 
 ### Step 3: Install Essential Packages
 
+Pick the two variable packages:
+
+- **Microcode** by CPU vendor: AMD → `amd-ucode`, Intel → `intel-ucode`
+- **Filesystem tooling** by root fstype: btrfs → `btrfs-progs` (only needed on btrfs)
+
 ```bash
 pacstrap -K /mnt base base-devel linux linux-headers linux-firmware amd-ucode btrfs-progs nano git
 ```
+
+*(Swap `amd-ucode` for `intel-ucode` on Intel CPUs; drop `btrfs-progs` if your root filesystem is not btrfs.)*
 
 #### Package Breakdown
 
@@ -48,7 +56,11 @@ pacstrap -K /mnt base base-devel linux linux-headers linux-firmware amd-ucode bt
 | `git` | Version control — needed for AUR and dotfiles |
 
 > [!NOTE]
-> Intel users would use `intel-ucode` instead of `amd-ucode`.
+> In the Ansible play both are driven by per-machine vars in
+> `ansible/inventory/hosts.yml`: `cpu_vendor` (`amd` or `intel`) selects
+> `distro_packages.ucode.<vendor>`, and `fstype` selects
+> `distro_packages.fstools.<fstype>` (currently `btrfs` → `btrfs-progs`) —
+> both from `ansible/vars/distros/archlinux.yml`.
 
 ## Verification
 

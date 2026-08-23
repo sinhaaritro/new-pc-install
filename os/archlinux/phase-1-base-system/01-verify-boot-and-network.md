@@ -52,6 +52,12 @@ quit
 ```
 Enter the Wi-Fi password when prompted.
 
+> [!NOTE]
+> In the Ansible play this is non-interactive: set `wifi_ssid` (and
+> `wifi_password`) in `ansible/inventory/hosts.yml` and the preflight role
+> connects via `iwctl` before the connectivity gate. Leave `wifi_ssid`
+> empty for Ethernet.
+
 **Verify connectivity:**
 ```bash
 ping -c 3 archlinux.org

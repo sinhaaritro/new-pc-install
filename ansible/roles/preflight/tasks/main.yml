@@ -2,8 +2,9 @@
 # Role: preflight (manifest module ids: overview, pre-flight, verify-boot)
 # Phase 0's real steps (BIOS Secure Boot, Fast Startup, USB flashing, UEFI boot)
 # are manual and pre-Linux. This role is the single Phase 0/01 assertion gate:
-# it verifies UEFI mode, network reachability, NTP sync, and that the target
-# drive is present. It halts with a clear message on any failure.
+# it verifies UEFI mode, network reachability (connecting Wi-Fi via iwctl
+# when wifi_ssid is set in inventory), NTP sync, and that the target drive
+# is present. It halts with a clear message on any failure.
 # Run after the manual Phase 0 steps in os/archlinux/phase-0-pre-install/.
 # Covers manifest modules overview, pre-flight, and verify-boot (merged; the
 # standalone verify_boot role was removed in spec 003).
@@ -23,11 +24,32 @@
       Reboot and select the UEFI entry for the live USB.
     success_msg: UEFI mode confirmed
 
+- name: Connect to Wi-Fi via iwctl (module verify-boot)
+  ansible.builtin.shell: >-
+    iwctl station wlan0 scan;
+    iwctl station wlan0 connect "{{ wifi_ssid }}" "{{ wifi_password }}"
+  args:
+    executable: /bin/bash
+  register: preflight_wifi
+  changed_when: preflight_wifi.rc == 0
+  when: (wifi_ssid | default('') | length) > 0
+
 - name: Assert internet connectivity (module verify-boot)
   ansible.builtin.shell: ping -c 3 -W 5 archlinux.org
   args:
     executable: /bin/bash
+  register: preflight_ping
   changed_when: false
+
+- name: Report Wi-Fi connect failure on the ping gate (module verify-boot)
+  ansible.builtin.debug:
+    msg: >-
+      Wi-Fi connect for SSID "{{ wifi_ssid }}" failed
+      (rc={{ preflight_wifi.rc }}). Verify wifi_ssid/wifi_password in
+      ansible/inventory/hosts.yml, or use Ethernet (leave wifi_ssid empty).
+  when:
+    - (wifi_ssid | default('') | length) > 0
+    - preflight_wifi.rc | default(1) != 0
 
 - name: Enable NTP time synchronization
   ansible.builtin.shell: timedatectl set-ntp true

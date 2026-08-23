@@ -9,10 +9,19 @@ distro_packages:
     - linux
     - linux-headers
     - linux-firmware
-    - amd-ucode
-    - btrfs-progs
     - nano
     - git
+  # CPU microcode selected by cpu_vendor (per-machine, inventory/hosts.yml).
+  # Keep in sync with the install-base packages list in os/archlinux/manifest.yaml
+  # (intel-ucode is a same-name swap for amd-ucode, so the parity checker passes
+  # for either vendor).
+  ucode:
+    amd: amd-ucode
+    intel: intel-ucode
+  # Filesystem tooling selected by fstype (per-machine, inventory/hosts.yml).
+  # Only btrfs is implemented for now; other fstypes add their tools here.
+  fstools:
+    btrfs: btrfs-progs
   chroot_core:
     - networkmanager
   bootloader:
