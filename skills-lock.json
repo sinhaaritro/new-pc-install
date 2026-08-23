@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "skills": {
+    "auto-router": {
+      "source": "git@github.com:sinhaaritro/dev-agent.git",
+      "sourceUrl": "git@github.com:sinhaaritro/dev-agent.git",
+      "sourceType": "git",
+      "skillPath": ".agents/skills/auto-router/SKILL.md",
+      "computedHash": "4eb4be9c609598fb441b3f16308958308a1c3c97a1f93ddb5c6372b9ba349d96"
+    },
+    "bootstrap": {
+      "source": "git@github.com:sinhaaritro/dev-agent.git",
+      "sourceUrl": "git@github.com:sinhaaritro/dev-agent.git",
+      "sourceType": "git",
+      "skillPath": ".agents/skills/bootstrap/SKILL.md",
+      "computedHash": "826653f89cf3d4c1190e3749f1552d1b0de893b9cd81d09747b2195a1c960b7a"
+    },
+    "map-generator": {
+      "source": "git@github.com:sinhaaritro/dev-agent.git",
+      "sourceUrl": "git@github.com:sinhaaritro/dev-agent.git",
+      "sourceType": "git",
+      "skillPath": ".agents/skills/map-generator/SKILL.md",
+      "computedHash": "f0cbd3006942272a8fdb75465f2badb83e0a0d5ed9ca52fc31326107e9783d7d"
+    },
+    "phase-protocol": {
+      "source": "git@github.com:sinhaaritro/dev-agent.git",
+      "sourceUrl": "git@github.com:sinhaaritro/dev-agent.git",
+      "sourceType": "git",
+      "skillPath": ".agents/skills/phase-protocol/SKILL.md",
+      "computedHash": "2e7f948e9ce11bdf1b8b65ac67adff800ab32a6ffd75ff01b62b82938c9e63d5"
+    },
+    "spec-builder": {
+      "source": "git@github.com:sinhaaritro/dev-agent.git",
+      "sourceUrl": "git@github.com:sinhaaritro/dev-agent.git",
+      "sourceType": "git",
+      "skillPath": ".agents/skills/spec-builder/SKILL.md",
+      "computedHash": "486bcec96ad60af657074e145dfcba1f7b975676370ac9245fbe4ac8bb8fd075"
+    },
+    "task-cleaner": {
+      "source": "git@github.com:sinhaaritro/dev-agent.git",
+      "sourceUrl": "git@github.com:sinhaaritro/dev-agent.git",
+      "sourceType": "git",
+      "skillPath": ".agents/skills/task-cleaner/SKILL.md",
+      "computedHash": "7176f3f9bb3703d305851c92935ea2e573431571be2248253027989d680a8836"
+    },
+    "verification-runner": {
+      "source": "git@github.com:sinhaaritro/dev-agent.git",
+      "sourceUrl": "git@github.com:sinhaaritro/dev-agent.git",
+      "sourceType": "git",
+      "skillPath": ".agents/skills/verification-runner/SKILL.md",
+      "computedHash": "e90ee6cf16e4884fd269dddd2649121efed627b5eb45e239d55d9f128d54a8a0"
+    }
+  }
+}
