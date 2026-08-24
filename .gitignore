@@ -6,6 +6,7 @@
 
 # Local binary tools
 .bin/
+.ansible/**
 
 # Python cache
 __pycache__/
