@@ -1,0 +1,32 @@
+---
+# Role: fonts (manifest module id: fonts)
+# Phase 3 shared module on the booted system: Nerd Fonts (JetBrainsMono) +
+# Noto (latin/CJK/emoji) + Material Design Icons + fontconfig. Runs
+# fc-cache to rebuild the font index. Config-free (ADR-014): an optional
+# ~/.config/fontconfig/fonts.conf (emoji/Nerd fallbacks) is owned by the
+# user's stow package.
+
+- name: Install font packages (module fonts)
+  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.fonts | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: fonts_pacman
+  changed_when: fonts_pacman.rc == 0
+
+- name: Rebuild the fontconfig cache (module fonts)
+  ansible.builtin.shell: fc-cache -fv
+  args:
+    executable: /bin/bash
+  become: true
+  register: fonts_fc_cache
+  changed_when: fonts_fc_cache.rc == 0
+
+- name: Report fonts verification (module fonts)
+  ansible.builtin.debug:
+    msg: >-
+      Font packages installed and fc-cache rebuilt. Log out/in so running
+      apps pick up the new fonts. Your stow package may provide
+      ~/.config/fontconfig/fonts.conf for emoji/Nerd fallbacks (see Phase 3
+      module Fonts). Verify: 'fc-list | wc -l' is healthy (200+); CJK and
+      emoji render in a browser; Nerd Font icons show in Kitty/waybar/rofi.

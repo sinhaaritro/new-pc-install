@@ -1,0 +1,206 @@
+---
+# Play 4 — Phase 4 workflow on the booted system (spec 006).
+# Runs AFTER Phase 3, logged in as the end user (wheel group):
+#   make run-phase4
+# System-level only (ADR-016): roles install packages + services and write
+# exactly four named non-dotfile artifacts (devpod binary, podman subuid
+# range, ufw 8080 rule, llama-server user unit file); all user dotfiles are
+# owned by the user's stow package (shared module dotfiles-backup). Modules
+# are selectable three ways (spec 006 D1): the profile_* inventory vars
+# (whole profile), the per-module enable_<id> flags, or --tags <id> at run
+# time - the profile vars are OR-ed into the flags by the fold pre_task
+# below. Root tasks run via the play-level become; user-context commands use
+# the sudo -u XDG_RUNTIME_DIR wrapper (spec 006 D7). 'agents' is
+# additionally gated on enable_inference (its llama-server dependency).
+# Model downloads are opt-in via enable_ai_models (spec 006 D5). See
+# ansible/README.md for the flow.
+- name: Arch Linux Phase 4 workflow (booted system, system-level only)
+  hosts: localhost
+  gather_facts: false
+  become: true
+  vars_files:
+    - vars/distros/{{ ansible_distro }}.yml
+  pre_tasks:
+    - name: Check for the live-USB marker (play 4 gate)
+      ansible.builtin.stat:
+        path: /run/archiso
+      become: false
+      register: play4_archiso
+
+    - name: Assert not running on the live USB (play 4 gate)
+      ansible.builtin.assert:
+        that:
+          - not play4_archiso.stat.exists
+        fail_msg: >-
+          This play runs on the installed system, not the live USB
+          (/run/archiso exists). Finish Phase 1 (make run), reboot into the
+          installed system, log in as {{ end_user | default('your user') }},
+          and run make run-phase4.
+
+    - name: Read the invoking user (play 4 gate)
+      ansible.builtin.shell: id -u && id -nG
+      args:
+        executable: /bin/bash
+      become: false
+      register: play4_invoker
+      changed_when: false
+
+    - name: Assert the invoking user is root or in the wheel group (play 4 gate)
+      ansible.builtin.assert:
+        that:
+          - play4_invoker.stdout_lines | first | int == 0
+          - "'wheel' in (play4_invoker.stdout_lines | last).split(' ')"
+        fail_msg: >-
+          Play 4 must be run as root or as a wheel-group user (for sudo).
+          Log in as {{ end_user | default('your end user') }} and re-run
+          make run-phase4.
+
+    - name: Check the end user account exists (play 4 gate)
+      ansible.builtin.shell: id {{ end_user }}
+      args:
+        executable: /bin/bash
+      become: true
+      register: play4_end_user
+      changed_when: false
+      failed_when: false
+
+    - name: Assert the end user account exists (play 4 gate)
+      ansible.builtin.assert:
+        that:
+          - play4_end_user.rc == 0
+        fail_msg: >-
+          The end_user account "{{ end_user | default('') }}" does not exist
+          on this system. Set end_user in ansible/inventory/hosts.yml to the
+          account created during Phase 1 (module 06).
+
+    - name: Check for the yay AUR helper (play 4 gate)
+      ansible.builtin.shell: which yay
+      args:
+        executable: /bin/bash
+      become: false
+      register: play4_yay
+      changed_when: false
+      failed_when: false
+
+    - name: Assert the yay AUR helper is installed (play 4 gate)
+      ansible.builtin.assert:
+        that:
+          - play4_yay.rc == 0
+        fail_msg: >-
+          The yay AUR helper is not installed, but the selected Phase 4
+          modules need it (containers: lazydocker; inference:
+          llama-cpp-cuda; agents: claude-desktop). Run Play 2 first with
+          enable_aur: true (make run-phase2), or deselect the AUR-dependent
+          modules.
+
+    # NOTE: the outer '| bool' on every line is load-bearing - Jinja's 'or'
+    # returns the first truthy *value*, so 'false or false' yields the STRING
+    # "false" (truthy) without it.
+    - name: Fold the profile vars into the module flags (spec 006 D1)
+      ansible.builtin.set_fact:
+        play4_flags:
+          dotfiles_backup: "{{ ((enable_dotfiles_backup | default(false)) | bool) | bool }}"
+          neovim: "{{ ((enable_neovim | default(false)) | bool or (profile_dev | default(false)) | bool) | bool }}"
+          containers: "{{ ((enable_containers | default(false)) | bool or (profile_dev | default(false)) | bool) | bool }}"
+          devpod: "{{ ((enable_devpod | default(false)) | bool or (profile_dev | default(false)) | bool) | bool }}"
+          languages: "{{ ((enable_languages | default(false)) | bool or (profile_dev | default(false)) | bool) | bool }}"
+          api_testing: "{{ ((enable_api_testing | default(false)) | bool or (profile_dev | default(false)) | bool) | bool }}"
+          inference: "{{ ((enable_inference | default(false)) | bool or (profile_ai | default(false)) | bool) | bool }}"
+          harness: "{{ ((enable_harness | default(false)) | bool or (profile_ai | default(false)) | bool) | bool }}"
+          ide_integration: "{{ ((enable_ide_integration | default(false)) | bool or (profile_ai | default(false)) | bool) | bool }}"
+          agents: "{{ ((enable_agents | default(false)) | bool or (profile_ai | default(false)) | bool) | bool }}"
+          training: "{{ ((enable_training | default(false)) | bool or (profile_ai | default(false)) | bool) | bool }}"
+          steam: "{{ ((enable_steam | default(false)) | bool or (profile_gaming | default(false)) | bool) | bool }}"
+          proton: "{{ ((enable_proton | default(false)) | bool or (profile_gaming | default(false)) | bool) | bool }}"
+          heroic: "{{ ((enable_heroic | default(false)) | bool or (profile_gaming | default(false)) | bool) | bool }}"
+          mangohud: "{{ ((enable_mangohud | default(false)) | bool or (profile_gaming | default(false)) | bool) | bool }}"
+          controllers: "{{ ((enable_controllers | default(false)) | bool or (profile_gaming | default(false)) | bool) | bool }}"
+          obs: "{{ ((enable_obs | default(false)) | bool or (profile_creative | default(false)) | bool) | bool }}"
+          davinci: "{{ ((enable_davinci | default(false)) | bool or (profile_creative | default(false)) | bool) | bool }}"
+          media_players: "{{ ((enable_media_players | default(false)) | bool or (profile_creative | default(false)) | bool) | bool }}"
+  roles:
+    # --- Shared (all profiles) ---
+    - role: dotfiles_backup
+      tags:
+        - dotfiles-backup
+      when: play4_flags.dotfiles_backup | bool
+    # --- Developer profile ---
+    - role: dev_neovim
+      tags:
+        - neovim
+      when: play4_flags.neovim | bool
+    - role: dev_containers
+      tags:
+        - containers
+      when: play4_flags.containers | bool
+    - role: dev_devpod
+      tags:
+        - devpod
+      when:
+        - play4_flags.devpod | bool
+        - play4_flags.containers | bool
+    - role: dev_languages
+      tags:
+        - languages
+      when: play4_flags.languages | bool
+    - role: dev_api_testing
+      tags:
+        - api-testing
+      when: play4_flags.api_testing | bool
+    # --- AI profile (agents additionally needs inference) ---
+    - role: ai_inference
+      tags:
+        - inference
+      when: play4_flags.inference | bool
+    - role: ai_harness
+      tags:
+        - harness
+      when: play4_flags.harness | bool
+    - role: ai_ide_integration
+      tags:
+        - ide-integration
+      when: play4_flags.ide_integration | bool
+    - role: ai_agents
+      tags:
+        - agents
+      when:
+        - play4_flags.agents | bool
+        - play4_flags.inference | bool
+    - role: ai_training
+      tags:
+        - training
+      when: play4_flags.training | bool
+    # --- Gaming profile ---
+    - role: gaming_steam
+      tags:
+        - steam
+      when: play4_flags.steam | bool
+    - role: gaming_proton
+      tags:
+        - proton
+      when: play4_flags.proton | bool
+    - role: gaming_heroic
+      tags:
+        - heroic
+      when: play4_flags.heroic | bool
+    - role: gaming_mangohud
+      tags:
+        - mangohud
+      when: play4_flags.mangohud | bool
+    - role: gaming_controllers
+      tags:
+        - controllers
+      when: play4_flags.controllers | bool
+    # --- Creative profile ---
+    - role: creative_obs
+      tags:
+        - obs
+      when: play4_flags.obs | bool
+    - role: creative_davinci_resolve
+      tags:
+        - davinci
+      when: play4_flags.davinci | bool
+    - role: creative_media_players
+      tags:
+        - media-players
+      when: play4_flags.media_players | bool

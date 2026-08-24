@@ -1,8 +1,19 @@
-# Ansible — Play 1: Live-USB Install Through First Reboot (Phase 0–1)
+# Ansible — Plays 1–4: Install, Hardening, Desktop, Workflow (Phase 0–4)
 
-Automates the Arch Linux install from the live USB (`root@archiso`): Phase 0
-verification gate, then Phase 1 modules 01–08, ending in a reboot into a
-bootable dual-boot CLI system (GRUB menu with Linux + Windows).
+Four plays automate the Arch Linux build:
+
+- **Play 1** (`playbooks/10-install.yml`) — Live-USB install through first
+  reboot (Phase 0–1): Phase 0 verification gate, then Phase 1 modules 01–08,
+  ending in a reboot into a bootable dual-boot CLI system (GRUB menu with
+  Linux + Windows).
+- **Play 2** (`playbooks/20-hardening.yml`) — Phase 2 system hardening on the
+  booted system (selectable modules: NVIDIA, snapshots, AUR, PipeWire, …).
+- **Play 3** (`playbooks/30-desktop.yml`) — Phase 3 desktop on the booted
+  system (selectable, **config-free** modules: Hyprland + desktop tools; all
+  dotfiles are owned by the user's stow package).
+- **Play 4** (`playbooks/40-workflow.yml`) — Phase 4 workflow on the booted
+  system (profile-selectable modules: dev / ai / gaming / creative + shared
+  dotfiles-backup; **system-level only** — dotfiles stay stow-owned).
 
 The module/package source of truth is
 [`os/archlinux/manifest.yaml`](../os/archlinux/manifest.yaml); the generator
@@ -44,7 +55,108 @@ parity check keeps the two from drifting.
 5. **Reboot** — the play ends in `reboot`. Remove the USB when the system
    powers off. Confirm the GRUB menu shows **Arch Linux** and
    **Windows Boot Manager**, boot Linux, log in as your user, and check
-   `ping archlinux.org`, `findmnt -t btrfs`, `ls /sys/firmware/efi`.
+    `ping archlinux.org`, `findmnt -t btrfs`, `ls /sys/firmware/efi`.
+
+## Play 3 User Flow (Phase 3 Desktop, config-free)
+
+After Phase 2 (a stable system with NVIDIA drivers + PipeWire), log in as
+`end_user` and run:
+
+```bash
+make run-phase3
+# or: ansible-playbook playbooks/30-desktop.yml
+```
+
+Play 3 installs the **packages and services** for a Hyprland Wayland desktop.
+It is **config-free** (spec 005, ADR-014): it writes **no user dotfiles** —
+every `hyprland.conf`, `waybar/`, `rofi/`, `swaync/`, `kitty.conf`, `yazi.toml`,
+`.zshrc`, and the wallpaper image is owned by the user's **stow** package. The
+single exception is `/etc/greetd/config.toml` (a *system service file* for the
+display manager, not a dotfile), which Play 3 writes and enables.
+
+- **Modules are selectable** two ways (spec 005 D2): the `enable_<id>` flags in
+  `inventory/hosts.yml` (Recommended default on, Optional off), or `--tags
+  <id>` at run time. Example: `--tags fonts,shell-terminal`.
+- **Window manager** — `wm_vendor: hyprland` (only `hyprland` is implemented;
+  `niri`/`sway`/`none` hit a "not implemented" gate). Only the 5 `hyprland-*`
+  roles are WM-gated; the 9 shared modules are WM-agnostic.
+- **Prerequisite gate** — the 4 downstream Hyprland roles (`config`, `lock`,
+  `wallpaper`, `screenshare`) only run when `enable_hyprland_install` is also
+  true (spec 005 D5).
+- **After the play**: log in to the desktop (or reboot for greetd) and run each
+  applied module's verification from its docs (e.g. `hyprland --version`,
+  `rofi -show drun`, `swaync-client -t`, `systemctl status greetd`,
+  `fc-list | wc -l`, `wl-copy`/`wl-paste`).
+
+## Play 4 User Flow (Phase 4 Workflow, system-level only)
+
+After Phase 3 (a desktop you log into), still logged in as `end_user` (wheel),
+run:
+
+```bash
+make run-phase4
+# or: ansible-playbook playbooks/40-workflow.yml
+```
+
+Play 4 installs the **packages, user services, and system-level artifacts**
+for the Phase 4 workflow modules (see
+[`os/archlinux/phase-4-workflow/`](../os/archlinux/phase-4-workflow/README.md)).
+It is **system-level only** (spec 006, ADR-016): like Play 3 it writes **no
+user dotfiles** — the one exception class is *service unit definitions and
+root-owned system artifacts*, of which Play 4 writes exactly four:
+
+1. `/usr/local/bin/devpod` (devpod module, binary download),
+2. the end user's subuid/subgid range (containers module, `usermod`),
+3. the `ufw allow 8080/tcp` rule (inference module),
+4. `~/.config/systemd/user/llama-server.service` (inference module — a
+   *service definition*, not a config file; the role prints that you may
+   prefer stow to own it).
+
+Everything else in the Phase 4 docs (`~/.ssh/config`, `~/models/config.ini`,
+`opencode.json`, neovim specs, aliases, …) is printed as a "your stow package
+should provide X" note — the shared `dotfiles-backup` module sets up that
+stow + git-repo boundary (GNU Stow, `~/dotfiles`; it never moves your
+existing configs).
+
+**Module selection** — three ways (spec 006 D1):
+
+- **Profile vars** (the ergonomic default): `profile_dev`, `profile_ai`,
+  `profile_creative`, `profile_gaming` in `inventory/hosts.yml`. A profile on
+  enables all of its modules (default: dev + ai on; gaming + creative off).
+- **Per-module flags**: the 18 `enable_<id>` flags (all default `false`; the
+  profile vars drive selection). For per-module control, set your `profile_*`
+  vars to `false` and flip individual flags. Note the OR-semantics: a module
+  cannot be switched *off* while its profile is *on* — narrow at run time with
+  `--tags` instead.
+- **Tags**: `--tags <id>` at run time (ids: `containers`, `devpod`,
+  `inference`, `agents`, …, plus the shared `dotfiles-backup`).
+
+Prerequisite gates: `devpod` needs `containers` (podman as its provider);
+`agents` needs `inference` (llama-server). The `yay` AUR helper must exist
+(installed by Play 2 with `enable_aur: true`) before Play 4 runs — the pre-task
+gate fails with a clear message otherwise.
+
+**Model downloads are opt-in** (spec 006 D5): set `enable_ai_models: true` to
+have the inference/agents roles `wget -c` the GGUFs into `~/models/`
+(tens of GB); default off, so a normal run never fetches models. `inference`
+always creates `~/models/` and the llama-server service; the model preset
+(`~/models/config.ini`) is stow-owned.
+
+**Placeholder modules** (spec 006 D3): 12 of the 18 Phase 4 docs are
+placeholders. Their roles are *thin* — they install only the packages their
+manifest entry lists (steam, mangohud, obs-studio, mpv, neovim, podman) and
+print a "doc is a placeholder — manual steps pending" note. No playbook
+redesign is needed when the docs are filled in later.
+
+**After the play** (manual bring-up): run each applied module's verification
+from its docs — e.g. `stow --version` + `ls -la ~/dotfiles/.git`
+(dotfiles-backup), `podman run --rm hello-world` + `lazypodman` (containers),
+`devpod list` (devpod), `nvim --version` (neovim),
+`llama-server --version` + `systemctl --user status llama-server.service` +
+`curl -s http://127.0.0.1:8080/v1/models` (inference), `npm ls -g` (harness),
+`which claude-desktop` (agents), `steam --version` (steam), `mangohud
+--version` (mangohud), `obs --version` (obs), `mpv --version`
+(media-players).
 
 ## Safety Gates
 
@@ -101,23 +213,30 @@ files remain.
 ## Verification (always-on, no CI)
 
 ```bash
-make lint     # yamllint + ansible-lint
-make syntax   # ansible-playbook --syntax-check
-make check    # manifest <-> playbook parity (exit 0 iff in sync)
+make lint       # yamllint + ansible-lint
+make syntax     # ansible-playbook --syntax-check (Plays 1-4)
+make check      # manifest <-> playbook parity (exit 0 iff in sync, Phases 0-4, profile-aware)
+make run-phase3 # Play 3: Phase 3 desktop (booted system, config-free)
+make run-phase4 # Play 4: Phase 4 workflow (booted system, system-level only)
 ```
 
 Acceptance = the manual bring-up above: Play 1 reboots into a GRUB menu showing
-both Linux and Windows.
+both Linux and Windows; Play 2/3/4 each leave their applied modules'
+verification commands passing.
 
 ## Layout
 
 ```
 ansible/
 ├── ansible.cfg
-├── inventory/hosts.yml        # per-machine values: drive, identity, layout, swap, fstype, bootloader, passwords, country
+├── inventory/hosts.yml        # per-machine values: drive, identity, layout, swap, fstype, bootloader, passwords, country, wm + enable_* flags
 ├── group_vars/all.yml         # static shared constants: mount_point, efi_dir, gate
-├── vars/distros/archlinux.yml # Option A distro layer (packages/commands/paths/layout)
+├── vars/distros/archlinux.yml # Option A distro layer (packages/commands/paths/layout + wm map + per-module pkgs)
 ├── playbooks/10-install.yml   # Play 1: preflight -> modules 01-08 -> reboot
+├── playbooks/20-hardening.yml # Play 2: Phase 2 selectable modules (booted system)
+├── playbooks/30-desktop.yml   # Play 3: Phase 3 selectable desktop modules (booted system, config-free)
+├── playbooks/40-workflow.yml  # Play 4: Phase 4 profile-selectable modules (booted system, system-level only)
+├── templates/llama-server.service.j2  # the only template Play 4 writes (inference user unit)
 ├── roles/
 │   ├── preflight/             # Phase 0 gate (overview, pre-flight, verify-boot)
 │   ├── partitioning/          # 02 (detect-all fact, validation, gate, gdisk template)
@@ -126,6 +245,15 @@ ansible/
 │   ├── system_config/         # 05 (genfstab; chroot: timezone, locale, hostname, NM)
 │   ├── users_sudo/            # 06 (user + sudoers.d drop-in, chroot-stage)
 │   ├── bootloader_grub/       # 07 (grub, mkconfig, os-prober, efibootmgr)
-│   └── first_reboot/          # 08 (final checks, unmount, reboot)
-└── generators/manifest_to_playbook.py  # parity checker
+│   ├── first_reboot/          # 08 (final checks, unmount, reboot)
+│   ├── gpu/ snapshots/ aur/ sound/ networking/ clock_sync/ firewall/ external_drives/ ssh_git/  # Play 2
+│   ├── hyprland_install/ hyprland_config/ hyprland_lock/ hyprland_wallpaper/ hyprland_screenshare/  # Play 3 (WM)
+│   ├── shell_terminal/ app_launcher/ status_bar/ notifications/ clipboard/ screenshots/ file_manager/ fonts/  # Play 3 (shared)
+│   ├── display_manager/  # Play 3 (shared); templates/greetd-config.toml.j2 = only file Play 3 writes
+│   ├── dotfiles_backup/  # Play 4 (shared): stow + ~/dotfiles git bootstrap (config-free)
+│   ├── dev_neovim/ dev_containers/ dev_devpod/ dev_languages/ dev_api_testing/  # Play 4 (dev profile)
+│   ├── ai_inference/ ai_harness/ ai_ide_integration/ ai_agents/ ai_training/  # Play 4 (ai profile)
+│   ├── gaming_steam/ gaming_proton/ gaming_heroic/ gaming_mangohud/ gaming_controllers/  # Play 4 (gaming profile)
+│   └── creative_obs/ creative_davinci_resolve/ creative_media_players/  # Play 4 (creative profile)
+└── generators/manifest_to_playbook.py  # parity checker (Phases 0-4, profile-aware)
 ```

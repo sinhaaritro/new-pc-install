@@ -1,0 +1,68 @@
+---
+# Role: ai_harness (manifest module id: harness)
+# Phase 4 profile-ai module on the booted system: AI coding harnesses (npm
+# globals + opencode from pacman). Node.js comes from the placeholder
+# 'languages' module: when node is absent the role prints a note and skips
+# the npm globals instead of failing (spec 006, dependency reality). Config
+# files (opencode.json, aliases) and API keys/auth are user territory -
+# printed as notes.
+
+- name: Check for Node.js (module harness)
+  ansible.builtin.shell: node --version
+  args:
+    executable: /bin/bash
+  become: false
+  register: ai_harness_node
+  changed_when: false
+  failed_when: false
+
+- name: Install opencode from pacman (module harness)
+  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.harness | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: ai_harness_pacman
+  changed_when: ai_harness_pacman.rc == 0
+
+- name: Resolve the end user uid (module harness)
+  ansible.builtin.shell: id -u {{ end_user }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: ai_harness_uid
+  changed_when: false
+
+- name: Install the AI harness npm globals (module harness)
+  ansible.builtin.shell: >-
+    sudo -u {{ end_user }} env XDG_RUNTIME_DIR=/run/user/{{ ai_harness_uid.stdout }}
+    npm install -g {{ phase4.npm.harness | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  when: ai_harness_node.rc == 0
+  register: ai_harness_npm
+  changed_when: ai_harness_npm.rc == 0
+
+- name: Prepare the harness report pieces (module harness)
+  ansible.builtin.set_fact:
+    ai_harness_npm_status: >-
+      {{ '; npm globals installed: ' ~ (phase4.npm.harness | join(', '))
+         if ai_harness_node.rc == 0
+         else '; SKIPPED npm globals (kilocode, @anthropic-ai/claude-code,
+         @google-gemini/gemini-cli) - Node.js is missing; it is provided by
+         the placeholder profile-dev/languages.md module (pacman -S nodejs
+         npm unblocks this)' }}
+    ai_harness_verify: >-
+      {{ 'claude --version; gemini --version; kilocode --version'
+         if ai_harness_node.rc == 0 else 'node --version (after installing Node.js)' }}
+
+- name: Report harness verification (module harness)
+  ansible.builtin.debug:
+    msg: >-
+      opencode installed{{ ai_harness_npm_status }}.
+      Manual setup: export ANTHROPIC_API_KEY for claude; 'gemini auth login'
+      for gemini; export KILOCODE_API_BASE=http://127.0.0.1:8080/v1 and
+      KILOCODE_MODEL=local for kilocode against llama-server. Your stow
+      package should provide opencode.json (llamacpp provider, baseURL
+      http://localhost:8080/v1) and the oc/cc/gc aliases in
+      ~/.config/zsh/aliases.zsh. Verify: opencode --version; {{ ai_harness_verify }}.

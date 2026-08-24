@@ -1,0 +1,47 @@
+---
+# Role: hyprland_install (manifest module id: hyprland-install)
+# Phase 3 module 01 on the booted system: install the Hyprland Wayland
+# compositor, Kitty, portal, Qt-wayland, Firefox, and yazi (spec 005).
+# wm_vendor (inventory) selects the WM base package set; only 'hyprland' is
+# implemented (niri/sway/none hit a "not implemented" gate). Config-free
+# (ADR-014): no hyprland.conf is written - the user's stow package owns it.
+
+- name: Assert wm_vendor selects a known window manager (module hyprland-install)
+  ansible.builtin.assert:
+    that:
+      - wm_vendor is defined
+      - wm_vendor in wm
+    fail_msg: >-
+      wm_vendor "{{ wm_vendor | default('') }}" must be one of
+      {{ wm.keys() | join(', ') }}. Set it in ansible/inventory/hosts.yml.
+    success_msg: wm_vendor={{ wm_vendor }}
+
+- name: Gate unimplemented window managers (module hyprland-install)
+  ansible.builtin.assert:
+    that:
+      - wm_vendor in ['hyprland', 'none']
+    fail_msg: >-
+      wm_vendor "{{ wm_vendor }}" is declared but not implemented yet.
+      Implemented: hyprland, none.
+
+- name: Note WM vendor none skips desktop install (module hyprland-install)
+  ansible.builtin.debug:
+    msg: "wm_vendor=none - no window manager is installed."
+  when: wm_vendor == 'none'
+
+- name: Install Hyprland base packages (module hyprland-install)
+  ansible.builtin.shell: pacman -S --noconfirm {{ wm.hyprland.packages | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: hyprland_install_pacman
+  changed_when: hyprland_install_pacman.rc == 0
+  when: wm_vendor == 'hyprland'
+
+- name: Report Hyprland install verification (module hyprland-install)
+  ansible.builtin.debug:
+    msg: >-
+      Hyprland installed. From a TTY run 'Hyprland' to launch. Your stow
+      package should provide ~/.config/hypr/hyprland.conf (see Phase 3 module
+      02 Core Config). Verify: hyprland --version, kitty --version.
+  when: wm_vendor == 'hyprland'

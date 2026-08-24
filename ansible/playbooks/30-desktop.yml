@@ -1,0 +1,137 @@
+---
+# Play 3 — Phase 3 desktop on the booted system (spec 005).
+# Runs AFTER Phase 2, logged in as the end user (wheel group):
+#   make run-phase3
+# Config-free (ADR-014): roles install packages + enable services only; all
+# user dotfiles are owned by the user's stow package. Modules are selectable
+# two ways (spec 005 D2): the enable_<id> inventory flags in
+# inventory/hosts.yml, or --tags <id> at run time. Root tasks run via the
+# play-level become; the only file Play 3 writes is /etc/greetd/config.toml
+# (display-manager, a system service file). The 4 downstream Hyprland roles
+# are additionally gated on enable_hyprland_install (D5). See
+# ansible/README.md for the flow.
+- name: Arch Linux Phase 3 desktop (booted system, config-free)
+  hosts: localhost
+  gather_facts: false
+  become: true
+  vars_files:
+    - vars/distros/{{ ansible_distro }}.yml
+  pre_tasks:
+    - name: Check for the live-USB marker (play 3 gate)
+      ansible.builtin.stat:
+        path: /run/archiso
+      become: false
+      register: play3_archiso
+
+    - name: Assert not running on the live USB (play 3 gate)
+      ansible.builtin.assert:
+        that:
+          - not play3_archiso.stat.exists
+        fail_msg: >-
+          This play runs on the installed system, not the live USB
+          (/run/archiso exists). Finish Phase 1 (make run), reboot into the
+          installed system, log in as {{ end_user | default('your user') }},
+          and run make run-phase3.
+
+    - name: Read the invoking user (play 3 gate)
+      ansible.builtin.shell: id -u && id -nG
+      args:
+        executable: /bin/bash
+      become: false
+      register: play3_invoker
+      changed_when: false
+
+    - name: Assert the invoking user is root or in the wheel group (play 3 gate)
+      ansible.builtin.assert:
+        that:
+          - play3_invoker.stdout_lines | first | int == 0
+          - "'wheel' in (play3_invoker.stdout_lines | last).split(' ')"
+        fail_msg: >-
+          Play 3 must be run as root or as a wheel-group user (for sudo).
+          Log in as {{ end_user | default('your end user') }} and re-run
+          make run-phase3.
+
+    - name: Check the end user account exists (play 3 gate)
+      ansible.builtin.shell: id {{ end_user }}
+      args:
+        executable: /bin/bash
+      become: true
+      register: play3_end_user
+      changed_when: false
+      failed_when: false
+
+    - name: Assert the end user account exists (play 3 gate)
+      ansible.builtin.assert:
+        that:
+          - play3_end_user.rc == 0
+        fail_msg: >-
+          The end_user account "{{ end_user | default('') }}" does not exist
+          on this system. Set end_user in ansible/inventory/hosts.yml to the
+          account created during Phase 1 (module 06).
+  roles:
+    # --- Hyprland (sequential; 02-05 gated on 01 per spec 005 D5) ---
+    - role: hyprland_install
+      tags:
+        - hyprland-install
+      when: enable_hyprland_install | default(false)
+    - role: hyprland_config
+      tags:
+        - hyprland-config
+      when:
+        - enable_hyprland_config | default(false)
+        - enable_hyprland_install | default(false)
+    - role: hyprland_lock
+      tags:
+        - hyprland-lock
+      when:
+        - enable_hyprland_lock | default(false)
+        - enable_hyprland_install | default(false)
+    - role: hyprland_wallpaper
+      tags:
+        - hyprland-wallpaper
+      when:
+        - enable_hyprland_wallpaper | default(false)
+        - enable_hyprland_install | default(false)
+    - role: hyprland_screenshare
+      tags:
+        - hyprland-screenshare
+      when:
+        - enable_hyprland_screenshare | default(false)
+        - enable_hyprland_install | default(false)
+    # --- Shared desktop modules (order flexible) ---
+    - role: shell_terminal
+      tags:
+        - shell-terminal
+      when: enable_shell_terminal | default(false)
+    - role: app_launcher
+      tags:
+        - app-launcher
+      when: enable_app_launcher | default(false)
+    - role: status_bar
+      tags:
+        - status-bar
+      when: enable_status_bar | default(false)
+    - role: notifications
+      tags:
+        - notifications
+      when: enable_notifications | default(false)
+    - role: display_manager
+      tags:
+        - display-manager
+      when: enable_display_manager | default(false)
+    - role: clipboard
+      tags:
+        - clipboard
+      when: enable_clipboard | default(false)
+    - role: screenshots
+      tags:
+        - screenshots
+      when: enable_screenshots | default(false)
+    - role: file_manager
+      tags:
+        - file-manager
+      when: enable_file_manager | default(false)
+    - role: fonts
+      tags:
+        - fonts
+      when: enable_fonts | default(false)

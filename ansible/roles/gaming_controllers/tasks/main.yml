@@ -1,0 +1,15 @@
+---
+# Role: gaming_controllers (manifest module id: controllers)
+# Phase 4 profile-gaming module - THIN (spec 006 D3): the doc
+# (profile-gaming/controllers.md) is a placeholder with no manifest packages,
+# so this role installs nothing and prints the pending scope.
+
+- name: Report controllers placeholder status (module controllers)
+  ansible.builtin.debug:
+    msg: >-
+      NOTE: the doc is a placeholder - no packages are installed. Planned
+      scope (pending in
+      os/archlinux/phase-4-workflow/profile-gaming/controllers.md):
+      controller pairing, input mapping (e.g. gamescope input remapping), and
+      per-game profile setup. Verify later: ls /dev/input/ with a controller
+      connected.

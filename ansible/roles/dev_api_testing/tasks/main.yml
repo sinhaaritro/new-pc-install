@@ -1,0 +1,15 @@
+---
+# Role: dev_api_testing (manifest module id: api-testing)
+# Phase 4 profile-dev module - THIN (spec 006 D3): the doc
+# (profile-dev/api-testing.md) is a placeholder with no manifest packages, so
+# this role installs nothing and prints the pending scope. curl is already
+# part of the base install.
+
+- name: Report api-testing placeholder status (module api-testing)
+  ansible.builtin.debug:
+    msg: >-
+      NOTE: the doc is a placeholder - no packages are installed. Intended
+      scope (pending in
+      os/archlinux/phase-4-workflow/profile-dev/api-testing.md): posting (TUI,
+      AUR), httpie (pacman); curl is already installed as part of the base
+      system. Verify later: posting --help; http --version; curl --version.

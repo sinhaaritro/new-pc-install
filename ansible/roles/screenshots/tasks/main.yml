@@ -1,0 +1,22 @@
+---
+# Role: screenshots (manifest module id: screenshots)
+# Phase 3 shared module on the booted system: grim (capture) + slurp (region
+# select) + swappy (annotate). Config-free (ADR-014): installs the packages
+# only; the PRINT keybinds in hyprland.conf are owned by the user's stow
+# package.
+
+- name: Install grim, slurp, and swappy (module screenshots)
+  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.screenshots | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: screenshots_pacman
+  changed_when: screenshots_pacman.rc == 0
+
+- name: Report screenshots verification (module screenshots)
+  ansible.builtin.debug:
+    msg: >-
+      grim + slurp + swappy installed. Your stow package should add the
+      PRINT keybinds (full/region/annotate/clipboard) to hyprland.conf (see
+      Phase 3 module Screenshots). Verify: SUPER+PRINT saves a PNG;
+      SUPER+SHIFT+PRINT captures a region; swappy opens for annotation.

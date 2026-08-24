@@ -1,0 +1,22 @@
+---
+# Role: creative_obs (manifest module id: obs)
+# Phase 4 profile-creative module - THIN (spec 006 D3): the doc
+# (profile-creative/obs.md) is a placeholder, so this role installs only the
+# manifest-listed package (obs-studio) and prints the pending manual steps.
+
+- name: Install obs-studio (module obs)
+  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.obs | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: creative_obs_pacman
+  changed_when: creative_obs_pacman.rc == 0
+
+- name: Report obs placeholder status (module obs)
+  ansible.builtin.debug:
+    msg: >-
+      obs-studio installed. NOTE: the doc is a placeholder - the package set
+      is manifest-only and the remaining manual steps (screen-sharing portal
+      setup, audio capture) are pending in
+      os/archlinux/phase-4-workflow/profile-creative/obs.md. Prerequisites:
+      the Phase 3 screenshare + Phase 2 sound modules. Verify: obs --version.

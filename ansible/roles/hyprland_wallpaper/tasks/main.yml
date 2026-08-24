@@ -1,0 +1,22 @@
+---
+# Role: hyprland_wallpaper (manifest module id: hyprland-wallpaper)
+# Phase 3 module 04 on the booted system: swww wallpaper daemon (static +
+# animated). Config-free (ADR-014): installs swww only; the wallpaper image
+# and the 'exec-once = swww img ...' autostart are owned by the user's stow
+# package / home directory.
+
+- name: Install swww (module hyprland-wallpaper)
+  ansible.builtin.shell: pacman -S --noconfirm swww
+  args:
+    executable: /bin/bash
+  become: true
+  register: hyprland_wallpaper_pacman
+  changed_when: hyprland_wallpaper_pacman.rc == 0
+
+- name: Report wallpaper verification (module hyprland-wallpaper)
+  ansible.builtin.debug:
+    msg: >-
+      swww installed. Your stow package should add 'exec-once = swww img
+      ~/Pictures/<wallpaper>' to hyprland.conf (see Phase 3 module 04
+      Wallpaper). Verify: swww img ~/Pictures/<wallpaper> displays it;
+      swww output lists the active wallpaper.

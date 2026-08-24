@@ -1,0 +1,23 @@
+---
+# Role: clipboard (manifest module id: clipboard)
+# Phase 3 shared module on the booted system: wl-clipboard (wl-copy/wl-paste)
+# + clipse (TUI clipboard history). Config-free (ADR-014): installs the
+# packages only; the 'exec-once = clipse -listen' autostart, the SUPER+V
+# keybind, and the clipse window rules are owned by the user's stow package.
+
+- name: Install wl-clipboard and clipse (module clipboard)
+  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.clipboard | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: clipboard_pacman
+  changed_when: clipboard_pacman.rc == 0
+
+- name: Report clipboard verification (module clipboard)
+  ansible.builtin.debug:
+    msg: >-
+      wl-clipboard + clipse installed. Your stow package should add
+      'exec-once = clipse -listen', a SUPER+V keybind (kitty --class clipse -e
+      clipse), and the clipse float window rules to hyprland.conf (see Phase 3
+      module Clipboard). Verify: 'echo hi | wl-copy && wl-paste' round-trips;
+      SUPER+V opens the history selector.

@@ -1,0 +1,69 @@
+---
+# Role: dev_containers (manifest module id: containers)
+# Phase 4 profile-dev module on the booted system: rootless Podman +
+# lazydocker (TUI). System-level artifacts (spec 006 D2): the end user's
+# subuid/subgid range (root, via usermod). Everything else (the lazypodman
+# alias) is a stow note. User-context commands use the sudo -u wrapper
+# (spec 006 D7, sound role pattern).
+
+- name: Install podman (module containers)
+  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.containers | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: dev_containers_pacman
+  changed_when: dev_containers_pacman.rc == 0
+
+- name: Install lazydocker from the AUR (module containers)
+  ansible.builtin.shell: yay -S --noconfirm --needed {{ phase4.aur.containers | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: dev_containers_aur
+  changed_when: dev_containers_aur.rc == 0
+
+- name: Add the subuid/subgid range for rootless podman (module containers)
+  ansible.builtin.shell: >-
+    usermod --add-subuids 100000-165535 --add-subgids 100000-165535 {{ end_user }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: dev_containers_subuid
+  changed_when: dev_containers_subuid.rc == 0
+
+- name: Resolve the end user uid (module containers)
+  ansible.builtin.shell: id -u {{ end_user }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: dev_containers_uid
+  changed_when: false
+
+- name: Run podman system migration (module containers)
+  ansible.builtin.shell: >-
+    sudo -u {{ end_user }} env XDG_RUNTIME_DIR=/run/user/{{ dev_containers_uid.stdout }}
+    podman system migrate
+  args:
+    executable: /bin/bash
+  become: true
+  register: dev_containers_migrate
+  changed_when: dev_containers_migrate.rc == 0
+
+- name: Enable the podman user socket (module containers)
+  ansible.builtin.shell: >-
+    sudo -u {{ end_user }} env XDG_RUNTIME_DIR=/run/user/{{ dev_containers_uid.stdout }}
+    systemctl --user enable --now podman.socket
+  args:
+    executable: /bin/bash
+  become: true
+  register: dev_containers_socket
+  changed_when: dev_containers_socket.rc == 0
+
+- name: Report containers verification (module containers)
+  ansible.builtin.debug:
+    msg: >-
+      podman + lazydocker installed; subuid/subgid range added; podman
+      socket enabled. Your stow package should provide the 'lazypodman' alias
+      in ~/.zshrc (DOCKER_HOST=unix:///run/user/<uid>/podman/podman.sock
+      lazydocker). Verify (as {{ end_user }}): podman run --rm hello-world;
+      podman info; lazypodman.

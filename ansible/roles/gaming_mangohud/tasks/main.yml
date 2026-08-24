@@ -1,0 +1,23 @@
+---
+# Role: gaming_mangohud (manifest module id: mangohud)
+# Phase 4 profile-gaming module - THIN (spec 006 D3): the doc
+# (profile-gaming/mangohud.md) is a placeholder, so this role installs only
+# the manifest-listed package (mangohud) and prints the pending manual steps.
+
+- name: Install mangohud (module mangohud)
+  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.mangohud | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: gaming_mangohud_pacman
+  changed_when: gaming_mangohud_pacman.rc == 0
+
+- name: Report mangohud placeholder status (module mangohud)
+  ansible.builtin.debug:
+    msg: >-
+      mangohud installed. NOTE: the doc is a placeholder - the package set is
+      manifest-only and the remaining manual steps (MANGOHUD=1 launch
+      wrapper, mangohud.toml layout) are pending in
+      os/archlinux/phase-4-workflow/profile-gaming/mangohud.md. Your stow
+      package may ship ~/.config/MangoHud/mangohud.toml. Verify:
+      mangohud --version.

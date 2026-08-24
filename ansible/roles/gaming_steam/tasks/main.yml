@@ -1,0 +1,22 @@
+---
+# Role: gaming_steam (manifest module id: steam)
+# Phase 4 profile-gaming module - THIN (spec 006 D3): the doc
+# (profile-gaming/steam.md) is a placeholder, so this role installs only the
+# manifest-listed package (steam) and prints the pending manual steps.
+
+- name: Install steam (module steam)
+  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.steam | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: gaming_steam_pacman
+  changed_when: gaming_steam_pacman.rc == 0
+
+- name: Report steam placeholder status (module steam)
+  ansible.builtin.debug:
+    msg: >-
+      steam installed. NOTE: the doc is a placeholder - the package set is
+      manifest-only and the remaining manual steps (native client settings,
+      multilib notes) are pending in
+      os/archlinux/phase-4-workflow/profile-gaming/steam.md. Verify:
+      steam --version; steam (first launch walks the setup).

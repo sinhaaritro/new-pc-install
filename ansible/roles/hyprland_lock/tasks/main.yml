@@ -1,0 +1,23 @@
+---
+# Role: hyprland_lock (manifest module id: hyprland-lock)
+# Phase 3 module 03 on the booted system: hyprlock (screen lock) + hypridle
+# (idle timeouts). Config-free (ADR-014): installs the packages only; the
+# user's stow package owns ~/.config/hyprlock/hyprlock.conf and
+# ~/.config/hypridle/hypridle.conf.
+
+- name: Install hyprlock and hypridle (module hyprland-lock)
+  ansible.builtin.shell: pacman -S --noconfirm hyprlock hypridle
+  args:
+    executable: /bin/bash
+  become: true
+  register: hyprland_lock_pacman
+  changed_when: hyprland_lock_pacman.rc == 0
+
+- name: Report lock/idle verification (module hyprland-lock)
+  ansible.builtin.debug:
+    msg: >-
+      hyprlock + hypridle installed. Your stow package should provide
+      ~/.config/hyprlock/hyprlock.conf and ~/.config/hypridle/hypridle.conf,
+      plus the 'exec-once = hypridle' autostart and a SUPER+L lock keybind in
+      hyprland.conf (see Phase 3 module 03 Lock & Idle). Verify: hyprlock
+      shows the lockscreen; idle locks per your hypridle timeouts.

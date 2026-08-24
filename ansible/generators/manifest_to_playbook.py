@@ -43,13 +43,57 @@ ROLE_MAP = {
     "firewall": "firewall",
     "external-drives": "external_drives",
     "ssh": "ssh_git",
+    "hyprland-install": "hyprland_install",
+    "hyprland-config": "hyprland_config",
+    "hyprland-lock": "hyprland_lock",
+    "hyprland-wallpaper": "hyprland_wallpaper",
+    "hyprland-screenshare": "hyprland_screenshare",
+    "shell-terminal": "shell_terminal",
+    "app-launcher": "app_launcher",
+    "status-bar": "status_bar",
+    "notifications": "notifications",
+    "display-manager": "display_manager",
+    "clipboard": "clipboard",
+    "screenshots": "screenshots",
+    "file-manager": "file_manager",
+    "fonts": "fonts",
+    # Phase 4 (profile-structured; spec 006 D6). Module ids stay flat - they
+    # are unique across profiles in the manifest. 'davinci' maps to an
+    # extended role name to avoid the Phase 3 namespace collision (ADR-020).
+    # 'dotfiles' is the manifest id of the SHARED Phase 4 module (its docs
+    # file is dotfiles-backup.md; the role directory is dotfiles_backup).
+    "dotfiles": "dotfiles_backup",
+    "dotfiles-backup": "dotfiles_backup",
+    "neovim": "dev_neovim",
+    "containers": "dev_containers",
+    "devpod": "dev_devpod",
+    "languages": "dev_languages",
+    "api-testing": "dev_api_testing",
+    "inference": "ai_inference",
+    "harness": "ai_harness",
+    "ide-integration": "ai_ide_integration",
+    "agents": "ai_agents",
+    "training": "ai_training",
+    "steam": "gaming_steam",
+    "proton": "gaming_proton",
+    "heroic": "gaming_heroic",
+    "mangohud": "gaming_mangohud",
+    "controllers": "gaming_controllers",
+    "obs": "creative_obs",
+    "davinci": "creative_davinci_resolve",
+    "media-players": "creative_media_players",
 }
 
-PHASE_IDS = ("phase-0", "phase-1", "phase-2")
+PHASE_IDS = ("phase-0", "phase-1", "phase-2", "phase-3", "phase-4")
 
 
 def load_modules(manifest_path):
-    """Return {module_id: module_dict} for Phase 0-2 modules only."""
+    """Return {module_id: module_dict} for the covered phases.
+
+    Phases carry a flat 'modules:' list; phase-4 carries a 'profiles:' list
+    whose entries each hold a 'modules:' list (spec 006 D6) - both shapes are
+    walked, ids stay flat.
+    """
     import yaml
 
     if not manifest_path.is_file():
@@ -64,6 +108,9 @@ def load_modules(manifest_path):
             continue
         for module in phase.get("modules", []):
             modules[module["id"]] = module
+        for profile in phase.get("profiles", []):
+            for module in profile.get("modules", []):
+                modules[module["id"]] = module
     return modules
 
 
@@ -120,7 +167,7 @@ def check():
             print(f"  - {error}")
         return 1
 
-    print(f"PARITY OK: {len(modules)} Phase 0-2 modules, {len(package_ids)} packages all covered")
+    print(f"PARITY OK: {len(modules)} Phase 0-4 modules, {len(package_ids)} packages all covered")
     return 0
 
 

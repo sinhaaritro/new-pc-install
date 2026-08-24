@@ -1,0 +1,109 @@
+---
+# Role: ai_inference (manifest module id: inference)
+# Phase 4 profile-ai module on the booted system: llama.cpp native GPU
+# inference. System-level artifacts (spec 006 D2): the llama-server user unit
+# file (a service definition, template) and the ufw 8080/tcp rule. Data:
+# ~/models/ dir; model GGUF downloads are flag-gated behind enable_ai_models
+# (D5, resume-safe). The model preset (~/models/config.ini) and the
+# llama-start/llm() aliases are stow-owned - printed as notes.
+
+- name: Install the CUDA toolkit (module inference)
+  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.inference | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: ai_inference_pacman
+  changed_when: ai_inference_pacman.rc == 0
+
+- name: Install llama-cpp-cuda from the AUR (module inference)
+  ansible.builtin.shell: yay -S --noconfirm --needed {{ phase4.aur.inference | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: ai_inference_aur
+  changed_when: ai_inference_aur.rc == 0
+
+- name: Create the models directory (module inference)
+  ansible.builtin.file:
+    path: /home/{{ end_user }}/models
+    state: directory
+    owner: "{{ end_user }}"
+    group: "{{ end_user }}"
+    mode: "0755"
+  become: true
+
+- name: Download the inference model files (module inference, opt-in)
+  ansible.builtin.get_url:
+    url: "{{ item.url }}"
+    dest: "/home/{{ end_user }}/models/{{ item.filename }}"
+    mode: "0644"
+  become: true
+  loop: "{{ phase4.models.inference }}"
+  loop_control:
+    label: "{{ item.filename }}"
+  when: enable_ai_models | default(false) | bool
+
+- name: Write the llama-server user unit file (module inference)
+  ansible.builtin.template:
+    src: llama-server.service.j2
+    dest: /home/{{ end_user }}/.config/systemd/user/llama-server.service
+    owner: "{{ end_user }}"
+    group: "{{ end_user }}"
+    mode: "0644"
+  become: true
+
+- name: Resolve the end user uid (module inference)
+  ansible.builtin.shell: id -u {{ end_user }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: ai_inference_uid
+  changed_when: false
+
+- name: Reload the user systemd manager (module inference)
+  ansible.builtin.shell: >-
+    sudo -u {{ end_user }} env XDG_RUNTIME_DIR=/run/user/{{ ai_inference_uid.stdout }}
+    systemctl --user daemon-reload
+  args:
+    executable: /bin/bash
+  become: true
+  register: ai_inference_reload
+  changed_when: false
+
+- name: Enable linger for the end user (module inference)
+  ansible.builtin.shell: loginctl enable-linger {{ end_user }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: ai_inference_linger
+  changed_when: false
+
+- name: Enable and start the llama-server user service (module inference)
+  ansible.builtin.shell: >-
+    sudo -u {{ end_user }} env XDG_RUNTIME_DIR=/run/user/{{ ai_inference_uid.stdout }}
+    systemctl --user enable --now llama-server.service
+  args:
+    executable: /bin/bash
+  become: true
+  register: ai_inference_service
+  changed_when: ai_inference_service.rc == 0
+
+- name: Allow LAN access to the llama-server port (module inference)
+  ansible.builtin.command: ufw allow 8080/tcp comment "llama.cpp server"
+  become: true
+  changed_when: false
+
+- name: Report inference verification (module inference)
+  ansible.builtin.debug:
+    msg: >-
+      cuda + llama-cpp-cuda installed; llama-server user service enabled
+      (linger on; ufw 8080/tcp allowed)
+      {{ '(models downloaded)' if (enable_ai_models | default(false) | bool) else '(model download skipped - set enable_ai_models: true to fetch the GGUFs)' }}.
+      Your stow package should provide ~/models/config.ini (the master preset:
+      host 0.0.0.0, port 8080, ctx-size 32768, the model classes) and the
+      llama-start alias + llm() helper in ~/.config/zsh/aliases.zsh. The
+      llama-server.service unit was written by this role; if you prefer stow
+      to own it, delete it and ship it from your stow package. Verify:
+      nvcc --version; nvidia-smi; llama-server --version;
+      systemctl --user status llama-server.service;
+      curl -s http://127.0.0.1:8080/v1/models.

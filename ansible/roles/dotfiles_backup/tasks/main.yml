@@ -1,0 +1,58 @@
+---
+# Role: dotfiles_backup (manifest module id: dotfiles-backup)
+# Phase 4 SHARED module on the booted system (all profiles): GNU Stow + a git
+# repo at ~/dotfiles as the ownership boundary for all user dotfiles
+# (spec 006 D9, ADR-016/023). The role is config-free: it installs stow,
+# bootstraps the repo only if it does not already exist (never 'git init'
+# over an existing repo), and prints the naming convention + adopt workflow.
+# It moves no files and writes no stow package contents - adopting existing
+# configs is an interactive, user-judgment step.
+
+- name: Install GNU Stow (module dotfiles-backup)
+  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.dotfiles_backup | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: dotfiles_backup_pacman
+  changed_when: dotfiles_backup_pacman.rc == 0
+
+- name: Check whether ~/dotfiles already exists (module dotfiles-backup)
+  ansible.builtin.stat:
+    path: /home/{{ end_user }}/dotfiles
+  become: false
+  register: dotfiles_backup_dir
+
+- name: Check whether ~/dotfiles is already a git repo (module dotfiles-backup)
+  ansible.builtin.stat:
+    path: /home/{{ end_user }}/dotfiles/.git
+  become: false
+  register: dotfiles_backup_git
+
+- name: Bootstrap ~/dotfiles as a git repo (module dotfiles-backup)
+  ansible.builtin.shell: |
+    set -e
+    mkdir -p /home/{{ end_user }}/dotfiles
+    cd /home/{{ end_user }}/dotfiles
+    git init
+  args:
+    executable: /bin/bash
+  become: false
+  when: not dotfiles_backup_dir.stat.exists
+  register: dotfiles_backup_init
+  changed_when: dotfiles_backup_init.rc == 0
+
+- name: Report dotfiles-backup workflow (module dotfiles-backup)
+  ansible.builtin.debug:
+    msg: >-
+      Stow installed; ~/dotfiles git repo present
+      ({{ 'created now' if not dotfiles_backup_dir.stat.exists else 'already existed - left untouched' }}).
+      Naming convention: [type]_[name]_[variant]
+      (p = package-specific, e.g. p_kitty; s = style group, e.g. s_dark_theme).
+      Suggested stow packages: p_hyprland/.config/hypr/, p_kitty/.config/kitty/,
+      p_waybar/.config/waybar/, p_rofi/.config/rofi/, p_zsh/.zshrc,
+      p_neovim/.config/nvim/, p_swaync/.config/swaync/.
+      To adopt an existing config: move it into ~/dotfiles/<pkg>/ mirroring the
+      home-relative path, then 'cd ~/dotfiles && stow <pkg>' (or
+      'stow --adopt <pkg>' followed by 'git checkout -- .' to restore the repo
+      versions). This role moves no files on your behalf. Verify:
+      stow --version; ls -la ~/dotfiles/.git.

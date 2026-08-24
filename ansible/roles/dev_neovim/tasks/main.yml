@@ -1,0 +1,24 @@
+---
+# Role: dev_neovim (manifest module id: neovim)
+# Phase 4 profile-dev module - THIN (spec 006 D3): the doc
+# (profile-dev/neovim.md) is a placeholder, so this role installs only the
+# manifest-listed package (neovim) and prints the pending manual steps.
+# The lazy.nvim plugin spec (LSP, treesitter) is stow-owned regardless.
+
+- name: Install neovim (module neovim)
+  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.neovim | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: dev_neovim_pacman
+  changed_when: dev_neovim_pacman.rc == 0
+
+- name: Report neovim placeholder status (module neovim)
+  ansible.builtin.debug:
+    msg: >-
+      neovim installed. NOTE: the doc is a placeholder - the package set is
+      manifest-only and the remaining manual steps (plugin manager bootstrap,
+      LSP servers, treesitter) are pending in
+      os/archlinux/phase-4-workflow/profile-dev/neovim.md. Your stow package
+      should own ~/.config/nvim/ (lazy.nvim spec, init.lua). Verify:
+      nvim --version.

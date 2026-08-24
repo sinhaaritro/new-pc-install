@@ -1,0 +1,52 @@
+---
+# Role: dev_devpod (manifest module id: devpod)
+# Phase 4 profile-dev module on the booted system: the DevPod CLI (binary to
+# /usr/local/bin, a system-level artifact per spec 006 D2) configured to use
+# Podman as its docker provider (user context; the provider state lives in
+# the user's home). No packages; no dotfiles written.
+
+- name: Download the devpod binary (module devpod)
+  ansible.builtin.get_url:
+    url: "{{ phase4.devpod.url }}"
+    dest: "{{ phase4.devpod.path }}"
+    mode: "0755"
+  become: true
+
+- name: Resolve the end user uid (module devpod)
+  ansible.builtin.shell: id -u {{ end_user }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: dev_devpod_uid
+  changed_when: false
+
+- name: Check whether the docker provider is already configured (module devpod)
+  ansible.builtin.shell: >-
+    set -o pipefail;
+    sudo -u {{ end_user }} env XDG_RUNTIME_DIR=/run/user/{{ dev_devpod_uid.stdout }}
+    devpod provider list 2>/dev/null | grep -c '^docker' || true
+  args:
+    executable: /bin/bash
+  become: true
+  register: dev_devpod_providers
+  changed_when: false
+
+- name: Add the docker provider pointed at podman (module devpod)
+  ansible.builtin.shell: |
+    set -e
+    sudo -u {{ end_user }} env XDG_RUNTIME_DIR=/run/user/{{ dev_devpod_uid.stdout }} devpod provider add docker
+    sudo -u {{ end_user }} env XDG_RUNTIME_DIR=/run/user/{{ dev_devpod_uid.stdout }} devpod provider set-options docker -o DOCKER_PATH=/usr/bin/podman
+  args:
+    executable: /bin/bash
+  become: true
+  when: dev_devpod_providers.stdout | trim | int == 0
+  register: dev_devpod_provider
+  changed_when: dev_devpod_provider.rc == 0
+
+- name: Report devpod verification (module devpod)
+  ansible.builtin.debug:
+    msg: >-
+      devpod installed at {{ phase4.devpod.path }}; docker provider pointed at
+      /usr/bin/podman. Verify (as {{ end_user }}): devpod list; devpod up
+      github.com/microsoft/vscode-remote-try-node --ide openvscode.
+      Note: the GUI does not work on Wayland - CLI only.

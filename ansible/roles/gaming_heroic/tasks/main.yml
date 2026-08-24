@@ -1,0 +1,15 @@
+---
+# Role: gaming_heroic (manifest module id: heroic)
+# Phase 4 profile-gaming module - THIN (spec 006 D3): the doc
+# (profile-gaming/heroic.md) is a placeholder with no manifest packages, so
+# this role installs nothing and prints the pending scope (AUR
+# heroicgameslauncher per the README index).
+
+- name: Report heroic placeholder status (module heroic)
+  ansible.builtin.debug:
+    msg: >-
+      NOTE: the doc is a placeholder - no packages are installed. Planned
+      scope (pending in os/archlinux/phase-4-workflow/profile-gaming/heroic.md):
+      the Heroic Games Launcher (AUR: heroicgameslauncher) for Epic/GOG
+      libraries plus its wine prefix setup. Prerequisite: NVIDIA drivers
+      (Phase 2). Verify later: heroic --version.

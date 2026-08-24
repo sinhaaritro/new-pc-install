@@ -1,0 +1,23 @@
+---
+# Role: status_bar (manifest module id: status-bar)
+# Phase 3 shared module on the booted system: waybar status bar.
+# Config-free (ADR-014): installs waybar only; ~/.config/waybar/ (config +
+# style.css) and the 'exec-once = waybar' autostart are owned by the user's
+# stow package.
+
+- name: Install waybar (module status-bar)
+  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.status_bar | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: status_bar_pacman
+  changed_when: status_bar_pacman.rc == 0
+
+- name: Report status-bar verification (module status-bar)
+  ansible.builtin.debug:
+    msg: >-
+      waybar installed. Your stow package should provide
+      ~/.config/waybar/config and ~/.config/waybar/style.css, plus
+      'exec-once = waybar' in hyprland.conf (see Phase 3 module Status Bar).
+      Verify: the bar appears at the top with workspaces, clock, and system
+      stats.

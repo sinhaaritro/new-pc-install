@@ -1,0 +1,31 @@
+---
+# Role: shell_terminal (manifest module id: shell-terminal)
+# Phase 3 shared module on the booted system: zsh + oh-my-zsh + fzf + zoxide
+# (spec 005). Installs the packages (root) and switches the end user's login
+# shell to zsh (chsh, root). Config-free (ADR-014): ~/.zshrc and
+# ~/.config/kitty/kitty.conf are owned by the user's stow package.
+
+- name: Install shell and terminal packages (module shell-terminal)
+  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.shell_terminal | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: shell_terminal_pacman
+  changed_when: shell_terminal_pacman.rc == 0
+
+- name: Set the end user login shell to zsh (module shell-terminal)
+  ansible.builtin.shell: chsh -s /usr/bin/zsh {{ end_user }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: shell_terminal_chsh
+  changed_when: shell_terminal_chsh.rc == 0
+
+- name: Report shell/terminal verification (module shell-terminal)
+  ansible.builtin.debug:
+    msg: >-
+      zsh/oh-my-zsh/fzf/zoxide installed; {{ end_user }} login shell set to
+      zsh. Your stow package should provide ~/.zshrc (plugins, fzf/zoxide
+      init) and ~/.config/kitty/kitty.conf (see Phase 3 module Shell &
+      Terminal). Verify: 'echo $SHELL' is /usr/bin/zsh; 'z cd' jumps;
+      Ctrl+T opens fzf in Kitty.

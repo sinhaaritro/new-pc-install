@@ -1,0 +1,37 @@
+---
+# Role: display_manager (manifest module id: display-manager)
+# Phase 3 shared module on the booted system: greetd + tuigreet login screen.
+# The one Play 3 role that writes a file (ADR-014): /etc/greetd/config.toml is
+# a *system service file* (not a user dotfile), so Play 3 (root) writes it
+# from a template and enables the greetd system service.
+
+- name: Install greetd and tuigreet (module display-manager)
+  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.display_manager | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: display_manager_pacman
+  changed_when: display_manager_pacman.rc == 0
+
+- name: Write the greetd system service config (module display-manager)
+  ansible.builtin.template:
+    src: greetd-config.toml.j2
+    dest: /etc/greetd/config.toml
+    mode: "0644"
+  become: true
+
+- name: Enable the greetd system service (module display-manager)
+  ansible.builtin.systemd:
+    name: greetd
+    enabled: true
+    state: started
+  become: true
+
+- name: Report display-manager verification (module display-manager)
+  ansible.builtin.debug:
+    msg: >-
+      greetd + tuigreet installed; /etc/greetd/config.toml written and the
+      greetd service enabled. Reboot to see the login screen (or
+      'sudo systemctl start greetd'). Verify: reboot lands on the tuigreet
+      login; credentials start Hyprland; SUPER+M (exit) returns to login.
+      Disable with 'sudo systemctl disable greetd'.

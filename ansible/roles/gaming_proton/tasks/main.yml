@@ -1,0 +1,15 @@
+---
+# Role: gaming_proton (manifest module id: proton)
+# Phase 4 profile-gaming module - THIN (spec 006 D3): the doc
+# (profile-gaming/proton.md) is a placeholder with no manifest packages, so
+# this role installs nothing and prints the pending scope. Depends on the
+# steam module.
+
+- name: Report proton placeholder status (module proton)
+  ansible.builtin.debug:
+    msg: >-
+      NOTE: the doc is a placeholder - no packages are installed. Planned
+      scope (pending in os/archlinux/phase-4-workflow/profile-gaming/proton.md):
+      ProtonGE/Proton-GE-Custom setup, wineprefix configuration, and per-game
+      Proton version pinning. Prerequisite: the steam module. Verify later:
+      ls ~/.steam/steam/steamapps/compattools/.

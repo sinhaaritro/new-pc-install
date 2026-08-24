@@ -2,6 +2,11 @@
 
 > **Milestone**: Productive daily driver — install tools for your use case.
 > **Prerequisite**: [Phase 3: Desktop](../phase-3-desktop/README.md) (functional Hyprland desktop).
+> **Automation companion**: [`ansible/`](../../../ansible/README.md) Play 4
+> (`make run-phase4`) applies these modules — packages, services, and the four
+> named system-level artifacts only; every dotfile stays owned by your stow
+> package. Profile selection, per-module flags, and `--tags` mirror the
+> profile structure below.
 
 ## Choose Your Profile(s)
 

@@ -1,0 +1,25 @@
+---
+# Role: ai_ide_integration (manifest module id: ide-integration)
+# Phase 4 profile-ai module on the booted system - package-free. The Neovim
+# AI plugins (lazy.nvim specs), Continue config, and VSCodium settings are
+# all stow-owned (ADR-016); VSCodium extensions install interactively from
+# Open VSX. The role prints the notes and verification only.
+
+- name: Report ide-integration notes (module ide-integration)
+  ansible.builtin.debug:
+    msg: >-
+      No packages to install (see os/archlinux/phase-4-workflow/profile-ai/
+      ide-integration.md). Your stow package should provide: the Neovim
+      lazy.nvim plugin spec entries for yetone/avante.nvim (openai-compatible
+      provider, endpoint http://127.0.0.1:8080/v1, api_key not-needed),
+      olimorris/codecompanion.nvim (openai_compatible adapter, url
+      http://127.0.0.1:8080) and optionally zbirenbaum/copilot.lua (needs a
+      GitHub Copilot subscription); ~/.continue/config.yaml (Ornith 1.0 9B for
+      chat/edit/apply on :8080/v1, Gemma 4 E2B for autocomplete); and the
+      yaml.schemas entry in ~/.config/VSCodium/User/settings.json for
+      .continue/**/*.yaml. Manual (interactive): codium --install-extension
+      continue.continue, then Cline and Kilo Code from Open VSX; in Cline
+      settings choose OpenAI Compatible, Base URL http://127.0.0.1:8080/v1,
+      Model local. Verify: nvim --headless "+Lazy sync" +q! ;
+      codium --list-extensions | grep -iE 'continue|cline|kilo';
+      curl -s http://127.0.0.1:8080/v1/models.

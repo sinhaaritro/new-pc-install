@@ -1,0 +1,21 @@
+---
+# Role: app_launcher (manifest module id: app-launcher)
+# Phase 3 shared module on the booted system: rofi-wayland app launcher.
+# Config-free (ADR-014): installs rofi-wayland only; ~/.config/rofi/ and the
+# SUPER+D keybind are owned by the user's stow package.
+
+- name: Install rofi-wayland (module app-launcher)
+  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.app_launcher | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: app_launcher_pacman
+  changed_when: app_launcher_pacman.rc == 0
+
+- name: Report app-launcher verification (module app-launcher)
+  ansible.builtin.debug:
+    msg: >-
+      rofi-wayland installed. Your stow package should provide
+      ~/.config/rofi/config.rasi (theme, font) and a SUPER+D launcher keybind
+      in hyprland.conf (see Phase 3 module App Launcher). Verify:
+      'rofi -show drun -show-icons' opens with fuzzy search.

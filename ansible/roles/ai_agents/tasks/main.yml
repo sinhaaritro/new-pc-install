@@ -1,0 +1,61 @@
+---
+# Role: ai_agents (manifest module id: agents)
+# Phase 4 profile-ai module on the booted system: Claude Desktop (AUR, with
+# the doc's manual AppImage fallback on build failure - spec 006 D4) and the
+# Hermes 8B GGUF (flag-gated download, D5). The MCP server definitions in
+# ~/.config/claude/claude_desktop_config.json are stow-owned; MCP servers
+# themselves run via npx (needs Node.js). Play-level gate: this module is
+# only enabled together with 'inference' (its llama-server dependency).
+
+- name: Install claude-desktop from the AUR (module agents)
+  ansible.builtin.shell: yay -S --noconfirm --needed {{ phase4.aur.agents | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: ai_agents_aur
+  changed_when: ai_agents_aur.rc == 0
+  failed_when: false
+
+- name: Create the models directory for the agent model (module agents)
+  ansible.builtin.file:
+    path: /home/{{ end_user }}/models
+    state: directory
+    owner: "{{ end_user }}"
+    group: "{{ end_user }}"
+    mode: "0755"
+  become: true
+
+- name: Download the Hermes agent model (module agents, opt-in)
+  ansible.builtin.get_url:
+    url: "{{ item.url }}"
+    dest: "/home/{{ end_user }}/models/{{ item.filename }}"
+    mode: "0644"
+  become: true
+  loop: "{{ phase4.models.agents }}"
+  loop_control:
+    label: "{{ item.filename }}"
+  when: enable_ai_models | default(false) | bool
+
+- name: Prepare the agents report pieces (module agents)
+  ansible.builtin.set_fact:
+    ai_agents_desktop_status: >-
+      {{ 'claude-desktop installed from the AUR' if ai_agents_aur.rc == 0
+         else 'claude-desktop AUR build FAILED - manual fallback: download
+         the AppImage from claude.ai/download, install to /opt/claude-desktop,
+         and symlink it into /usr/local/bin' }}
+    ai_agents_model_status: >-
+      {{ 'Hermes 8B GGUF downloaded' if (enable_ai_models | default(false) | bool)
+         else 'Hermes 8B GGUF download skipped (set enable_ai_models: true to
+         fetch it)' }}
+
+- name: Report agents verification (module agents)
+  ansible.builtin.debug:
+    msg: >-
+      {{ ai_agents_desktop_status }}; {{ ai_agents_model_status }}.
+      Your stow package should provide ~/.config/claude/claude_desktop_config.json
+      (MCP servers: @modelcontextprotocol/server-filesystem, server-github,
+      server-sqlite, server-brave-search - run via npx, so Node.js is
+      required). To serve Hermes locally: llama-server -m
+      ~/models/Hermes-3-Llama-3.1-8B.Q4_K_M.gguf --host 0.0.0.0 --port 8080
+      -ngl 99 (or the llama-server user service from the inference module).
+      Verify: which claude-desktop; ls -lh ~/models/Hermes-*.gguf.

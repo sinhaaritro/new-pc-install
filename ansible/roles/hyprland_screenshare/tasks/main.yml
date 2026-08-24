@@ -1,0 +1,24 @@
+---
+# Role: hyprland_screenshare (manifest module id: hyprland-screenshare)
+# Phase 3 module 05 on the booted system: screen sharing for video calls via
+# xdg-desktop-portal-hyprland + PipeWire. The portal package ships with
+# hyprland-install, so this role is a no-op install guard + a stow note for
+# the portal backend selection (ADR-014).
+
+- name: Ensure Hyprland portal package is present (module hyprland-screenshare)
+  ansible.builtin.shell: pacman -S --noconfirm xdg-desktop-portal-hyprland
+  args:
+    executable: /bin/bash
+  become: true
+  register: hyprland_screenshare_pacman
+  changed_when: hyprland_screenshare_pacman.rc == 0
+
+- name: Report screen-sharing verification (module hyprland-screenshare)
+  ansible.builtin.debug:
+    msg: >-
+      xdg-desktop-portal-hyprland present (ships with hyprland-install).
+      Your stow package should provide
+      ~/.config/xdg-desktop-portal/portals.conf selecting the pipewire
+      backend (see Phase 3 module 05 Screen Sharing). Verify: a browser video
+      call shows a monitor/window picker; 'systemctl --user status pipewire'
+      is active.

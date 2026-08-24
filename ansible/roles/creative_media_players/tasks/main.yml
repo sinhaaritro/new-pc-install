@@ -1,0 +1,22 @@
+---
+# Role: creative_media_players (manifest module id: media-players)
+# Phase 4 profile-creative module - THIN (spec 006 D3): the doc
+# (profile-creative/media-players.md) is a placeholder, so this role installs
+# only the manifest-listed package (mpv) and prints the pending manual steps.
+
+- name: Install media players (module media-players)
+  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.media_players | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: creative_media_players_pacman
+  changed_when: creative_media_players_pacman.rc == 0
+
+- name: Report media-players placeholder status (module media-players)
+  ansible.builtin.debug:
+    msg: >-
+      mpv installed. NOTE: the doc is a placeholder - the package set is
+      manifest-only and the remaining manual steps (ncmpcpp + mpd music stack
+      per the README index) are pending in
+      os/archlinux/phase-4-workflow/profile-creative/media-players.md.
+      Verify: mpv --version.

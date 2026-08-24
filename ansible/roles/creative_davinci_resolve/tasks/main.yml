@@ -1,0 +1,17 @@
+---
+# Role: creative_davinci_resolve (manifest module id: davinci)
+# Phase 4 profile-creative module - THIN (spec 006 D3): the doc
+# (profile-creative/davinci-resolve.md) is a placeholder with no manifest
+# packages, so this role installs nothing and prints the pending scope. The
+# role name is extended (not 'creative_davinci') to avoid the Phase 3
+# namespace collision (spec 006 D6, ADR-020).
+
+- name: Report davinci placeholder status (module davinci)
+  ansible.builtin.debug:
+    msg: >-
+      NOTE: the doc is a placeholder - no packages are installed. Planned
+      scope (pending in
+      os/archlinux/phase-4-workflow/profile-creative/davinci-resolve.md):
+      the DaVinci Resolve manual .deb install (no Arch package) plus its
+      runtime library shims. Prerequisite: NVIDIA drivers (Phase 2).
+      Verify later: davinci_resolve.

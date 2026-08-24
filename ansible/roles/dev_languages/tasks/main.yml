@@ -1,0 +1,16 @@
+---
+# Role: dev_languages (manifest module id: languages)
+# Phase 4 profile-dev module - THIN (spec 006 D3): the doc
+# (profile-dev/languages.md) is a placeholder with no manifest packages, so
+# this role installs nothing and prints the pending scope. Note: the AI
+# harness module needs Node.js from this module's future scope.
+
+- name: Report languages placeholder status (module languages)
+  ansible.builtin.debug:
+    msg: >-
+      NOTE: the doc is a placeholder - no packages are installed. Intended
+      scope (pending in os/archlinux/phase-4-workflow/profile-dev/languages.md):
+      Python/uv, Go, Node.js, Java, Rust runtimes. The AI 'harness' module
+      (npm globals) requires Node.js from this module - until it lands, run
+      'pacman -S nodejs npm' manually or install via your package manager of
+      choice. Verify later: node --version; go version; uv --version.

@@ -60,6 +60,115 @@ distro_packages:
     - udiskie
   ssh:
     - openssh
+  # Play 3 (Phase 3, booted system): per-module package lists, selected by the
+  # enable_<module> inventory flags. Keep in sync with phase-3 modules in
+  # os/archlinux/manifest.yaml (parity checker enforces this). Config-free
+  # (spec 005, ADR-014): these roles install packages only; all dotfiles are
+  # owned by the user's stow package.
+  shell_terminal:
+    - zsh
+    - oh-my-zsh
+    - fzf
+    - zoxide
+  app_launcher:
+    - rofi-wayland
+  status_bar:
+    - waybar
+  notifications:
+    - swaync
+    - mako
+  display_manager:
+    - greetd
+    - greetd-tuigreet
+  clipboard:
+    - wl-clipboard
+    - clipse
+  screenshots:
+    - grim
+    - slurp
+    - swappy
+  file_manager:
+    - thunar
+    - thunar-archive-plugin
+    - thunar-vcs-plugin
+  fonts:
+    - fontconfig
+    - noto-fonts
+    - noto-fonts-cjk
+    - noto-fonts-emoji
+    - ttf-jetbrains-mono-nerd
+    - ttf-material-design-icons
+  # Play 4 (Phase 4, booted system): per-module package lists, selected by the
+  # enable_<module> inventory flags (and the profile_* convenience vars).
+  # Keep in sync with phase-4 modules in os/archlinux/manifest.yaml (parity
+  # checker enforces this). Config-free (spec 006, ADR-016): roles install
+  # packages + the four named system-level artifacts only; all dotfiles are
+  # owned by the user's stow package.
+  dotfiles_backup:
+    - stow
+  containers:
+    - podman
+  remote_ssh:
+    - openssh
+    - openbsd-netcat
+    - procps-ng
+  neovim:
+    - neovim
+  inference:
+    - cuda
+  harness:
+    - opencode
+  steam:
+    - steam
+  mangohud:
+    - mangohud
+  obs:
+    - obs-studio
+  media_players:
+    - mpv
+# Play 4 (Phase 4, booted system): profile-structured module data (spec 006).
+# Per-module AUR packages (installed via the Phase 2 yay helper; D4) and npm
+# global packages (user context). The manifest stays the source of truth for
+# the pacman lists above; these lists carry what the manifest does not
+# (AUR/npm names).
+phase4:
+  aur:
+    containers:
+      - lazydocker
+    inference:
+      - llama-cpp-cuda
+    agents:
+      - claude-desktop
+  npm:
+    harness:
+      - kilocode
+      - "@anthropic-ai/claude-code"
+      - "@google-gemini/gemini-cli"
+  # Model downloads (D5): flag-gated behind enable_ai_models, wget -c into
+  # ~/models/. Keep in sync with the wget commands in profile-ai/inference.md
+  # and profile-ai/agents.md (the human-facing source).
+  models:
+    inference:
+      - url: https://huggingface.co/ggml-org/gemma-4-E2B-GGUF/resolve/main/gemma-4-E2B-Q8_0.gguf
+        filename: gemma-4-E2B-Q8_0.gguf
+      - url: https://huggingface.co/unsloth/gemma-4-12b-it-GGUF/resolve/main/gemma-4-12b-it-UD-Q6_K_XL.gguf
+        filename: gemma-4-12b-it-UD-Q6_K_XL.gguf
+      - url: https://huggingface.co/unsloth/gemma-4-12b-it-GGUF/resolve/main/mmproj-BF16.gguf
+        filename: gemma-4-12B-it-mmproj-BF16.gguf
+      - url: https://huggingface.co/williamliao/gemma-4-12B-it-DFlash-GGUF/resolve/main/gemma4-12B-it-DFlash-Q4_K_M.gguf
+        filename: gemma-4-12B-it-DFlash-Q4_K_M.gguf
+      - url: https://huggingface.co/deepreinforce-ai/Ornith-1.0-35B-GGUF/resolve/main/ornith-1.0-35b-Q6_K.gguf
+        filename: ornith-1.0-35b-Q6_K.gguf
+      - url: https://huggingface.co/SC117/Ornith-1.0-35B-MTP-APEX-GGUF/resolve/main/mmproj-F16.gguf
+        filename: ornith-1.0-35b-mmproj-F16.gguf
+      - url: https://huggingface.co/williamliao/Qwen3.6-35B-A3B-DFlash-GGUF/resolve/main/Qwen3.6-35B-A3B-DFlash-Q4_K_M.gguf
+        filename: ornith-1.0-35b-dflash-Q4_K_M.gguf
+    agents:
+      - url: https://huggingface.co/NousResearch/Hermes-3-Llama-3.1-8B-GGUF/resolve/main/Hermes-3-Llama-3.1-8B.Q4_K_M.gguf
+        filename: Hermes-3-Llama-3.1-8B.Q4_K_M.gguf
+  devpod:
+    url: https://github.com/loft-sh/devpod/releases/latest/download/devpod-linux-amd64
+    path: /usr/local/bin/devpod
 # Play 2 GPU module (spec 004, D3): vendor-agnostic data. gpu_vendor
 # (inventory) selects the entry. 'nvidia' and 'none' are implemented;
 # 'amd' and 'intel' are declared (empty data) so adding a vendor later is
@@ -80,6 +189,26 @@ gpu:
     hook_target: nvidia-open
   amd: {}
   intel: {}
+  none: {}
+# Play 3 (Phase 3, booted system): window-manager-agnostic data. wm_vendor
+# (inventory) selects the entry. 'hyprland' is implemented (base package set for
+# the 5 hyprland-* roles); 'niri', 'sway', and 'none' are declared (empty data)
+# so adding a WM later is data + one role branch, no rewrite. Mirrors the
+# gpu_vendor/fstype/cpu_vendor selectable pattern (spec 005 D3). Config-free:
+# the base list carries packages only; hyprland.conf and friends are stow-owned.
+wm:
+  hyprland:
+    packages:
+      - hyprland
+      - wayland
+      - xdg-desktop-portal-hyprland
+      - kitty
+      - qt5-wayland
+      - qt6-wayland
+      - firefox
+      - yazi
+  niri: {}
+  sway: {}
   none: {}
 distro_commands:
   pacstrap: pacstrap

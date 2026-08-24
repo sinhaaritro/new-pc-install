@@ -1,0 +1,28 @@
+---
+# Role: dev_remote_ssh (manifest module id: remote-ssh)
+# Phase 4 profile-dev module on the booted system: SSH tooling for remote
+# dev (openssh is Phase 2's; this role adds netcat + procps-ng). Config-free
+# (ADR-016): ~/.ssh/config host blocks and the vscodium-tunnel-proxy.sh
+# helper are stow-owned - printed as notes, not written.
+
+- name: Install remote-ssh packages (module remote-ssh)
+  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.remote_ssh | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: dev_remote_ssh_pacman
+  changed_when: dev_remote_ssh_pacman.rc == 0
+
+- name: Report remote-ssh verification (module remote-ssh)
+  ansible.builtin.debug:
+    msg: >-
+      openssh + openbsd-netcat + procps-ng installed. Your stow package should
+      provide ~/.ssh/config (host blocks with IdentityFile
+      ~/.ssh/id_ed25519, ForwardAgent yes, RemoteForward lines for
+      llama.cpp :8080 / Ollama :11434 / LM Studio :1234, and
+      ProxyCommand /home/{{ end_user }}/.ssh/vscodium-tunnel-proxy.sh) and the
+      executable ~/.ssh/vscodium-tunnel-proxy.sh (the tunnel helper that
+      parses active RemoteForward rules, opens a background ssh -N tunnel,
+      and hands off to nc). After stowing: chmod 600 ~/.ssh/config and
+      chmod +x ~/.ssh/vscodium-tunnel-proxy.sh. Verify: ssh <host>;
+      pgrep -fl 'ssh -o ProxyCommand=none'.

@@ -1,0 +1,18 @@
+---
+# Role: ai_training (manifest module id: training)
+# Phase 4 profile-ai module - THIN (spec 006 D3): the doc
+# (profile-ai/training.md) is a placeholder with no manifest packages, so
+# this role installs nothing and prints the planned scope.
+
+- name: Report training placeholder status (module training)
+  ansible.builtin.debug:
+    msg: >-
+      NOTE: the doc is a placeholder - no packages are installed. Planned
+      scope (pending in os/archlinux/phase-4-workflow/profile-ai/training.md):
+      fine-tuning frameworks (Unsloth, Axolotl, LLaMA-Factory, torchtune),
+      dataset tools (Argilla, distilabel), evaluation (lm-eval-harness), and
+      GGUF conversion (llama-quantize ships with the inference module).
+      Expect pip installs of torch/transformers/datasets/accelerate/peft/
+      bitsandbytes on top of the inference module's CUDA stack. Prerequisites:
+      the inference module + NVIDIA drivers (Phase 2). Verify later: python
+      -c 'import torch; print(torch.cuda.is_available())'.

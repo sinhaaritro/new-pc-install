@@ -1,0 +1,23 @@
+---
+# Role: notifications (manifest module id: notifications)
+# Phase 3 shared module on the booted system: swaync notification center +
+# mako fallback. Config-free (ADR-014): installs the packages only;
+# ~/.config/swaync/ and the 'exec-once = swaync' autostart + SUPER+N keybind
+# are owned by the user's stow package.
+
+- name: Install swaync and mako (module notifications)
+  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.notifications | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: notifications_pacman
+  changed_when: notifications_pacman.rc == 0
+
+- name: Report notifications verification (module notifications)
+  ansible.builtin.debug:
+    msg: >-
+      swaync + mako installed. Your stow package should provide
+      ~/.config/swaync/style.css (and optional swaync.jsonc), plus
+      'exec-once = swaync' and a SUPER+N toggle keybind in hyprland.conf (see
+      Phase 3 module Notifications). Verify: 'notify-send Test Hello' shows a
+      notification; SUPER+N toggles the notification window.
