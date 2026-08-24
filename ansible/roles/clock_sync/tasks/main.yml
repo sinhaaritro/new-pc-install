@@ -1,0 +1,38 @@
+---
+# Role: clock_sync (manifest module id: clock-sync)
+# Phase 2 module 06 on the booted system: NTP on the Linux side plus the
+# Windows-side UTC fix, which is OS-external and therefore printed as an
+# instruction for the user to run in Windows (spec 004 D4).
+
+- name: Enable NTP on the booted system (module clock-sync)
+  ansible.builtin.shell: timedatectl set-ntp true
+  args:
+    executable: /bin/bash
+  become: true
+  register: clock_sync_ntp
+  changed_when: clock_sync_ntp.rc == 0
+
+- name: Read timedatectl state (module clock-sync)
+  ansible.builtin.command: timedatectl
+  become: true
+  changed_when: false
+  register: clock_sync_timedatectl
+
+- name: Assert NTP service is active (module clock-sync)
+  ansible.builtin.assert:
+    that:
+      - "'NTP service: active' in clock_sync_timedatectl.stdout"
+    fail_msg: >-
+      NTP is not active after timedatectl set-ntp true.
+      Check network connectivity and retry.
+    success_msg: NTP active
+
+- name: Print Windows UTC registry instruction (module clock-sync)
+  ansible.builtin.debug:
+    msg: >-
+      NTP is active on Linux. To finish the dual-boot clock fix, make Windows
+      use UTC: in an elevated Windows Command Prompt run
+      'reg add "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\TimeZoneInformation"
+      /v RealTimeIsUniversal /d 1 /t REG_DWORD /f' and reboot Windows.
+      See os/archlinux/phase-2-system-hardening/clock-sync.md.
+      Verify: the time should be correct after rebooting into each OS.

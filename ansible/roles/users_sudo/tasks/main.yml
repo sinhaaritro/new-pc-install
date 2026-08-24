@@ -23,9 +23,11 @@
   when: root_password is not defined or root_password | length == 0
 
 - name: Set root password via chroot
-  ansible.builtin.shell: >-
-    arch-chroot {{ mount_point }} sh -c
-    'echo "root:{{ (users_sudo_root_pw | length) > 0 and users_sudo_root_pw or users_sudo_root_prompt.user_input }}" | chpasswd'
+  ansible.builtin.shell: |
+    arch-chroot {{ mount_point }} sh -c '
+      set -o pipefail
+      echo "root:{{ (users_sudo_root_pw | length) > 0 and users_sudo_root_pw or users_sudo_root_prompt.user_input }}" | chpasswd
+    '
   args:
     executable: /bin/bash
   register: users_sudo_root_chpasswd
@@ -49,9 +51,11 @@
   when: end_user_password is not defined or end_user_password | length == 0
 
 - name: Set end user password via chroot
-  ansible.builtin.shell: >-
-    arch-chroot {{ mount_point }} sh -c
-    'echo "{{ end_user }}:{{ (users_sudo_user_pw | length) > 0 and users_sudo_user_pw or users_sudo_user_prompt.user_input }}" | chpasswd'
+  ansible.builtin.shell: |
+    arch-chroot {{ mount_point }} sh -c '
+      set -o pipefail
+      echo "{{ end_user }}:{{ (users_sudo_user_pw | length) > 0 and users_sudo_user_pw or users_sudo_user_prompt.user_input }}" | chpasswd
+    '
   args:
     executable: /bin/bash
   register: users_sudo_user_chpasswd

@@ -1,0 +1,120 @@
+---
+# Role: ssh_git (manifest module id: ssh)
+# Phase 2 module 09 on the booted system: openssh (root) + an ed25519 key,
+# git identity, and the public-key handoff for GitHub. Personal data comes
+# from inventory vars (ssh_email, ssh_passphrase, git_name, git_email) with
+# pre-fill semantics: a non-empty value is used as-is, an empty/absent value
+# prompts (spec 004 D4). The public key is always printed. The key is never
+# overwritten if it already exists.
+
+- name: Install openssh (module ssh)
+  ansible.builtin.shell: pacman -S --noconfirm {{ ssh_git_packages | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: ssh_git_pacman
+  changed_when: ssh_git_pacman.rc == 0
+
+- name: Check for an existing SSH key (module ssh)
+  ansible.builtin.stat:
+    path: "/home/{{ end_user }}/.ssh/id_ed25519"
+  become: false
+  register: ssh_git_key
+
+- name: Resolve ssh email (inventory value, pre-filled or empty) (module ssh)
+  ansible.builtin.set_fact:
+    ssh_git_email: "{{ ssh_email | default('') }}"
+
+- name: Prompt for ssh email
+  ansible.builtin.pause:
+    prompt: "Enter the email/comment for the SSH key: "
+  register: ssh_git_email_prompt
+  when:
+    - (ssh_git_email | length) == 0
+    - not ssh_git_key.stat.exists
+
+- name: Resolve ssh passphrase (inventory value, pre-filled or empty) (module ssh)
+  ansible.builtin.set_fact:
+    ssh_git_passphrase: "{{ ssh_passphrase | default('') }}"
+
+- name: Prompt for ssh passphrase
+  ansible.builtin.pause:
+    prompt: "Enter a passphrase for the SSH key (required): "
+  register: ssh_git_passphrase_prompt
+  when:
+    - (ssh_git_passphrase | length) == 0
+    - not ssh_git_key.stat.exists
+
+- name: Generate ed25519 SSH key (module ssh)
+  ansible.builtin.shell: >-
+    ssh-keygen -t ed25519
+    -N "{{ (ssh_git_passphrase | length) > 0 and ssh_git_passphrase or ssh_git_passphrase_prompt.user_input }}"
+    -C "{{ (ssh_git_email | length) > 0 and ssh_git_email or ssh_git_email_prompt.user_input }}"
+    -f /home/{{ end_user }}/.ssh/id_ed25519
+  args:
+    executable: /bin/bash
+  become: false
+  register: ssh_git_keygen
+  changed_when: ssh_git_keygen.rc == 0
+  no_log: true
+  when: not ssh_git_key.stat.exists
+
+- name: Note existing SSH key kept (module ssh)
+  ansible.builtin.debug:
+    msg: "An SSH key already exists at ~/.ssh/id_ed25519 - it was kept as-is."
+  when: ssh_git_key.stat.exists
+
+- name: Resolve git name (inventory value, pre-filled or empty) (module ssh)
+  ansible.builtin.set_fact:
+    ssh_git_name: "{{ git_name | default('') }}"
+
+- name: Prompt for git name
+  ansible.builtin.pause:
+    prompt: "Enter the git user.name: "
+  register: ssh_git_name_prompt
+  when: (ssh_git_name | length) == 0
+
+- name: Resolve git email (inventory value, pre-filled or empty) (module ssh)
+  ansible.builtin.set_fact:
+    ssh_git_gitemail: "{{ git_email | default('') }}"
+
+- name: Prompt for git email
+  ansible.builtin.pause:
+    prompt: "Enter the git user.email: "
+  register: ssh_git_gitemail_prompt
+  when: (ssh_git_gitemail | length) == 0
+
+- name: Set the global git identity (module ssh)  # noqa: command-instead-of-module
+  ansible.builtin.shell: >-
+    git config --global user.name "{{ (ssh_git_name | length) > 0 and ssh_git_name or ssh_git_name_prompt.user_input }}"
+    && git config --global user.email "{{ (ssh_git_gitemail | length) > 0 and ssh_git_gitemail or ssh_git_gitemail_prompt.user_input }}"
+  args:
+    executable: /bin/bash
+  become: false
+  register: ssh_git_config
+  changed_when: ssh_git_config.rc == 0
+  no_log: true
+
+- name: Read the SSH public key (module ssh)
+  ansible.builtin.shell: cat /home/{{ end_user }}/.ssh/id_ed25519.pub
+  args:
+    executable: /bin/bash
+  become: false
+  register: ssh_git_pubkey
+  changed_when: false
+
+- name: Print the SSH public key and GitHub instructions (module ssh)
+  ansible.builtin.debug:
+    msg: >-
+      Your SSH public key (also at ~/.ssh/id_ed25519.pub):
+
+      {{ ssh_git_pubkey.stdout }}
+
+      Add it to GitHub: Settings -> SSH and GPG keys -> New SSH Key -> paste
+      the key -> Add SSH Key. Then verify with: ssh -T git@github.com
+      (expect 'Hi <you>! You've successfully authenticated...').
+
+      To use the key in a shell session: eval "$(ssh-agent -s)"
+      && ssh-add ~/.ssh/id_ed25519
+
+      Verify git: git config --list | grep user

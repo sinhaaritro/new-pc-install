@@ -5,31 +5,32 @@
 
 - name: Identify Windows EFI partition (module bootloader)
   ansible.builtin.shell: |
+    set -o pipefail
     lsblk -dn -o NAME,FSTYPE,SIZE | awk '$2 == "vfat" && $3 ~ /M/ {print $1}'
   args:
     executable: /bin/bash
-  register: bootloader_win_efi
+  register: bootloader_grub_win_efi
   changed_when: false
 
 - name: Set Windows EFI device fact
   ansible.builtin.set_fact:
-    win_efi_device: "/dev/{{ bootloader_win_efi.stdout_lines | first | default('') }}"
-  when: bootloader_win_efi.stdout_lines | length > 0
+    bootloader_grub_win_efi_device: "/dev/{{ bootloader_grub_win_efi.stdout_lines | first | default('') }}"
+  when: bootloader_grub_win_efi.stdout_lines | length > 0
 
 - name: Mount Windows EFI partition for os-prober
-  ansible.builtin.mount:
+  ansible.posix.mount:
     path: /tmp/win_efi
-    src: "{{ win_efi_device }}"
+    src: "{{ bootloader_grub_win_efi_device }}"
     state: mounted
     fstype: vfat
-  when: win_efi_device is defined
+  when: bootloader_grub_win_efi_device is defined
 
 - name: Install GRUB packages in new system
-  ansible.builtin.shell: arch-chroot {{ mount_point }} pacman -S --noconfirm {{ bootloader_packages | join(' ') }}
+  ansible.builtin.shell: arch-chroot {{ mount_point }} pacman -S --noconfirm {{ bootloader_grub_packages | join(' ') }}
   args:
     executable: /bin/bash
-  register: bootloader_pacman
-  changed_when: bootloader_pacman.rc == 0
+  register: bootloader_grub_pacman
+  changed_when: bootloader_grub_pacman.rc == 0
 
 - name: Enable os-prober in grub default config
   ansible.builtin.shell: |
@@ -42,6 +43,8 @@
     '
   args:
     executable: /bin/bash
+  register: bootloader_grub_osprober
+  changed_when: bootloader_grub_osprober.rc == 0
 
 - name: Install GRUB to the EFI partition
   ansible.builtin.shell: arch-chroot {{ mount_point }} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --removable
@@ -54,19 +57,20 @@
   ansible.builtin.shell: arch-chroot {{ mount_point }} grub-mkconfig -o /boot/grub/grub.cfg
   args:
     executable: /bin/bash
-  register: bootloader_mkconfig
+  register: bootloader_grub_mkconfig
+  changed_when: bootloader_grub_mkconfig.rc == 0
 
 - name: Verify GRUB config contains the Linux entry
   ansible.builtin.shell: grep -c "menuentry" {{ mount_point }}/boot/grub/grub.cfg
   args:
     executable: /bin/bash
-  register: bootloader_menuentries
+  register: bootloader_grub_menuentries
   changed_when: false
 
 - name: Assert GRUB found the Linux image
   ansible.builtin.assert:
     that:
-      - bootloader_menuentries.stdout | int > 0
+      - bootloader_grub_menuentries.stdout | int > 0
     fail_msg: >-
       grub-mkconfig produced no menu entries. Check /boot/efi is mounted
       and kernel files exist under {{ mount_point }}/boot.
@@ -74,7 +78,7 @@
 - name: Report Windows detection (informational)
   ansible.builtin.debug:
     msg: >-
-      {{ bootloader_mkconfig.stdout if 'Windows Boot Manager' in bootloader_mkconfig.stdout
+      {{ bootloader_grub_mkconfig.stdout if 'Windows Boot Manager' in bootloader_grub_mkconfig.stdout
          else 'WARNING: os-prober did not detect Windows. If dual-boot is expected,
          verify the Windows EFI partition was mounted and re-run grub-mkconfig.' }}
 
@@ -85,7 +89,7 @@
   changed_when: false
 
 - name: Unmount Windows EFI partition
-  ansible.builtin.mount:
+  ansible.posix.mount:
     path: /tmp/win_efi
     state: absent
-  when: win_efi_device is defined
+  when: bootloader_grub_win_efi_device is defined

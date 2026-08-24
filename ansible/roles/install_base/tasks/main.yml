@@ -31,7 +31,15 @@
   register: install_base_keyring
   changed_when: install_base_keyring.rc == 0
 
-- name: pacstrap base system (module install-base)
-  ansible.builtin.shell: pacstrap -K {{ mount_point }} {{ (base_packages + [distro_packages.ucode[cpu_vendor], distro_packages.fstools[fstype]]) | join(' ') }}
+- name: Build pacstrap package list (base + CPU microcode + filesystem tools)
+  ansible.builtin.set_fact:
+    install_base_pacstrap_pkgs: >-
+      {{ install_base_packages
+         + [distro_packages.ucode[cpu_vendor], distro_packages.fstools[fstype]] }}
+
+- name: Install package with pacstrap base system (module install-base)
+  ansible.builtin.shell: pacstrap -K {{ mount_point }} {{ install_base_pacstrap_pkgs | join(' ') }}
   args:
     executable: /bin/bash
+  register: install_base_pacstrap
+  changed_when: install_base_pacstrap.rc == 0

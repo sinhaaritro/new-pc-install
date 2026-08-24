@@ -5,9 +5,10 @@ os/archlinux/manifest.yaml is the single source of truth for modules and
 packages. This script verifies that the Ansible tree cannot silently drift
 from it:
 
-  1. Every Phase 0-1 module id has a role whose tasks/main.yml references it
-     (preflight covers phase-0: overview + pre-flight).
-  2. Every package listed in a Phase 0-1 module is referenced somewhere in
+  1. Every Phase 0-2 module id has a role whose tasks/main.yml references it
+     (preflight covers phase-0: overview + pre-flight; gpu covers the
+     phase-2 nvidia module).
+  2. Every package listed in a Phase 0-2 module is referenced somewhere in
      the Ansible tree (roles/ + vars/ + group_vars/).
 
 Usage:
@@ -33,13 +34,22 @@ ROLE_MAP = {
     "users-sudo": "users_sudo",
     "bootloader": "bootloader_grub",
     "first-reboot": "first_reboot",
+    "nvidia": "gpu",
+    "snapshots": "snapshots",
+    "aur": "aur",
+    "sound": "sound",
+    "networking": "networking",
+    "clock-sync": "clock_sync",
+    "firewall": "firewall",
+    "external-drives": "external_drives",
+    "ssh": "ssh_git",
 }
 
-PHASE_IDS = ("phase-0", "phase-1")
+PHASE_IDS = ("phase-0", "phase-1", "phase-2")
 
 
 def load_modules(manifest_path):
-    """Return {module_id: module_dict} for Phase 0-1 modules only."""
+    """Return {module_id: module_dict} for Phase 0-2 modules only."""
     import yaml
 
     if not manifest_path.is_file():
@@ -110,7 +120,7 @@ def check():
             print(f"  - {error}")
         return 1
 
-    print(f"PARITY OK: {len(modules)} Phase 0-1 modules, {len(package_ids)} packages all covered")
+    print(f"PARITY OK: {len(modules)} Phase 0-2 modules, {len(package_ids)} packages all covered")
     return 0
 
 

@@ -45,6 +45,7 @@
     executable: /bin/bash
   register: first_reboot_umount
   failed_when: first_reboot_umount.rc not in [0, 17]
+  changed_when: first_reboot_umount.rc in [0, 17]
 
 - name: Warn to remove the USB installer
   ansible.builtin.debug:
@@ -52,3 +53,5 @@
 
 - name: Reboot into the new system
   ansible.builtin.command: reboot
+  register: first_reboot_reboot
+  changed_when: first_reboot_reboot.rc == 0

@@ -1,0 +1,57 @@
+---
+# Role: networking (manifest module id: networking)
+# Phase 2 module 05 on the booted system: bluez + bluetui (root), wlctl-bin
+# via yay (user context; the aur module must have run first). Pairing and
+# wlctl usage are printed as user-verification instructions (spec 004 D4) -
+# the OS-external parts (BT device pairing) cannot be scripted.
+
+- name: Install Bluetooth packages (module networking)
+  ansible.builtin.shell: pacman -S --noconfirm {{ networking_packages | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: networking_pacman
+  changed_when: networking_pacman.rc == 0
+
+- name: Enable Bluetooth service (module networking)
+  ansible.builtin.systemd:
+    name: bluetooth.service
+    enabled: true
+    state: started
+  become: true
+
+- name: Check yay is installed (module networking)
+  ansible.builtin.shell: command -v yay
+  args:
+    executable: /bin/bash
+  become: false
+  register: networking_yay
+  changed_when: false
+  failed_when: false
+
+- name: Install wlctl-bin via yay (module networking)
+  ansible.builtin.shell: |
+    set -o pipefail
+    printf 'Y\n' | yay -S wlctl-bin
+  args:
+    executable: /bin/bash
+  become: false
+  register: networking_wlctl
+  changed_when: networking_wlctl.rc == 0
+  when: networking_yay.rc == 0
+
+- name: Report yay missing (module networking)
+  ansible.builtin.debug:
+    msg: >-
+      yay is not installed - wlctl-bin was skipped. Run the aur module
+      first (enable_aur: true) and re-run this module.
+  when: networking_yay.rc != 0
+
+- name: Print networking verification instructions (module networking)
+  ansible.builtin.debug:
+    msg: >-
+      Networking applied. Verify with: wlctl doctor, 'nmcli device status',
+      'bluetoothctl show'.
+      To pair a Bluetooth device: run 'bluetoothctl', then inside the
+      prompt: power on, scan on, pair MAC, trust MAC, connect MAC, scan off.
+      For a TUI, run: bluetui.

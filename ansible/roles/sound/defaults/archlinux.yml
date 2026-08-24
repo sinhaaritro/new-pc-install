@@ -1,0 +1,3 @@
+---
+# Module 04 (sound): PipeWire package list sourced from vars/distros/archlinux.yml.
+sound_packages: "{{ distro_packages.sound }}"

@@ -1,0 +1,103 @@
+---
+# Play 2 — Phase 2 system hardening on the booted system (spec 004).
+# Runs AFTER Phase 1's first reboot, logged in as the end user (wheel group):
+#   make run-phase2
+# Modules are selectable two ways (spec 004 D2): the enable_<id> inventory
+# flags in inventory/hosts.yml, or --tags <id> at run time. Root tasks run
+# via the play-level become; user-context tasks (aur, ssh, sound user
+# sockets) opt out with become: false. See ansible/README.md for the flow.
+- name: Arch Linux Phase 2 system hardening (booted system)
+  hosts: localhost
+  gather_facts: false
+  become: true
+  vars_files:
+    - vars/distros/{{ ansible_distro }}.yml
+  pre_tasks:
+    - name: Check for the live-USB marker (play 2 gate)
+      ansible.builtin.stat:
+        path: /run/archiso
+      become: false
+      register: play2_archiso
+
+    - name: Assert not running on the live USB (play 2 gate)
+      ansible.builtin.assert:
+        that:
+          - not play2_archiso.stat.exists
+        fail_msg: >-
+          This play runs on the installed system, not the live USB
+          (/run/archiso exists). Finish Phase 1 (make run), reboot into the
+          installed system, log in as {{ end_user | default('your user') }},
+          and run make run-phase2.
+
+    - name: Read the invoking user (play 2 gate)
+      ansible.builtin.shell: id -u && id -nG
+      args:
+        executable: /bin/bash
+      become: false
+      register: play2_invoker
+      changed_when: false
+
+    - name: Assert the invoking user is root or in the wheel group (play 2 gate)
+      ansible.builtin.assert:
+        that:
+          - play2_invoker.stdout_lines | first | int == 0
+          - "'wheel' in (play2_invoker.stdout_lines | last).split(' ')"
+        fail_msg: >-
+          Play 2 must be run as root or as a wheel-group user (for sudo).
+          Log in as {{ end_user | default('your end user') }} and re-run
+          make run-phase2.
+
+    - name: Check the end user account exists (play 2 gate)
+      ansible.builtin.shell: id {{ end_user }}
+      args:
+        executable: /bin/bash
+      become: true
+      register: play2_end_user
+      changed_when: false
+      failed_when: false
+
+    - name: Assert the end user account exists (play 2 gate)
+      ansible.builtin.assert:
+        that:
+          - play2_end_user.rc == 0
+        fail_msg: >-
+          The end_user account "{{ end_user | default('') }}" does not exist
+          on this system. Set end_user in ansible/inventory/hosts.yml to the
+          account created during Phase 1 (module 06).
+  roles:
+    - role: gpu
+      tags:
+        - nvidia
+      when: enable_nvidia | default(false)
+    - role: snapshots
+      tags:
+        - snapshots
+      when: enable_snapshots | default(false)
+    - role: aur
+      tags:
+        - aur
+      when: enable_aur | default(false)
+    - role: sound
+      tags:
+        - sound
+      when: enable_sound | default(false)
+    - role: networking
+      tags:
+        - networking
+      when: enable_networking | default(false)
+    - role: clock_sync
+      tags:
+        - clock_sync
+      when: enable_clock_sync | default(false)
+    - role: firewall
+      tags:
+        - firewall
+      when: enable_firewall | default(false)
+    - role: external_drives
+      tags:
+        - external_drives
+      when: enable_external_drives | default(false)
+    - role: ssh_git
+      tags:
+        - ssh
+      when: enable_ssh | default(false)

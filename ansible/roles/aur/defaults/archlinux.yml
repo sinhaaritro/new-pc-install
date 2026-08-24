@@ -1,0 +1,5 @@
+---
+# Module 03 (aur): yay makedepends (built from the AUR; not manifest packages).
+aur_makedepends:
+  - base-devel
+  - rust

@@ -28,6 +28,8 @@
   ansible.builtin.shell: arch-chroot {{ mount_point }} ln -sf /usr/share/zoneinfo/{{ timezone }} /etc/localtime
   args:
     executable: /bin/bash
+  register: system_config_timezone
+  changed_when: system_config_timezone.rc == 0
 
 - name: Sync hardware clock after timezone change
   ansible.builtin.shell: arch-chroot {{ mount_point }} hwclock --systohc
@@ -39,6 +41,7 @@
   ansible.builtin.template:
     src: locale.gen.j2
     dest: "{{ mount_point }}/etc/locale.gen"
+    mode: "0644"
 
 - name: Run locale-gen in new system
   ansible.builtin.shell: arch-chroot {{ mount_point }} locale-gen
@@ -51,14 +54,18 @@
   ansible.builtin.shell: arch-chroot {{ mount_point }} sh -c 'echo "LANG={{ locale }}" > /etc/locale.conf'
   args:
     executable: /bin/bash
+  register: system_config_locale_conf
+  changed_when: system_config_locale_conf.rc == 0
 
 - name: Set hostname in new system
   ansible.builtin.shell: arch-chroot {{ mount_point }} sh -c 'echo "{{ hostname }}" > /etc/hostname'
   args:
     executable: /bin/bash
+  register: system_config_hostname
+  changed_when: system_config_hostname.rc == 0
 
 - name: Install NetworkManager in new system
-  ansible.builtin.shell: arch-chroot {{ mount_point }} pacman -S --noconfirm {{ chroot_core_packages | join(' ') }}
+  ansible.builtin.shell: arch-chroot {{ mount_point }} pacman -S --noconfirm {{ system_config_chroot_core_packages | join(' ') }}
   args:
     executable: /bin/bash
   register: system_config_nm
@@ -68,3 +75,5 @@
   ansible.builtin.shell: arch-chroot {{ mount_point }} systemctl enable NetworkManager
   args:
     executable: /bin/bash
+  register: system_config_nm_enable
+  changed_when: system_config_nm_enable.rc == 0

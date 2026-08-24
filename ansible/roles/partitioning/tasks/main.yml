@@ -5,6 +5,7 @@
 
 - name: Collect all drives as a list fact (module partitioning)
   ansible.builtin.shell: |
+    set -o pipefail
     lsblk -dn -o NAME,SIZE,MODEL | awk '{print $1 "|" $2 "|" $3}'
   args:
     executable: /bin/bash
@@ -86,6 +87,7 @@
   args:
     executable: /bin/bash
   register: partitioning_gdisk
+  changed_when: partitioning_gdisk.rc == 0
 
 - name: Verify new partition table
   ansible.builtin.shell: lsblk /dev/{{ target_drive }}

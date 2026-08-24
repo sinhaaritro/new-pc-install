@@ -1,0 +1,177 @@
+---
+# Role: snapshots (manifest module id: snapshots)
+# Phase 2 module 02 on the booted system: snapper + snap-pac + grub-btrfs on the
+# flat btrfs layout from Phase 1 (module 03). Snapper's auto-created .snapshots
+# subvolume is swapped for the @snapshots subvolume already in fstab, so
+# snapshots live in the same place as the documented manual layout.
+
+- name: Install snapshot packages (module snapshots)
+  ansible.builtin.shell: pacman -S --noconfirm {{ snapshots_packages | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: snapshots_pacman
+  changed_when: snapshots_pacman.rc == 0
+
+- name: Check whether the snapper root config exists (module snapshots)
+  ansible.builtin.stat:
+    path: "{{ distro_paths.snapper_config_dir }}/root"
+  become: true
+  register: snapshots_snapper_config
+
+- name: Unmount the existing @snapshots subvolume (module snapshots)
+  ansible.posix.mount:
+    path: /.snapshots
+    state: unmounted
+  become: true
+  when: not snapshots_snapper_config.stat.exists
+
+- name: Remove the empty /.snapshots mountpoint (module snapshots)
+  ansible.builtin.file:
+    path: /.snapshots
+    state: absent
+  become: true
+  when: not snapshots_snapper_config.stat.exists
+
+- name: Generate snapper config for root (module snapshots)
+  ansible.builtin.shell: snapper -c root create-config /
+  args:
+    executable: /bin/bash
+  become: true
+  register: snapshots_create_config
+  changed_when: snapshots_create_config.rc == 0
+  when: not snapshots_snapper_config.stat.exists
+
+- name: Delete snapper auto-created .snapshots subvolume (module snapshots)
+  ansible.builtin.shell: btrfs subvolume delete /.snapshots
+  args:
+    executable: /bin/bash
+  become: true
+  register: snapshots_subvol_delete
+  changed_when: snapshots_subvol_delete.rc == 0
+  when: not snapshots_snapper_config.stat.exists
+
+- name: Recreate the /.snapshots mountpoint (module snapshots)
+  ansible.builtin.file:
+    path: /.snapshots
+    state: directory
+    mode: "0750"
+  become: true
+  when: not snapshots_snapper_config.stat.exists
+
+- name: Detect the root device (module snapshots)
+  ansible.builtin.shell: findmnt -no SOURCE /
+  args:
+    executable: /bin/bash
+  become: true
+  register: snapshots_root_device_raw
+  changed_when: false
+  when: not snapshots_snapper_config.stat.exists
+
+- name: Store the root device as a fact (module snapshots)
+  ansible.builtin.set_fact:
+    snapshots_root_device: "{{ snapshots_root_device_raw.stdout_lines | first | default('') }}"
+  when: not snapshots_snapper_config.stat.exists
+
+- name: Mount @snapshots subvolume at /.snapshots (module snapshots)
+  ansible.posix.mount:
+    path: /.snapshots
+    src: "{{ snapshots_root_device }}"
+    state: mounted
+    fstype: btrfs
+    opts: "{{ btrfs.mount_options }},subvol=@snapshots"
+  become: true
+  when: not snapshots_snapper_config.stat.exists
+
+- name: Note snapper setup already present (module snapshots)
+  ansible.builtin.debug:
+    msg: "Snapper root config already exists - keeping the existing @snapshots layout."
+  when: snapshots_snapper_config.stat.exists
+
+- name: Configure snapper retention and ACLs for root (module snapshots)
+  ansible.builtin.lineinfile:
+    path: "{{ distro_paths.snapper_config_dir }}/root"
+    regexp: "^#?\\s*{{ item.key }}="
+    line: "{{ item.key }}=\"{{ item.value }}\""
+    state: present
+  become: true
+  loop:
+    - key: "ALLOW_USERS"
+      value: "{{ end_user }}"
+    - key: "ALLOW_GROUPS"
+      value: "wheel"
+    - key: "SYNC_ACL"
+      value: "yes"
+    - key: "TIMELINE_MIN_AGE"
+      value: "1800"
+    - key: "TIMELINE_LIMIT_HOURLY"
+      value: "5"
+    - key: "TIMELINE_LIMIT_DAILY"
+      value: "7"
+    - key: "TIMELINE_LIMIT_WEEKLY"
+      value: "0"
+    - key: "TIMELINE_LIMIT_MONTHLY"
+      value: "0"
+    - key: "TIMELINE_LIMIT_YEARLY"
+      value: "0"
+
+- name: Enable snapper timers (module snapshots)
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: true
+    state: started
+  loop:
+    - snapper-timeline.timer
+    - snapper-cleanup.timer
+  become: true
+
+- name: Add grub-btrfs-overlayfs to mkinitcpio HOOKS (module snapshots)
+  ansible.builtin.shell: |
+    if ! grep -q "grub-btrfs-overlayfs" {{ distro_paths.mkinitcpio_conf }}; then
+      sed -i 's#^HOOKS=(\([^)]*\))#HOOKS=(\1 grub-btrfs-overlayfs)#' {{ distro_paths.mkinitcpio_conf }}
+    fi
+  args:
+    executable: /bin/bash
+  become: true
+  register: snapshots_mkinitcpio_hooks
+  changed_when: snapshots_mkinitcpio_hooks.rc == 0
+
+- name: Regenerate initramfs with grub-btrfs hook (module snapshots)
+  ansible.builtin.shell: mkinitcpio -P
+  args:
+    executable: /bin/bash
+  become: true
+  register: snapshots_mkinitcpio
+  changed_when: snapshots_mkinitcpio.rc == 0
+
+- name: Install /boot backup pacman hook (module snapshots)
+  ansible.builtin.template:
+    src: 50-bootbackup.hook.j2
+    dest: "{{ distro_paths.pacman_hooks_dir }}/50-bootbackup.hook"
+    mode: "0644"
+  become: true
+
+- name: Verify /.snapshots is mounted (module snapshots)
+  ansible.builtin.shell: findmnt -no SOURCE /.snapshots
+  args:
+    executable: /bin/bash
+  become: true
+  register: snapshots_mount_verify
+  changed_when: false
+
+- name: Assert /.snapshots is the @snapshots subvolume (module snapshots)
+  ansible.builtin.assert:
+    that:
+      - snapshots_mount_verify.stdout is search('@snapshots')
+    fail_msg: >-
+      /.snapshots is not mounted from the @snapshots subvolume
+      (got: {{ snapshots_mount_verify.stdout | default('nothing') }}).
+      Check /etc/fstab and re-run: umount /.snapshots; mkdir /.snapshots; mount -a
+    success_msg: /.snapshots mounted from @snapshots
+
+- name: Report snapshots verification (module snapshots)
+  ansible.builtin.debug:
+    msg: >-
+      Snapshots applied. Verify with: sudo snapper -c root list,
+      systemctl status snapper-timeline.timer, and 'ls /.bootbackup'
+      after the next pacman transaction.

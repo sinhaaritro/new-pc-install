@@ -19,6 +19,7 @@ Every spec carries `tags: [lowercase-kebab, ...]`; the promotion gate runs
   - 📄 [001-ansible-play-1-live-usb-install-through-first-reboot-phase-0-1.md](./001-ansible-play-1-live-usb-install-through-first-reboot-phase-0-1.md) — APPROVED
   - 📄 [002-var-dedup-layering-single-source-of-truth-for-play-1-variables.md](./002-var-dedup-layering-single-source-of-truth-for-play-1-variables.md) — APPROVED
   - 📄 [003-role-consolidation-selectable-layout-verify-boot-merge-fstype-conditional-checks-bootloader-pattern-password-flow.md](./003-role-consolidation-selectable-layout-verify-boot-merge-fstype-conditional-checks-bootloader-pattern-password-flow.md) — APPROVED
+  - 📄 [004-ansible-play-2-phase-2-system-hardening-boot-system-selectable-modules.md](./004-ansible-play-2-phase-2-system-hardening-boot-system-selectable-modules.md) — APPROVED
 <!-- TOC:END -->
 
 <!-- TAG-INDEX:START -->

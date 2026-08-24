@@ -1,0 +1,172 @@
+---
+# Role: gpu (manifest module id: nvidia)
+# Phase 2 module 01 on the booted system: vendor-agnostic GPU setup (spec 004 D3).
+# gpu_vendor (inventory) selects the entry in the gpu map in
+# vars/distros/archlinux.yml. 'nvidia' is implemented (multilib, packages, GRUB
+# KMS cmdline, mkinitcpio MODULES/HOOKS, pacman hook, mkinitcpio -P,
+# grub-mkconfig with the Windows EFI partition mounted for os-prober);
+# 'none' is a no-op; 'amd'/'intel' are declared but not implemented yet.
+
+- name: Assert gpu_vendor selects a known vendor (module nvidia)
+  ansible.builtin.assert:
+    that:
+      - gpu_vendor is defined
+      - gpu_vendor in gpu
+    fail_msg: >-
+      gpu_vendor "{{ gpu_vendor | default('') }}" must be one of
+      {{ gpu.keys() | join(', ') }}. Set it in ansible/inventory/hosts.yml.
+    success_msg: gpu_vendor={{ gpu_vendor }}
+
+- name: Gate unimplemented GPU vendors (module nvidia)
+  ansible.builtin.assert:
+    that:
+      - gpu_vendor in ['nvidia', 'none']
+    fail_msg: >-
+      gpu_vendor "{{ gpu_vendor }}" is declared but not implemented yet.
+      Implemented vendors: nvidia, none.
+
+- name: Note GPU vendor none skips driver install (module nvidia)
+  ansible.builtin.debug:
+    msg: "gpu_vendor=none - no GPU driver is installed (integrated or no GPU)."
+  when: gpu_vendor == 'none'
+
+- name: Enable multilib repository section (module nvidia)
+  ansible.builtin.lineinfile:
+    path: "{{ distro_paths.pacman_conf }}"
+    regexp: "^#?\\s*\\[multilib\\]"
+    line: "[multilib]"
+    state: present
+  become: true
+  when: gpu_vendor == 'nvidia'
+
+- name: Enable multilib mirrorlist include (module nvidia)
+  ansible.builtin.lineinfile:
+    path: "{{ distro_paths.pacman_conf }}"
+    regexp: "^#?\\s*Include = /etc/pacman.d/mirrorlist"
+    line: "Include = /etc/pacman.d/mirrorlist"
+    state: present
+  become: true
+  when: gpu_vendor == 'nvidia'
+
+- name: Refresh pacman database after enabling multilib (module nvidia)
+  ansible.builtin.shell: pacman -Sy
+  args:
+    executable: /bin/bash
+  become: true
+  register: gpu_pacman_sy
+  changed_when: gpu_pacman_sy.rc == 0
+  when: gpu_vendor == 'nvidia'
+
+- name: Install NVIDIA driver packages (module nvidia)
+  ansible.builtin.shell: pacman -S --noconfirm {{ gpu.nvidia.packages | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: gpu_pacman
+  changed_when: gpu_pacman.rc == 0
+  when: gpu_vendor == 'nvidia'
+
+- name: Ensure NVIDIA KMS parameters are in GRUB cmdline (module nvidia)
+  ansible.builtin.shell: |
+    if ! grep -q "nvidia_drm.modeset=1" {{ distro_paths.grub_default }}; then
+      sed -i 's#^GRUB_CMDLINE_LINUX_DEFAULT="\([^"]*\)"#GRUB_CMDLINE_LINUX_DEFAULT="\1 {{ gpu.nvidia.grub_cmdline }}"#' {{ distro_paths.grub_default }}
+    fi
+  args:
+    executable: /bin/bash
+  become: true
+  register: gpu_grub_cmdline
+  changed_when: gpu_grub_cmdline.rc == 0
+  when: gpu_vendor == 'nvidia'
+
+- name: Add NVIDIA modules to mkinitcpio MODULES (module nvidia)
+  ansible.builtin.shell: |
+    if ! grep -q "{{ gpu.nvidia.mkinitcpio_modules | first }}" {{ distro_paths.mkinitcpio_conf }}; then
+      sed -i 's#^MODULES=(\s*)#MODULES=( {{ gpu.nvidia.mkinitcpio_modules | join(' ') }} #' {{ distro_paths.mkinitcpio_conf }}
+    fi
+  args:
+    executable: /bin/bash
+  become: true
+  register: gpu_mkinitcpio_modules
+  changed_when: gpu_mkinitcpio_modules.rc == 0
+  when: gpu_vendor == 'nvidia'
+
+- name: Remove kms hook from mkinitcpio HOOKS (module nvidia)
+  ansible.builtin.shell: |
+    if grep -qw "kms" {{ distro_paths.mkinitcpio_conf }}; then
+      sed -i 's/\bkms //' {{ distro_paths.mkinitcpio_conf }}
+    fi
+  args:
+    executable: /bin/bash
+  become: true
+  register: gpu_mkinitcpio_hooks
+  changed_when: gpu_mkinitcpio_hooks.rc == 0
+  when: gpu_vendor == 'nvidia'
+
+- name: Install NVIDIA pacman hook for initramfs rebuild (module nvidia)
+  ansible.builtin.template:
+    src: nvidia.hook.j2
+    dest: "{{ distro_paths.pacman_hooks_dir }}/nvidia.hook"
+    mode: "0644"
+  become: true
+  when: gpu_vendor == 'nvidia'
+
+- name: Regenerate initramfs with NVIDIA modules (module nvidia)
+  ansible.builtin.shell: mkinitcpio -P
+  args:
+    executable: /bin/bash
+  become: true
+  register: gpu_mkinitcpio
+  changed_when: gpu_mkinitcpio.rc == 0
+  when: gpu_vendor == 'nvidia'
+
+- name: Identify Windows EFI partition (module nvidia)
+  ansible.builtin.shell: |
+    set -o pipefail
+    arch_efi=$(basename "$(findmnt -no SOURCE {{ distro_paths.efi_mount }})")
+    lsblk -dn -o NAME,FSTYPE | awk -v efi="$arch_efi" '$2 == "vfat" && $1 != efi {print $1}'
+  args:
+    executable: /bin/bash
+  become: true
+  register: gpu_win_efi
+  changed_when: false
+  when: gpu_vendor == 'nvidia'
+
+- name: Set Windows EFI device fact (module nvidia)
+  ansible.builtin.set_fact:
+    gpu_win_efi_device: "/dev/{{ gpu_win_efi.stdout_lines | first | default('') }}"
+  when:
+    - gpu_vendor == 'nvidia'
+    - gpu_win_efi.stdout_lines | default([]) | length > 0
+
+- name: Mount Windows EFI partition for os-prober (module nvidia)
+  ansible.posix.mount:
+    path: /tmp/win_efi
+    src: "{{ gpu_win_efi_device }}"
+    state: mounted
+    fstype: vfat
+  become: true
+  when: gpu_win_efi_device is defined
+
+- name: Regenerate GRUB configuration (module nvidia)
+  ansible.builtin.shell: grub-mkconfig -o {{ distro_paths.grub_cfg }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: gpu_grub_mkconfig
+  changed_when: gpu_grub_mkconfig.rc == 0
+  when: gpu_vendor == 'nvidia'
+
+- name: Unmount Windows EFI partition (module nvidia)
+  ansible.posix.mount:
+    path: /tmp/win_efi
+    state: absent
+  become: true
+  when: gpu_win_efi_device is defined
+
+- name: Report NVIDIA driver verification (module nvidia)
+  ansible.builtin.debug:
+    msg: >-
+      NVIDIA setup applied. Reboot, then verify with:
+      nvidia-smi and 'lsmod | grep nvidia'
+      (expect nvidia, nvidia_modeset, nvidia_uvm, nvidia_drm loaded).
+  when: gpu_vendor == 'nvidia'

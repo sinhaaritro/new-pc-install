@@ -21,6 +21,7 @@ untouched.
   - 📄 [001-ansible-play-1-live-usb-install-through-first-reboot-phase-0-1.md](./specs/001-ansible-play-1-live-usb-install-through-first-reboot-phase-0-1.md) — APPROVED
   - 📄 [002-var-dedup-layering-single-source-of-truth-for-play-1-variables.md](./specs/002-var-dedup-layering-single-source-of-truth-for-play-1-variables.md) — APPROVED
   - 📄 [003-role-consolidation-selectable-layout-verify-boot-merge-fstype-conditional-checks-bootloader-pattern-password-flow.md](./specs/003-role-consolidation-selectable-layout-verify-boot-merge-fstype-conditional-checks-bootloader-pattern-password-flow.md) — APPROVED
+  - 📄 [004-ansible-play-2-phase-2-system-hardening-boot-system-selectable-modules.md](./specs/004-ansible-play-2-phase-2-system-hardening-boot-system-selectable-modules.md) — APPROVED
 
 - 📁 decisions/
   - 📄 [adr-001-ansible-domain-layout-manifest-as-single-source-of-truth.md](./decisions/adr-001-ansible-domain-layout-manifest-as-single-source-of-truth.md) — Accepted — backlinks: docs/specs/001-ansible-play-1-live-usb-install-through-first-reboot-phase-0-1.md
@@ -30,6 +31,12 @@ untouched.
   - 📄 [adr-005-phase-0-as-a-verification-gate-not-an-action.md](./decisions/adr-005-phase-0-as-a-verification-gate-not-an-action.md) — Accepted — backlinks: docs/specs/001-ansible-play-1-live-usb-install-through-first-reboot-phase-0-1.md
   - 📄 [adr-006-verification-harness-lint-syntax-check-parity-manual-bring-up-no-ci.md](./decisions/adr-006-verification-harness-lint-syntax-check-parity-manual-bring-up-no-ci.md) — Accepted — backlinks: docs/specs/001-ansible-play-1-live-usb-install-through-first-reboot-phase-0-1.md
   - 📄 [adr-007-var-layering-inventory-for-per-machine-values-group-vars-for-static-shared-vars-distros-for-distro-data.md](./decisions/adr-007-var-layering-inventory-for-per-machine-values-group-vars-for-static-shared-vars-distros-for-distro-data.md) — Accepted — backlinks: docs/specs/002-var-dedup-layering-single-source-of-truth-for-play-1-variables.md
+  - 📄 [adr-008-play-2-uses-a-single-play-with-become-based-context-split.md](./decisions/adr-008-play-2-uses-a-single-play-with-become-based-context-split.md) — Accepted — backlinks: docs/specs/004-ansible-play-2-phase-2-system-hardening-boot-system-selectable-modules.md
+  - 📄 [adr-009-per-module-selectability-via-inventory-flag-plus-ansible-tag.md](./decisions/adr-009-per-module-selectability-via-inventory-flag-plus-ansible-tag.md) — Accepted — backlinks: docs/specs/004-ansible-play-2-phase-2-system-hardening-boot-system-selectable-modules.md
+  - 📄 [adr-010-gpu-module-is-vendor-agnostic-and-expandable.md](./decisions/adr-010-gpu-module-is-vendor-agnostic-and-expandable.md) — Accepted — backlinks: docs/specs/004-ansible-play-2-phase-2-system-hardening-boot-system-selectable-modules.md
+  - 📄 [adr-011-interactive-steps-become-explicit-gates-and-printed-artifacts.md](./decisions/adr-011-interactive-steps-become-explicit-gates-and-printed-artifacts.md) — Accepted — backlinks: docs/specs/004-ansible-play-2-phase-2-system-hardening-boot-system-selectable-modules.md
+  - 📄 [adr-012-parity-checker-extends-to-phase-2.md](./decisions/adr-012-parity-checker-extends-to-phase-2.md) — Accepted — backlinks: docs/specs/004-ansible-play-2-phase-2-system-hardening-boot-system-selectable-modules.md
+  - 📄 [adr-013-reuse-play-1-s-verification-harness-for-play-2.md](./decisions/adr-013-reuse-play-1-s-verification-harness-for-play-2.md) — Accepted — backlinks: docs/specs/004-ansible-play-2-phase-2-system-hardening-boot-system-selectable-modules.md
 <!-- TOC:END -->
 
 ## Frontmatter conventions

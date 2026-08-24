@@ -1,3 +1,3 @@
 ---
 # Module 05 (system-config): chroot core packages sourced from vars/distros/archlinux.yml.
-chroot_core_packages: "{{ distro_packages.chroot_core }}"
+system_config_chroot_core_packages: "{{ distro_packages.chroot_core }}"
