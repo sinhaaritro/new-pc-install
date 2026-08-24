@@ -72,7 +72,8 @@ phases:
         name: "Install Base Packages"
         file: "phase-1-base-system/04-install-base.md"
         required: true
-        packages: [base, base-devel, linux, linux-headers, linux-firmware, amd-ucode, btrfs-progs, nano, git] # ucode by cpu_vendor (amd-ucode|intel-ucode); btrfs-progs only when fstype: btrfs
+        # ucode by cpu_vendor (amd-ucode|intel-ucode); btrfs-progs only when fstype: btrfs
+        packages: [base, base-devel, linux, linux-headers, linux-firmware, amd-ucode, btrfs-progs, nano, git]
         prerequisites: [filesystems]
         description: "pacstrap base system with CPU microcode (by vendor), filesystem tooling (by fstype), and essentials"
 
