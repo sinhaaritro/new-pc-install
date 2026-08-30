@@ -3,6 +3,10 @@
 # Module 05: genfstab on host; chroot-stage timezone, locale.gen template +
 # locale-gen, hostname, NetworkManager enable.
 
+- name: Load distro defaults (system_config)
+  ansible.builtin.include_vars:
+    file: "defaults/{{ ansible_distro }}.yml"
+
 - name: Generate fstab for all mounts
   ansible.builtin.shell: genfstab -U {{ mount_point }} >> {{ mount_point }}/etc/fstab
   args:

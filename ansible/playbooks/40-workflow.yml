@@ -18,9 +18,11 @@
   hosts: localhost
   gather_facts: false
   become: true
-  vars_files:
-    - vars/distros/{{ ansible_distro }}.yml
   pre_tasks:
+    - name: Load distro-specific vars (Option A layer)
+      ansible.builtin.include_vars:
+        file: "../vars/distros/{{ ansible_distro }}.yml"
+
     - name: Check for the live-USB marker (play 4 gate)
       ansible.builtin.stat:
         path: /run/archiso

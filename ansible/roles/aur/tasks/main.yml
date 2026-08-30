@@ -6,6 +6,10 @@
 # package install runs as root with --noconfirm. Makedepends are pre-installed
 # so the build itself needs no interactive prompts (spec 004 D4).
 
+- name: Load distro defaults (aur)
+  ansible.builtin.include_vars:
+    file: "defaults/{{ ansible_distro }}.yml"
+
 - name: Install yay build dependencies (module aur)
   ansible.builtin.shell: pacman -S --noconfirm --needed {{ aur_makedepends | join(' ') }}
   args:

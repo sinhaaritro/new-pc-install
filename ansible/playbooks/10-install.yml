@@ -5,8 +5,10 @@
 - name: Arch Linux live-USB install (Phase 0-1)
   hosts: localhost
   gather_facts: false
-  vars_files:
-    - vars/distros/{{ ansible_distro }}.yml
+  pre_tasks:
+    - name: Load distro-specific vars (Option A layer)
+      ansible.builtin.include_vars:
+        file: "../vars/distros/{{ ansible_distro }}.yml"
   roles:
     - role: preflight
       tags:

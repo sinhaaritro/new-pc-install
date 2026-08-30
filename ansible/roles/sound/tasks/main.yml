@@ -5,6 +5,10 @@
 # enabled in the end user's session via the sudo -u wrapper (spec 004 D1),
 # which works whether the play is invoked by the user or by root.
 
+- name: Load distro defaults (sound)
+  ansible.builtin.include_vars:
+    file: "defaults/{{ ansible_distro }}.yml"
+
 - name: Install PipeWire stack (module sound)
   ansible.builtin.shell: pacman -S --noconfirm {{ sound_packages | join(' ') }}
   args:
@@ -18,6 +22,7 @@
   args:
     executable: /bin/bash
   become: true
+  check_mode: false
   register: sound_uid
   changed_when: false
 

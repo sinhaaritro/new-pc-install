@@ -5,6 +5,10 @@
 # subvolume is swapped for the @snapshots subvolume already in fstab, so
 # snapshots live in the same place as the documented manual layout.
 
+- name: Load distro defaults (snapshots)
+  ansible.builtin.include_vars:
+    file: "defaults/{{ ansible_distro }}.yml"
+
 - name: Install snapshot packages (module snapshots)
   ansible.builtin.shell: pacman -S --noconfirm {{ snapshots_packages | join(' ') }}
   args:
@@ -95,25 +99,9 @@
     line: "{{ item.key }}=\"{{ item.value }}\""
     state: present
   become: true
-  loop:
-    - key: "ALLOW_USERS"
-      value: "{{ end_user }}"
-    - key: "ALLOW_GROUPS"
-      value: "wheel"
-    - key: "SYNC_ACL"
-      value: "yes"
-    - key: "TIMELINE_MIN_AGE"
-      value: "1800"
-    - key: "TIMELINE_LIMIT_HOURLY"
-      value: "5"
-    - key: "TIMELINE_LIMIT_DAILY"
-      value: "7"
-    - key: "TIMELINE_LIMIT_WEEKLY"
-      value: "0"
-    - key: "TIMELINE_LIMIT_MONTHLY"
-      value: "0"
-    - key: "TIMELINE_LIMIT_YEARLY"
-      value: "0"
+  loop: "{{ snapshots_retention | dict2items }}"
+  loop_control:
+    loop_var: item
 
 - name: Enable snapper timers (module snapshots)
   ansible.builtin.systemd:
@@ -156,6 +144,7 @@
   args:
     executable: /bin/bash
   become: true
+  check_mode: false
   register: snapshots_mount_verify
   changed_when: false
 

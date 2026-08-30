@@ -5,6 +5,10 @@
 # wlctl usage are printed as user-verification instructions (spec 004 D4) -
 # the OS-external parts (BT device pairing) cannot be scripted.
 
+- name: Load distro defaults (networking)
+  ansible.builtin.include_vars:
+    file: "defaults/{{ ansible_distro }}.yml"
+
 - name: Install Bluetooth packages (module networking)
   ansible.builtin.shell: pacman -S --noconfirm {{ networking_packages | join(' ') }}
   args:

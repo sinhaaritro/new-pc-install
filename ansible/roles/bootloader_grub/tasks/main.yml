@@ -3,6 +3,10 @@
 # Module 07: grub install, grub-mkconfig, os-prober, efibootmgr (chroot-stage).
 # The Windows EFI partition is mounted host-side so os-prober can see it.
 
+- name: Load distro defaults (bootloader_grub)
+  ansible.builtin.include_vars:
+    file: "defaults/{{ ansible_distro }}.yml"
+
 - name: Identify Windows EFI partition (module bootloader)
   ansible.builtin.shell: |
     set -o pipefail

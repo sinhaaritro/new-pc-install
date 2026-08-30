@@ -5,6 +5,10 @@
 # "may disable existing connections" prompt). SSH rule is optional via the
 # firewall_allow_ssh inventory var (spec 004 D2/D4).
 
+- name: Load distro defaults (firewall)
+  ansible.builtin.include_vars:
+    file: "defaults/{{ ansible_distro }}.yml"
+
 - name: Install ufw (module firewall)
   ansible.builtin.shell: pacman -S --noconfirm {{ firewall_packages | join(' ') }}
   args:

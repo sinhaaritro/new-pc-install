@@ -4,6 +4,10 @@
 # CPU microcode is selected by the per-machine cpu_vendor var
 # (distro_packages.ucode.<vendor> in vars/distros/archlinux.yml).
 
+- name: Load distro defaults (install_base)
+  ansible.builtin.include_vars:
+    file: "defaults/{{ ansible_distro }}.yml"
+
 - name: Assert cpu_vendor and fstype select known packages (module install-base)
   ansible.builtin.assert:
     that:

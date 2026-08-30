@@ -10,9 +10,11 @@
   hosts: localhost
   gather_facts: false
   become: true
-  vars_files:
-    - vars/distros/{{ ansible_distro }}.yml
   pre_tasks:
+    - name: Load distro-specific vars (Option A layer)
+      ansible.builtin.include_vars:
+        file: "../vars/distros/{{ ansible_distro }}.yml"
+
     - name: Check for the live-USB marker (play 2 gate)
       ansible.builtin.stat:
         path: /run/archiso
@@ -34,14 +36,15 @@
       args:
         executable: /bin/bash
       become: false
+      check_mode: false
       register: play2_invoker
       changed_when: false
 
     - name: Assert the invoking user is root or in the wheel group (play 2 gate)
       ansible.builtin.assert:
         that:
-          - play2_invoker.stdout_lines | first | int == 0
-          - "'wheel' in (play2_invoker.stdout_lines | last).split(' ')"
+          - (play2_invoker.stdout_lines | first | int == 0) or
+            'wheel' in (play2_invoker.stdout_lines | last).split(' ')
         fail_msg: >-
           Play 2 must be run as root or as a wheel-group user (for sudo).
           Log in as {{ end_user | default('your end user') }} and re-run
@@ -52,6 +55,7 @@
       args:
         executable: /bin/bash
       become: true
+      check_mode: false
       register: play2_end_user
       changed_when: false
       failed_when: false
