@@ -169,24 +169,39 @@ phase4:
   devpod:
     url: https://github.com/loft-sh/devpod/releases/latest/download/devpod-linux-amd64
     path: /usr/local/bin/devpod
-# Play 2 GPU module (spec 004, D3): vendor-agnostic data. gpu_vendor
-# (inventory) selects the entry. 'nvidia' and 'none' are implemented;
-# 'amd' and 'intel' are declared (empty data) so adding a vendor later is
-# data + one role branch, no rewrite. Mirrors the cpu_vendor/fstype pattern.
+# GPU module (Phase 1, chroot): vendor-agnostic data. gpu_vendor
+# (inventory) selects the entry AND gates the role (no separate enable flag):
+# 'nvidia' runs the nvidia tasks; 'none'/'amd'/'intel' skip. The nvidia_driver
+# inventory var selects the base driver package within the nvidia entry.
+# Mirrors the cpu_vendor/fstype pattern.
 gpu:
   nvidia:
-    packages:
-      - nvidia-open
-      - nvidia-utils
-      - lib32-nvidia-utils
-      - nvidia-settings
+    # Base driver package, selected by the nvidia_driver inventory var.
+    # nvidia-open: Turing (RTX 20xx) and newer + linux kernel (default).
+    # nvidia: Maxwell-Pascal (GTX 9xx/10xx) + linux kernel.
+    # (-dkms variants exist for non-linux kernels but install_base always
+    #  pacstraps the standard 'linux' kernel, so they are not listed here.)
+    drivers:
+      nvidia-open:
+        packages:
+          - nvidia-open
+          - nvidia-utils
+          - lib32-nvidia-utils
+          - nvidia-settings
+        hook_target: nvidia-open
+      nvidia:
+        packages:
+          - nvidia
+          - nvidia-utils
+          - lib32-nvidia-utils
+          - nvidia-settings
+        hook_target: nvidia
     mkinitcpio_modules:
       - nvidia
       - nvidia_modeset
       - nvidia_uvm
       - nvidia_drm
     grub_cmdline: "nvidia_drm.modeset=1 nvidia_drm.fbdev=1"
-    hook_target: nvidia-open
   amd: {}
   intel: {}
   none: {}

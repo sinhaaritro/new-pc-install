@@ -1,0 +1,11 @@
+---
+# Vendor-specific tasks: amd (loaded from main.yml via include_tasks).
+# Not implemented yet — the main.yml gate should prevent reaching here.
+# When implemented, add tasks following the nvidia.yml pattern (chroot
+# context, {{ mount_point }} file paths, arch-chroot for commands).
+
+- name: AMD GPU setup not implemented (module nvidia)
+  ansible.builtin.debug:
+    msg: >-
+      gpu_vendor=amd is declared but not implemented yet.
+      No AMD GPU driver was installed.

@@ -1,0 +1,95 @@
+---
+# Vendor-specific tasks: nvidia (loaded from main.yml via include_tasks).
+# nvidia_driver (inventory) selects the base driver package from the
+# gpu.nvidia.drivers map in vars/distros/archlinux.yml. Default: nvidia-open
+# (Turing/RTX 20xx and newer). Use 'nvidia' for Maxwell-Pascal (GTX 9xx/10xx).
+
+- name: Assert nvidia_driver selects a known driver (module nvidia)
+  ansible.builtin.assert:
+    that:
+      - nvidia_driver is defined
+      - nvidia_driver in gpu.nvidia.drivers
+    fail_msg: >-
+      nvidia_driver "{{ nvidia_driver | default('') }}" must be one of
+      {{ gpu.nvidia.drivers.keys() | join(', ') }}. Set it in
+      ansible/inventory/hosts.yml.
+    success_msg: nvidia_driver={{ nvidia_driver }}
+
+- name: Set selected NVIDIA driver packages (module nvidia)
+  ansible.builtin.set_fact:
+    gpu_nvidia_packages: "{{ gpu.nvidia.drivers[nvidia_driver].packages }}"
+    gpu_nvidia_hook_target: "{{ gpu.nvidia.drivers[nvidia_driver].hook_target }}"
+
+- name: Enable multilib repository section (module nvidia)
+  ansible.builtin.lineinfile:
+    path: "{{ mount_point }}{{ distro_paths.pacman_conf }}"
+    regexp: "^#?\\s*\\[multilib\\]"
+    line: "[multilib]"
+    state: present
+
+- name: Enable multilib mirrorlist include (module nvidia)
+  ansible.builtin.lineinfile:
+    path: "{{ mount_point }}{{ distro_paths.pacman_conf }}"
+    regexp: "^#?\\s*Include = /etc/pacman.d/mirrorlist"
+    line: "Include = /etc/pacman.d/mirrorlist"
+    state: present
+
+- name: Install NVIDIA driver packages (module nvidia)
+  ansible.builtin.shell: >-
+    arch-chroot {{ mount_point }} pacman -S --noconfirm
+    {{ gpu_nvidia_packages | join(' ') }}
+  args:
+    executable: /bin/bash
+  register: gpu_pacman
+  changed_when: gpu_pacman.rc == 0
+
+- name: Ensure NVIDIA KMS parameters are in GRUB cmdline (module nvidia)
+  ansible.builtin.shell: |
+    if ! grep -q "nvidia_drm.modeset=1" {{ mount_point }}{{ distro_paths.grub_default }}; then
+      sed -i 's#^GRUB_CMDLINE_LINUX_DEFAULT="\([^"]*\)"#GRUB_CMDLINE_LINUX_DEFAULT="\1 {{ gpu.nvidia.grub_cmdline }}"#' {{ mount_point }}{{ distro_paths.grub_default }}
+    fi
+  args:
+    executable: /bin/bash
+  register: gpu_grub_cmdline
+  changed_when: gpu_grub_cmdline.rc == 0
+
+- name: Add NVIDIA modules to mkinitcpio MODULES (module nvidia)
+  ansible.builtin.shell: |
+    if ! grep -q "{{ gpu.nvidia.mkinitcpio_modules | first }}" {{ mount_point }}{{ distro_paths.mkinitcpio_conf }}; then
+      sed -i 's#^MODULES=(\s*)#MODULES=( {{ gpu.nvidia.mkinitcpio_modules | join(' ') }} #' {{ mount_point }}{{ distro_paths.mkinitcpio_conf }}
+    fi
+  args:
+    executable: /bin/bash
+  register: gpu_mkinitcpio_modules
+  changed_when: gpu_mkinitcpio_modules.rc == 0
+
+- name: Remove kms hook from mkinitcpio HOOKS (module nvidia)
+  ansible.builtin.shell: |
+    if grep -qw "kms" {{ mount_point }}{{ distro_paths.mkinitcpio_conf }}; then
+      sed -i 's/\bkms //' {{ mount_point }}{{ distro_paths.mkinitcpio_conf }}
+    fi
+  args:
+    executable: /bin/bash
+  register: gpu_mkinitcpio_hooks
+  changed_when: gpu_mkinitcpio_hooks.rc == 0
+
+- name: Install NVIDIA pacman hook for initramfs rebuild (module nvidia)
+  ansible.builtin.template:
+    src: nvidia.hook.j2
+    dest: "{{ mount_point }}{{ distro_paths.pacman_hooks_dir }}/nvidia.hook"
+    mode: "0644"
+
+- name: Regenerate initramfs with NVIDIA modules (module nvidia)
+  ansible.builtin.shell: arch-chroot {{ mount_point }} mkinitcpio -P
+  args:
+    executable: /bin/bash
+  register: gpu_mkinitcpio
+  changed_when: gpu_mkinitcpio.rc == 0
+
+- name: Report NVIDIA driver verification (module nvidia)
+  ansible.builtin.debug:
+    msg: >-
+      NVIDIA setup applied in chroot (driver: {{ nvidia_driver }}).
+      After the first boot, verify with:
+      nvidia-smi and 'lsmod | grep nvidia'
+      (expect nvidia, nvidia_modeset, nvidia_uvm, nvidia_drm loaded).

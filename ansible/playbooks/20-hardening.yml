@@ -69,10 +69,6 @@
           on this system. Set end_user in ansible/inventory/hosts.yml to the
           account created during Phase 1 (module 06).
   roles:
-    - role: gpu
-      tags:
-        - nvidia
-      when: enable_nvidia | default(false)
     - role: snapshots
       tags:
         - snapshots

@@ -22,6 +22,10 @@
     - role: install_base
       tags:
         - install_base
+    - role: gpu
+      tags:
+        - nvidia
+      when: gpu_vendor is defined
     - role: system_config
       tags:
         - system_config
