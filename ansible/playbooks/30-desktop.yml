@@ -46,12 +46,15 @@
     - name: Assert the invoking user is root or in the wheel group (play 3 gate)
       ansible.builtin.assert:
         that:
-          - play3_invoker.stdout_lines | first | int == 0
-          - "'wheel' in (play3_invoker.stdout_lines | last).split(' ')"
+          - play3_invoker.stdout_lines | length > 0 and (
+              play3_invoker.stdout_lines | first | int == 0
+              or "'wheel' in (play3_invoker.stdout_lines | last).split(' ')"
+            )
         fail_msg: >-
           Play 3 must be run as root or as a wheel-group user (for sudo).
           Log in as {{ end_user | default('your end user') }} and re-run
           make run-phase3.
+      when: not ansible_check_mode
 
     - name: Check the end user account exists (play 3 gate)
       ansible.builtin.shell: id {{ end_user }}
@@ -70,6 +73,7 @@
           The end_user account "{{ end_user | default('') }}" does not exist
           on this system. Set end_user in ansible/inventory/hosts.yml to the
           account created during Phase 1 (module 06).
+      when: not ansible_check_mode
   roles:
     # --- Hyprland (sequential; 02-05 gated on 01 per spec 005 D5) ---
     - role: hyprland_install
