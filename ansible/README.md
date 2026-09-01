@@ -3,7 +3,7 @@
 Four plays automate the Arch Linux build:
 
 - **Play 1** (`playbooks/10-install.yml`) — Live-USB install through first
-  reboot (Phase 0–1): Phase 0 verification gate, then Phase 1 modules 01–08,
+  reboot (Phase 0–1): Phase 0 verification gate, then Phase 1 modules 01–09,
   ending in a reboot into a bootable dual-boot CLI system (GRUB menu with
   Linux + Windows).
 - **Play 2** (`playbooks/20-hardening.yml`) — Phase 2 system hardening on the
@@ -163,8 +163,8 @@ from its docs — e.g. `stow --version` + `ls -la ~/dotfiles/.git`
 - **Destructive gate** — no GPT table is written without `--confirm-destructive`.
 - **Drive validation** — `target_drive` must be present and match
   `target_drive_model` / `target_drive_size` before the gate is reached.
-- **Phase 0 gate** — the `preflight` role asserts UEFI mode, internet, NTP,
-  and target drive presence up front; any failure halts with a clear message.
+- **Phase 1 module 01 gate** — the `verify_boot_network` role asserts UEFI
+  mode, internet, and NTP up front; any failure halts with a clear message.
 - **Selectable layout** — `fstype` (only `btrfs` implemented) gates the
   btrfs-specific checks in `filesystems_btrfs`, `system_config`, and
   `first_reboot`; `bootloader` (only `grub` implemented) is the same pattern
@@ -232,21 +232,22 @@ ansible/
 ├── inventory/hosts.yml        # per-machine values: drive, identity, layout, swap, fstype, bootloader, passwords, country, wm + enable_* flags
 ├── group_vars/all.yml         # static shared constants: mount_point, efi_dir, gate
 ├── vars/distros/archlinux.yml # Option A distro layer (packages/commands/paths/layout + wm map + per-module pkgs)
-├── playbooks/10-install.yml   # Play 1: preflight -> modules 01-08 -> reboot
+├── playbooks/10-install.yml   # Play 1: verify_boot_network -> modules 01-09 -> reboot
 ├── playbooks/20-hardening.yml # Play 2: Phase 2 selectable modules (booted system)
 ├── playbooks/30-desktop.yml   # Play 3: Phase 3 selectable desktop modules (booted system, config-free)
 ├── playbooks/40-workflow.yml  # Play 4: Phase 4 profile-selectable modules (booted system, system-level only)
 ├── templates/llama-server.service.j2  # the only template Play 4 writes (inference user unit)
 ├── roles/
-│   ├── preflight/             # Phase 0 gate (overview, pre-flight, verify-boot)
+│   ├── verify_boot_network/   # 01 (UEFI, Wi-Fi, connectivity, NTP)
 │   ├── partitioning/          # 02 (detect-all fact, validation, gate, gdisk template)
 │   ├── filesystems_btrfs/     # 03 (mkfs, subvolumes, mounts)
 │   ├── install_base/          # 04 (reflector, keyring, pacstrap -K /mnt)
 │   ├── system_config/         # 05 (genfstab; chroot: timezone, locale, hostname, NM)
 │   ├── users_sudo/            # 06 (user + sudoers.d drop-in, chroot-stage)
-│   ├── bootloader_grub/       # 07 (grub, mkconfig, os-prober, efibootmgr)
-│   ├── first_reboot/          # 08 (final checks, unmount, reboot)
-│   ├── gpu/ snapshots/ aur/ sound/ networking/ clock_sync/ firewall/ external_drives/ ssh_git/  # Play 2
+│   ├── gpu/                   # 07 (NVIDIA driver in chroot: multilib, KMS cmdline, mkinitcpio, hook)
+│   ├── bootloader_grub/       # 08 (grub, mkconfig, os-prober, efibootmgr)
+│   ├── first_reboot/          # 09 (final checks, unmount, reboot)
+│   ├── snapshots/ aur/ sound/ networking/ clock_sync/ firewall/ external_drives/ ssh_git/  # Play 2
 │   ├── hyprland_install/ hyprland_config/ hyprland_lock/ hyprland_wallpaper/ hyprland_screenshare/  # Play 3 (WM)
 │   ├── shell_terminal/ app_launcher/ status_bar/ notifications/ clipboard/ screenshots/ file_manager/ fonts/  # Play 3 (shared)
 │   ├── display_manager/  # Play 3 (shared); templates/greetd-config.toml.j2 = only file Play 3 writes

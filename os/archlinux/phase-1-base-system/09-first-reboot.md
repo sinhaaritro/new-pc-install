@@ -1,7 +1,7 @@
 # First Reboot
 
 > **Phase**: 1 — Base System
-> **Prerequisites**: [Bootloader (GRUB)](./07-bootloader-grub.md)
+> **Prerequisites**: [Bootloader (GRUB)](./08-bootloader-grub.md)
 > **Packages**: None
 
 ---

@@ -23,6 +23,21 @@ lsblk -o NAME,SIZE,MODEL
 
 Locate your Samsung SSD (e.g., `/dev/nvme1n1`). Throughout this guide, replace `/dev/nvmeXn1` with your actual device name.
 
+> [!NOTE]
+> In the Ansible play this step is automated: the `partitioning` role prints the full drive list (name, size, model), then asserts that `target_drive` is set, is present in the detected list, matches `target_drive_model`, and matches `target_drive_size` (all in `ansible/inventory/hosts.yml`) before it is allowed to continue.
+
+### Step 1.5: Destructive Gate
+
+> [!CAUTION]
+> The Ansible play will **not** write a GPT table unless you explicitly confirm the destructive action. The `partitioning` role halts with:
+>
+> ```
+> This play will DESTROY all data on /dev/<target_drive>.
+> Re-run with --confirm-destructive to proceed
+> ```
+>
+> You pass the gate either with the `--confirm-destructive` flag (`make run` does this) or by setting `confirm_destructive: true` in `ansible/inventory/hosts.yml`.
+
 ### Step 2: Open gdisk
 
 ```bash

@@ -1,7 +1,7 @@
 # AUR Helper (yay)
 
 > **Phase**: 2 — System Hardening
-> **Prerequisites**: [First Reboot](../phase-1-base-system/08-first-reboot.md)
+> **Prerequisites**: [First Reboot](../phase-1-base-system/09-first-reboot.md)
 > **Packages**: None (yay is built from AUR)
 
 ---

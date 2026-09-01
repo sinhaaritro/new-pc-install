@@ -93,12 +93,21 @@ phases:
         prerequisites: [system-config]
         description: "Create user account, set passwords, configure sudo via visudo"
 
+      - id: nvidia
+        name: "GPU (NVIDIA)"
+        file: "phase-1-base-system/07-gpu-nvidia.md"
+        required: recommended
+        packages: [nvidia-open, nvidia-utils, lib32-nvidia-utils, nvidia-settings]
+        prerequisites: [users-sudo]
+        tags: [gpu, nvidia]
+        description: "NVIDIA driver in chroot (multilib, KMS cmdline, mkinitcpio modules + hook); must precede the bootloader module"
+
       - id: bootloader
         name: "Bootloader (GRUB)"
         file: "phase-1-base-system/07-bootloader-grub.md"
         required: true
         packages: [grub, efibootmgr, os-prober, mtools, dosfstools]
-        prerequisites: [users-sudo]
+        prerequisites: [nvidia]
         description: "Install GRUB, configure os-prober for dual-boot Windows detection"
 
       - id: first-reboot
@@ -116,15 +125,6 @@ phases:
     name: "System Hardening"
     milestone: "Stable system with drivers, snapshots, audio, and security"
     modules:
-      - id: nvidia
-        name: "NVIDIA Drivers"
-        file: "phase-2-system-hardening/nvidia-drivers.md"
-        required: recommended
-        packages: [nvidia-open, nvidia-utils, lib32-nvidia-utils, nvidia-settings]
-        prerequisites: [first-reboot]
-        tags: [gpu, nvidia]
-        description: "nvidia-open driver, KMS, mkinitcpio modules, pacman hook"
-
       - id: snapshots
         name: "Btrfs Snapshots & Recovery"
         file: "phase-2-system-hardening/btrfs-snapshots.md"

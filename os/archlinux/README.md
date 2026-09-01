@@ -5,8 +5,8 @@ A modular, phased installation guide for Arch Linux with Hyprland. Each phase pr
 | Phase | Milestone | Status |
 |-------|-----------|--------|
 | [**Phase 0: Pre-Install**](./phase-0-pre-install/README.md) | Ready to install | BIOS, USB, drive ID |
-| [**Phase 1: Base System**](./phase-1-base-system/README.md) | Bootable CLI (TTY) | Btrfs, GRUB, dual-boot |
-| [**Phase 2: System Hardening**](./phase-2-system-hardening/README.md) | Stable + drivers | NVIDIA, snapshots, audio, SSH |
+| [**Phase 1: Base System**](./phase-1-base-system/README.md) | Bootable CLI (TTY) | Btrfs, GRUB, dual-boot, NVIDIA |
+| [**Phase 2: System Hardening**](./phase-2-system-hardening/README.md) | Stable system | Snapshots, audio, SSH |
 | [**Phase 3: Desktop**](./phase-3-desktop/README.md) | Graphical desktop | Hyprland + desktop tools |
 | [**Phase 4: Workflow**](./phase-4-workflow/README.md) | Daily driver | Dev / AI / Gaming / Creative profiles |
 

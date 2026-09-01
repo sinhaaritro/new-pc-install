@@ -2,7 +2,7 @@
 
 > **Phase**: 1 — Base System
 > **Prerequisites**: [Filesystems & Btrfs](./03-filesystems-and-btrfs.md)
-> **Packages**: `base base-devel linux linux-headers linux-firmware <ucode> <fstool> nano git`
+> **Packages**: `base base-devel linux linux-headers linux-firmware man-db man-pages <ucode> <fstool> nano git`
 > (`<ucode>` = `amd-ucode` on AMD / `intel-ucode` on Intel; `<fstool>` = `btrfs-progs` on btrfs — see Step 3)
 
 ---
@@ -50,6 +50,8 @@ pacstrap -K /mnt base base-devel linux linux-headers linux-firmware amd-ucode bt
 | `linux` | The Linux kernel |
 | `linux-headers` | Kernel headers — needed for DKMS modules (NVIDIA) |
 | `linux-firmware` | Firmware blobs for hardware devices |
+| `man-db` | Manual page database |
+| `man-pages` | Core manual pages |
 | `amd-ucode` | AMD CPU microcode updates (Ryzen 9 9950X) |
 | `btrfs-progs` | Btrfs filesystem utilities |
 | `nano` | Simple text editor for configuration |

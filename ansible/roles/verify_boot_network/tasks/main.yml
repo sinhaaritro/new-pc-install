@@ -1,0 +1,86 @@
+---
+# Role: verify_boot_network (manifest module id: verify-boot)
+# Code for os/archlinux/phase-1-base-system/01-verify-boot-and-network.md:
+# verifies UEFI mode, network reachability (connecting Wi-Fi via iwctl when
+# wifi_ssid is set in inventory), and NTP sync. Halts on any failure.
+# Runs after the manual Phase 0 steps in os/archlinux/phase-0-pre-install/.
+# The phase-0 overview and pre-flight modules are docs-only (no tasks).
+
+- name: Assert UEFI firmware is present (module verify-boot)
+  ansible.builtin.stat:
+    path: "{{ efi_dir }}"
+  register: verify_boot_network_efi_dir
+
+- name: Assert system is booted in UEFI mode (module verify-boot)
+  ansible.builtin.assert:
+    that:
+      - verify_boot_network_efi_dir.stat.exists
+      - verify_boot_network_efi_dir.stat.isdir
+    fail_msg: >-
+      Not booted in UEFI mode ({{ efi_dir }} missing).
+      Reboot and select the UEFI entry for the live USB.
+    success_msg: UEFI mode confirmed
+
+- name: Read UEFI firmware platform size (informational)
+  ansible.builtin.shell: cat /sys/firmware/efi/fw_platform_size
+  args:
+    executable: /bin/bash
+  register: verify_boot_network_fw_platform_size
+  changed_when: false
+
+- name: Report UEFI platform size (module verify-boot)
+  ansible.builtin.debug:
+    msg: >-
+      UEFI platform size:
+      {{ verify_boot_network_fw_platform_size.stdout | trim }}
+      (64 = 64-bit UEFI, 32 = 32-bit UEFI — 32-bit is rare and may limit
+      bootloader options).
+  when: verify_boot_network_fw_platform_size.rc == 0
+
+- name: Connect to Wi-Fi via iwctl (module verify-boot)
+  ansible.builtin.shell: >-
+    iwctl station wlan0 scan;
+    iwctl station wlan0 connect "{{ wifi_ssid }}" "{{ wifi_password }}"
+  args:
+    executable: /bin/bash
+  register: verify_boot_network_wifi
+  changed_when: verify_boot_network_wifi.rc == 0
+  when: (wifi_ssid | default('') | length) > 0
+
+- name: Assert internet connectivity (module verify-boot)
+  ansible.builtin.shell: ping -c 3 -W 5 archlinux.org
+  args:
+    executable: /bin/bash
+  register: verify_boot_network_ping
+  changed_when: false
+
+- name: Report Wi-Fi connect failure on the ping gate (module verify-boot)
+  ansible.builtin.debug:
+    msg: >-
+      Wi-Fi connect for SSID "{{ wifi_ssid }}" failed
+      (rc={{ verify_boot_network_wifi.rc }}). Verify wifi_ssid/wifi_password in
+      ansible/inventory/hosts.yml, or use Ethernet (leave wifi_ssid empty).
+  when:
+    - (wifi_ssid | default('') | length) > 0
+    - verify_boot_network_wifi.rc | default(1) != 0
+
+- name: Enable NTP time synchronization
+  ansible.builtin.shell: timedatectl set-ntp true
+  args:
+    executable: /bin/bash
+  register: verify_boot_network_ntp
+  changed_when: verify_boot_network_ntp.rc == 0
+
+- name: Read timedatectl state
+  ansible.builtin.command: timedatectl
+  changed_when: false
+  register: verify_boot_network_timedatectl
+
+- name: Assert NTP service is active
+  ansible.builtin.assert:
+    that:
+      - "'NTP service: active' in verify_boot_network_timedatectl.stdout"
+    fail_msg: >-
+      NTP is not active after timedatectl set-ntp true.
+      Check network connectivity and retry.
+    success_msg: NTP active

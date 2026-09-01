@@ -117,10 +117,19 @@ By default, GRUB boots the first entry (usually Arch Linux). If you want to make
      grub-set-default "Windows Boot Manager (on /dev/nvme0n1p1)"
      ```
 
-3. **Regenerate GRUB configuration** (required if you modified `/etc/default/grub`):
-   ```bash
-   grub-mkconfig -o /boot/grub/grub.cfg
-   ```
+ 3. **Regenerate GRUB configuration** (required if you modified `/etc/default/grub`):
+    ```bash
+    grub-mkconfig -o /boot/grub/grub.cfg
+    ```
+
+ > [!NOTE]
+ > In the Ansible play this is driven by the `grub_default` var in
+ > `ansible/inventory/hosts.yml`:
+ > - **empty/unset** (default) — the first entry (Arch Linux) is the default; nothing is written.
+ > - **`saved`** — the `bootloader_grub` role sets `GRUB_DEFAULT=saved` and `GRUB_SAVEDEFAULT=true` (Method B), so GRUB remembers the last selection.
+ > - **an exact menuentry title** (Method A) — the role sets `GRUB_DEFAULT="<title>"` and runs `grub-set-default "<title>"` so that entry is the starting default. Find the exact title with `grep -i windows /boot/grub/grub.cfg`.
+ >
+ > The role applies this to `/etc/default/grub` before running `grub-mkconfig`, so the generated config picks it up automatically.
 
 ### Step 7: Clean Up
 

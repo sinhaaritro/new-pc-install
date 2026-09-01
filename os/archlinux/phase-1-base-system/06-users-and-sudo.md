@@ -64,6 +64,11 @@ To let wheel members run certain commands without a password, add this below the
 
 > [!NOTE]
 > This is a convenience trade-off. Only add commands you're comfortable running without password confirmation.
+>
+> In the Ansible play this is driven by the `wheel_nopasswd_commands` list in
+> `ansible/inventory/hosts.yml`. When non-empty, the `users_sudo` role appends
+> the matching `%wheel ALL=(ALL) NOPASSWD: ...` line to the sudoers drop-in;
+> when empty (default), only the standard `%wheel ALL=(ALL:ALL) ALL` line is written.
 
 ## Verification
 

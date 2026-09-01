@@ -1,7 +1,7 @@
 # AI Training
 
 > **Phase**: 4 — Workflow (AI Profile)
-> **Prerequisites**: [Inference (llama.cpp)](./inference.md), [NVIDIA Drivers](../../phase-2-system-hardening/nvidia-drivers.md)
+> **Prerequisites**: [Inference (llama.cpp)](./inference.md), [GPU (NVIDIA)](../../phase-1-base-system/07-gpu-nvidia.md)
 > **Packages**: TBD
 > **Status**: 🚧 Planned — not yet implemented
 

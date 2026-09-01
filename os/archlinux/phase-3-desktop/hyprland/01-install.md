@@ -1,7 +1,7 @@
 # Install Hyprland
 
 > **Phase**: 3 — Desktop
-> **Prerequisites**: [NVIDIA Drivers](../../phase-2-system-hardening/nvidia-drivers.md)
+> **Prerequisites**: [GPU (NVIDIA)](../../phase-1-base-system/07-gpu-nvidia.md)
 > **Packages**: `wayland hyprland xdg-desktop-portal-hyprland kitty qt5-wayland qt6-wayland firefox yazi`
 
 ---

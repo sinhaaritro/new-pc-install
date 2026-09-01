@@ -1,7 +1,7 @@
 # Phase 3: Desktop
 
 > **Milestone**: Full graphical desktop environment with Hyprland, status bar, launcher, and essential GUI tools.
-> **Prerequisite**: [NVIDIA Drivers](../phase-2-system-hardening/nvidia-drivers.md) from Phase 2.
+> **Prerequisite**: [GPU (NVIDIA)](../phase-1-base-system/07-gpu-nvidia.md) from Phase 1.
 
 ## Window Manager
 

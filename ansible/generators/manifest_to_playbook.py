@@ -5,9 +5,9 @@ os/archlinux/manifest.yaml is the single source of truth for modules and
 packages. This script verifies that the Ansible tree cannot silently drift
 from it:
 
-  1. Every Phase 0-2 module id has a role whose tasks/main.yml references it
-     (preflight covers phase-0: overview + pre-flight; gpu covers the
-     phase-2 nvidia module).
+  1. Every Phase 0-2 module id is either docs-only (no role) or has a role
+     whose tasks/main.yml references it (verify_boot_network covers the
+     phase-1 verify-boot module; gpu covers the phase-1 nvidia module).
   2. Every package listed in a Phase 0-2 module is referenced somewhere in
      the Ansible tree (roles/ + vars/ + group_vars/).
 
@@ -23,10 +23,11 @@ import sys
 from pathlib import Path
 
 ANSLIB = Path(__file__).resolve().parent.parent
+# None = docs-only module (no tasks, no role).
 ROLE_MAP = {
-    "overview": "preflight",
-    "pre-flight": "preflight",
-    "verify-boot": "preflight",
+    "overview": None,
+    "pre-flight": None,
+    "verify-boot": "verify_boot_network",
     "partitioning": "partitioning",
     "filesystems": "filesystems_btrfs",
     "install-base": "install_base",
@@ -135,9 +136,9 @@ def check():
     errors = []
 
     role_tasks = [
-        (module_id, ROLE_MAP[module_id] + "/tasks/main.yml")
-        for module_id in ROLE_MAP
-        if module_id in modules
+        (module_id, role + "/tasks/main.yml")
+        for module_id, role in ROLE_MAP.items()
+        if role is not None and module_id in modules
     ]
 
     missing_modules = [m for m in modules if m not in ROLE_MAP]

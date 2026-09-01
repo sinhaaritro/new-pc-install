@@ -3,7 +3,6 @@
 # Var layering (spec 002): per-machine values live in inventory/hosts.yml;
 # static shared layout constants live here; distro-specific data lives in
 # vars/distros/<distro>.yml.
-ansible_distro: archlinux
 # Where the new system is mounted on the live USB.
 mount_point: /mnt
 # UEFI efivars path (kernel ABI, distro-agnostic) - UEFI-mode assertion.

@@ -1,7 +1,7 @@
 # Local Inference (llama.cpp)
 
 > **Phase**: 4 — Workflow (AI Profile)
-> **Prerequisites**: [NVIDIA Drivers](../../phase-2-system-hardening/nvidia-drivers.md), [AUR Helper](../../phase-2-system-hardening/aur-helper.md)
+> **Prerequisites**: [GPU (NVIDIA)](../../phase-1-base-system/07-gpu-nvidia.md), [AUR Helper](../../phase-2-system-hardening/aur-helper.md)
 > **Packages**: `cuda llama-cpp-cuda` (AUR)
 
 ---
@@ -39,7 +39,7 @@ nvidia-smi
 ```
 
 > [!IMPORTANT]
-> If `nvidia-smi` does not show your GPU, complete the [NVIDIA Drivers](../../phase-2-system-hardening/nvidia-drivers.md) module first.
+> If `nvidia-smi` does not show your GPU, complete the [GPU (NVIDIA)](../../phase-1-base-system/07-gpu-nvidia.md) module first.
 
 ### Step 2: Install llama.cpp (CUDA Build)
 

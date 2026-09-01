@@ -1,7 +1,7 @@
 # Btrfs Snapshots & Recovery
 
 > **Phase**: 2 — System Hardening
-> **Prerequisites**: [First Reboot](../phase-1-base-system/08-first-reboot.md)
+> **Prerequisites**: [First Reboot](../phase-1-base-system/09-first-reboot.md)
 > **Packages**: `snapper snap-pac grub-btrfs btrfs-assistant rsync`
 
 ---

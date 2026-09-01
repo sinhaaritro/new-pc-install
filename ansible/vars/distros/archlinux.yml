@@ -9,6 +9,8 @@ distro_packages:
     - linux
     - linux-headers
     - linux-firmware
+    - man-db
+    - man-pages
     - nano
     - git
   # CPU microcode selected by cpu_vendor (per-machine, inventory/hosts.yml).

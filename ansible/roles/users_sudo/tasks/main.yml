@@ -71,7 +71,14 @@
 - name: Write sudoers drop-in for wheel group
   ansible.builtin.copy:
     dest: "{{ mount_point }}/etc/sudoers.d/wheel"
-    content: "%wheel ALL=(ALL:ALL) ALL\n"
+    content: >-
+      %wheel ALL=(ALL:ALL) ALL
+      {% if wheel_nopasswd_commands | default([]) | length > 0 %}
+
+      ## Allow wheel members to run some commands without a password
+      %wheel ALL=(ALL) NOPASSWD: {{ wheel_nopasswd_commands |
+        join(',') }}{% endif %}
+
     mode: "0440"
     validate: "visudo -cf %s"
 

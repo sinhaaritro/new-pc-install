@@ -50,6 +50,44 @@
   register: bootloader_grub_osprober
   changed_when: bootloader_grub_osprober.rc == 0
 
+- name: Configure GRUB default entry (module bootloader)
+  ansible.builtin.shell: |
+    arch-chroot {{ mount_point }} sh -c '
+      if [ -n "{{ grub_default | default("") }}" ]; then
+        if [ "{{ grub_default }}" = "saved" ]; then
+          sed -i "s/^GRUB_DEFAULT=.*/GRUB_DEFAULT=saved/" /etc/default/grub
+          if grep -q "^GRUB_SAVEDEFAULT" /etc/default/grub; then
+            sed -i "s/^GRUB_SAVEDEFAULT=.*/GRUB_SAVEDEFAULT=true/" \
+              /etc/default/grub
+          else
+            echo "GRUB_SAVEDEFAULT=true" >> /etc/default/grub
+          fi
+        else
+          sed -i "s/^GRUB_DEFAULT=.*/GRUB_DEFAULT=\"{{ grub_default }}\"/" \
+            /etc/default/grub
+        fi
+      fi
+    '
+  args:
+    executable: /bin/bash
+  register: bootloader_grub_default
+  changed_when: >-
+    bootloader_grub_default.rc == 0
+    and (grub_default | default("") | length) > 0
+
+- name: Set the saved GRUB default to the Windows entry (module bootloader)
+  ansible.builtin.shell: >-
+    arch-chroot {{ mount_point }}
+    grub-set-default "{{ grub_default }}"
+  args:
+    executable: /bin/bash
+  register: bootloader_grub_set_default
+  changed_when: bootloader_grub_set_default.rc == 0
+  when: >-
+    grub_default is defined
+    and grub_default | length > 0
+    and grub_default != "saved"
+
 - name: Install GRUB to the EFI partition
   ansible.builtin.shell: arch-chroot {{ mount_point }} grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --removable
   args:

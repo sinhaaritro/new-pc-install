@@ -9,10 +9,25 @@
     - name: Load distro-specific vars (Option A layer)
       ansible.builtin.include_vars:
         file: "../vars/distros/{{ ansible_distro }}.yml"
+
+    - name: Check for the live-USB marker (play 1 gate)
+      ansible.builtin.stat:
+        path: /run/archiso
+      register: play1_archiso
+
+    - name: Assert running on the live USB (play 1 gate)
+      ansible.builtin.assert:
+        that:
+          - play1_archiso.stat.exists
+        fail_msg: >-
+          This play runs on the live USB, not the installed system
+          (/run/archiso is missing). Boot from the Arch live USB and re-run
+          make run. Do NOT run this play on your installed system — it will
+          wipe the target drive.
   roles:
-    - role: preflight
+    - role: verify_boot_network
       tags:
-        - preflight
+        - verify_boot_network
     - role: partitioning
       tags:
         - partitioning

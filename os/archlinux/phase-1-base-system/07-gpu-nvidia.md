@@ -1,14 +1,17 @@
-# NVIDIA Drivers
+# GPU (NVIDIA)
 
-> **Phase**: 2 — System Hardening
-> **Prerequisites**: [First Reboot](../phase-1-base-system/08-first-reboot.md)
-> **Packages**: `nvidia-open nvidia-utils lib32-nvidia-utils nvidia-settings`
+> **Phase**: 1 — Base System
+> **Prerequisites**: [Users & Sudo](./06-users-and-sudo.md) — but must be completed **before** [Bootloader (GRUB)](./08-bootloader-grub.md) (the GRUB cmdline edit must land before `grub-mkconfig` runs)
+> **Packages**: `nvidia-open nvidia-utils lib32-nvidia-utils nvidia-settings` (base driver selected by `nvidia_driver`: `nvidia-open` for Turing+ / `nvidia` for Maxwell–Pascal)
 
 ---
 
 ## Overview
 
-Install the proprietary NVIDIA open kernel module (`nvidia-open`) for your RTX 4070 Ti Super (Ada Lovelace), enable Kernel Mode Setting (KMS) for Wayland/Hyprland, and set up automatic initramfs regeneration via a pacman hook.
+Install the NVIDIA open kernel module (`nvidia-open`) for your RTX 4070 Ti Super (Ada Lovelace), enable Kernel Mode Setting (KMS) for Wayland/Hyprland, and set up automatic initramfs regeneration via a pacman hook.
+
+> [!IMPORTANT]
+> This module runs **inside the chroot on the live USB**, between Users & Sudo and the Bootloader. Every command below is prefixed with `arch-chroot /mnt` — you are configuring the new system while still on the installer.
 
 > [!NOTE]
 > `nvidia-open` is NVIDIA's open-source kernel module, recommended for Turing (RTX 20xx) and newer. It is **not** the same as `nouveau` (the community reverse-engineered driver).
@@ -25,7 +28,7 @@ Install the proprietary NVIDIA open kernel module (`nvidia-open`) for your RTX 4
 The 32-bit compatibility libraries (`lib32-nvidia-utils`) are in the `[multilib]` repository, which is disabled by default.
 
 ```bash
-sudo nvim /etc/pacman.conf
+arch-chroot /mnt nano /etc/pacman.conf
 ```
 
 Find and uncomment both lines:
@@ -34,15 +37,13 @@ Find and uncomment both lines:
 Include = /etc/pacman.d/mirrorlist
 ```
 
-Update the package database:
-```bash
-sudo pacman -Syu
-```
+> [!NOTE]
+> No `pacman -Syu` is needed here — the chroot database is fresh from `pacstrap`, and the next step installs directly.
 
 ### Step 2: Install Driver Packages
 
 ```bash
-sudo pacman -S nvidia-open nvidia-utils lib32-nvidia-utils nvidia-settings
+arch-chroot /mnt pacman -S --noconfirm nvidia-open nvidia-utils lib32-nvidia-utils nvidia-settings
 ```
 
 #### Driver Selection Reference
@@ -54,13 +55,13 @@ sudo pacman -S nvidia-open nvidia-utils lib32-nvidia-utils nvidia-settings
 | **Maxwell–Ada Lovelace** | linux | `nvidia` | `nvidia-utils` | `lib32-nvidia-utils` |
 | **Maxwell–Ada Lovelace** | any other kernel | `nvidia-dkms` | `nvidia-utils` | `lib32-nvidia-utils` |
 
-### Step 3: Configure Kernel Parameters (GRUB)
+### Step 3: Add NVIDIA Parameters to GRUB Cmdline
 
-To enable early Kernel Mode Setting (KMS) and improve framebuffer TTY support, add the NVIDIA parameters to your GRUB configuration:
+To enable early Kernel Mode Setting (KMS) and improve framebuffer TTY support, append the NVIDIA parameters to `GRUB_CMDLINE_LINUX_DEFAULT`.
 
-1. Open `/etc/default/grub` in your editor:
+1. Open `/etc/default/grub` in the new system:
    ```bash
-   sudo nvim /etc/default/grub
+   arch-chroot /mnt nano /etc/default/grub
    ```
 
 2. Find the `GRUB_CMDLINE_LINUX_DEFAULT` line and append the parameters:
@@ -68,21 +69,14 @@ To enable early Kernel Mode Setting (KMS) and improve framebuffer TTY support, a
    GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet nvidia_drm.modeset=1 nvidia_drm.fbdev=1"
    ```
 
-3. Regenerate the GRUB configuration:
-   
-   > [!WARNING]
-   > Since your Windows installation is on a separate drive (the WD SSD), **you must temporarily mount the Windows EFI partition before running `grub-mkconfig`**. Refer to [Phase 1 Bootloader: Step 3](../phase-1-base-system/07-bootloader-grub.md#step-3-mount-windows-efi-partition-for-os-prober) for the exact mounting steps. If you do not mount it, `os-prober` will not detect Windows, and you will lose the Windows entry in your GRUB menu.
-
-   ```bash
-   # Mount the Windows EFI partition first (see Phase 1 Bootloader: Step 3), then run:
-   sudo grub-mkconfig -o /boot/grub/grub.cfg
-   ```
+> [!NOTE]
+> Do **not** run `grub-mkconfig` here — the Bootloader module (next) generates `grub.cfg` after this cmdline edit, so the parameters are picked up automatically.
 
 ### Step 4: Early Loading of NVIDIA Modules
 
-Edit `mkinitcpio.conf`:
+Edit `mkinitcpio.conf` in the new system:
 ```bash
-sudo nvim /etc/mkinitcpio.conf
+arch-chroot /mnt nano /etc/mkinitcpio.conf
 ```
 
 **4a.** Find the `MODULES=()` line and add the NVIDIA modules:
@@ -104,21 +98,21 @@ HOOKS=(base udev autodetect microcode modconf keyboard keymap consolefont block 
 
 **4c.** Regenerate the initramfs:
 ```bash
-sudo mkinitcpio -P
+arch-chroot /mnt mkinitcpio -P
 ```
 
 ### Step 5: Add Pacman Hook for Automatic Initramfs Rebuild
 
-When NVIDIA drivers or the kernel are updated, the initramfs must be regenerated. This hook automates that.
+When NVIDIA drivers or the kernel are updated later, the initramfs must be regenerated. This hook automates that.
 
-Create the hooks directory:
+Create the hooks directory in the new system:
 ```bash
-sudo mkdir -p /etc/pacman.d/hooks/
+arch-chroot /mnt mkdir -p /etc/pacman.d/hooks/
 ```
 
 Create the hook file:
 ```bash
-sudo nvim /etc/pacman.d/hooks/nvidia.hook
+arch-chroot /mnt nano /etc/pacman.d/hooks/nvidia.hook
 ```
 
 Paste the following:
@@ -141,15 +135,9 @@ NeedsTargets
 Exec=/bin/sh -c 'while read -r trg; do case $trg in linux) exit 0; esac; done; /usr/bin/mkinitcpio -P'
 ```
 
-### Step 6: Reboot
-
-```bash
-sudo reboot
-```
-
 ## Verification
 
-After reboot, verify the driver is loaded:
+The driver cannot be verified until the first boot (no GPU access from the live USB for the installed system). After the first reboot, verify:
 
 ```bash
 nvidia-smi

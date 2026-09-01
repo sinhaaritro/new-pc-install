@@ -29,6 +29,12 @@ cat /sys/firmware/efi/fw_platform_size
 - `64` = 64-bit UEFI ✅
 - `32` = 32-bit UEFI (rare, may limit bootloader options)
 
+> [!NOTE]
+> In the Ansible play the `verify_boot_network` role reads
+> `fw_platform_size` and prints it as an **informational** value (no gate —
+> both 32- and 64-bit pass). The hard UEFI-mode assertion is the `efivars`
+> check above.
+
 ### Step 2: Connect to the Internet
 
 **Option A: Ethernet (recommended)**
@@ -54,7 +60,7 @@ Enter the Wi-Fi password when prompted.
 
 > [!NOTE]
 > In the Ansible play this is non-interactive: set `wifi_ssid` (and
-> `wifi_password`) in `ansible/inventory/hosts.yml` and the preflight role
+> `wifi_password`) in `ansible/inventory/hosts.yml` and the verify_boot_network role
 > connects via `iwctl` before the connectivity gate. Leave `wifi_ssid`
 > empty for Ethernet.
 
