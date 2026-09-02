@@ -2,7 +2,7 @@
 tags: [ansible, phase-2, ssh, interactive, gates]
 ---
 
-# ADR-004: Interactive Steps Become Explicit Gates and Printed Artifacts
+# ADR-005: Interactive Steps Become Explicit Gates and Printed Artifacts
 
 Status: Accepted
 Date: 2026-08-23

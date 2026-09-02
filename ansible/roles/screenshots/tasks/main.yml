@@ -1,7 +1,7 @@
 ---
 # Role: screenshots (manifest module id: screenshots)
 # Phase 3 shared module on the booted system: grim (capture) + slurp (region
-# select) + swappy (annotate). Config-free (ADR-014): installs the packages
+# select) + swappy (annotate). Config-free (ADR-011): installs the packages
 # only; the PRINT keybinds in hyprland.conf are owned by the user's stow
 # package.
 

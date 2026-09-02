@@ -1,7 +1,7 @@
 ---
 # Role: display_manager (manifest module id: display-manager)
 # Phase 3 shared module on the booted system: greetd + tuigreet login screen.
-# The one Play 3 role that writes a file (ADR-014): /etc/greetd/config.toml is
+# The one Play 3 role that writes a file (ADR-011): /etc/greetd/config.toml is
 # a *system service file* (not a user dotfile), so Play 3 (root) writes it
 # from a template and enables the greetd system service.
 

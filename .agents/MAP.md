@@ -5,8 +5,8 @@
 > (`.agents/skills/map-generator/scripts/generate_map.py`).
 > Do not modify this file manually - update individual SKILL.md frontmatters instead.
 
-- Generated: 2026-08-23T00:56:58Z
-- Snapshot: a6161268
+- Generated: 2026-09-02T01:44:27Z
+- Snapshot: 007e4a85
 
 ## Skills & Instructions
 

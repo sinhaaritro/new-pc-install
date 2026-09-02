@@ -2,7 +2,7 @@
 # Role: dotfiles_backup (manifest module id: dotfiles-backup)
 # Phase 4 SHARED module on the booted system (all profiles): GNU Stow + a git
 # repo at ~/dotfiles as the ownership boundary for all user dotfiles
-# (spec 006 D9, ADR-016/023). The role is config-free: it installs stow,
+# (spec 006 D9, ADR-011/023). The role is config-free: it installs stow,
 # bootstraps the repo only if it does not already exist (never 'git init'
 # over an existing repo), and prints the naming convention + adopt workflow.
 # It moves no files and writes no stow package contents - adopting existing

@@ -1,3 +1,0 @@
----
-# Module 04 (install-base): base package list sourced from vars/distros/archlinux.yml.
-install_base_packages: "{{ distro_packages.base }}"

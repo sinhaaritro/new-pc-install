@@ -22,6 +22,8 @@ Every spec carries `tags: [lowercase-kebab, ...]`; the promotion gate runs
   - 📄 [004-ansible-play-2-phase-2-system-hardening-boot-system-selectable-modules.md](./004-ansible-play-2-phase-2-system-hardening-boot-system-selectable-modules.md) — APPROVED
   - 📄 [005-ansible-play-3-phase-3-desktop-boot-system-selectable-modules-config-free.md](./005-ansible-play-3-phase-3-desktop-boot-system-selectable-modules-config-free.md) — APPROVED
   - 📄 [006-ansible-play-4-phase-4-workflow-booted-system-profile-selectable-modules-system-level-only.md](./006-ansible-play-4-phase-4-workflow-booted-system-profile-selectable-modules-system-level-only.md) — APPROVED
+  - 📄 [007-variant-module-data-pattern-complete-the-phase-1-defaults-abolition.md](./007-variant-module-data-pattern-complete-the-phase-1-defaults-abolition.md) — APPROVED
+  - 📄 [008-distro-data-to-inventory-group-vars-distro-yml-selector-group-membership.md](./008-distro-data-to-inventory-group-vars-distro-yml-selector-group-membership.md) — APPROVED
 <!-- TOC:END -->
 
 <!-- TAG-INDEX:START -->

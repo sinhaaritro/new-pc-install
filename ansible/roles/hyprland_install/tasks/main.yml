@@ -4,7 +4,7 @@
 # compositor, Kitty, portal, Qt-wayland, Firefox, and yazi (spec 005).
 # wm_vendor (inventory) selects the WM base package set; only 'hyprland' is
 # implemented (niri/sway/none hit a "not implemented" gate). Config-free
-# (ADR-014): no hyprland.conf is written - the user's stow package owns it.
+# (ADR-011): no hyprland.conf is written - the user's stow package owns it.
 
 - name: Assert wm_vendor selects a known window manager (module hyprland-install)
   ansible.builtin.assert:

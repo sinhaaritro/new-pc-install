@@ -11,10 +11,6 @@
   gather_facts: false
   become: true
   pre_tasks:
-    - name: Load distro-specific vars (Option A layer)
-      ansible.builtin.include_vars:
-        file: "../vars/distros/{{ ansible_distro }}.yml"
-
     - name: Check for the live-USB marker (play 2 gate)
       ansible.builtin.stat:
         path: /run/archiso

@@ -8,8 +8,8 @@ from it:
   1. Every Phase 0-2 module id is either docs-only (no role) or has a role
      whose tasks/main.yml references it (verify_boot_network covers the
      phase-1 verify-boot module; gpu covers the phase-1 nvidia module).
-  2. Every package listed in a Phase 0-2 module is referenced somewhere in
-     the Ansible tree (roles/ + vars/ + group_vars/).
+   2. Every package listed in a Phase 0-2 module is referenced somewhere in
+      the Ansible tree (roles/ + group_vars/).
 
 Usage:
   manifest_to_playbook.py --check [--manifest PATH]
@@ -60,7 +60,7 @@ ROLE_MAP = {
     "fonts": "fonts",
     # Phase 4 (profile-structured; spec 006 D6). Module ids stay flat - they
     # are unique across profiles in the manifest. 'davinci' maps to an
-    # extended role name to avoid the Phase 3 namespace collision (ADR-020).
+    # extended role name to avoid the Phase 3 namespace collision (ADR-006).
     # 'dotfiles' is the manifest id of the SHARED Phase 4 module (its docs
     # file is dotfiles-backup.md; the role directory is dotfiles_backup).
     "dotfiles": "dotfiles_backup",
@@ -157,10 +157,10 @@ def check():
     for module in modules.values():
         package_ids.update(module.get("packages", []))
 
-    tree = read_tree([ANSLIB / "roles", ANSLIB / "vars", ANSLIB / "group_vars"])
+    tree = read_tree([ANSLIB / "roles", ANSLIB / "inventory" / "group_vars"])
     for package in sorted(package_ids):
         if not re.search(r"\b" + re.escape(package) + r"\b", tree):
-            errors.append(f"package {package!r} (from manifest) not referenced in ansible/ roles, vars, or group_vars")
+            errors.append(f"package {package!r} (from manifest) not referenced in ansible/ roles or group_vars")
 
     if errors:
         print("PARITY FAIL")

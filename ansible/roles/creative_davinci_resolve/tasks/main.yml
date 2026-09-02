@@ -4,7 +4,7 @@
 # (profile-creative/davinci-resolve.md) is a placeholder with no manifest
 # packages, so this role installs nothing and prints the pending scope. The
 # role name is extended (not 'creative_davinci') to avoid the Phase 3
-# namespace collision (spec 006 D6, ADR-020).
+# namespace collision (spec 006 D6, ADR-006).
 
 - name: Report davinci placeholder status (module davinci)
   ansible.builtin.debug:

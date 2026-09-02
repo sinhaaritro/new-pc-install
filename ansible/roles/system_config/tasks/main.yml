@@ -2,10 +2,7 @@
 # Role: system_config (manifest module id: system-config)
 # Module 05: genfstab on host; chroot-stage timezone, locale.gen template +
 # locale-gen, hostname, NetworkManager enable.
-
-- name: Load distro defaults (system_config)
-  ansible.builtin.include_vars:
-    file: "defaults/{{ ansible_distro }}.yml"
+# Package lists are read directly from the global distro file (ADR-002).
 
 - name: Generate fstab for all mounts
   ansible.builtin.shell: genfstab -U {{ mount_point }} >> {{ mount_point }}/etc/fstab
@@ -69,7 +66,7 @@
   changed_when: system_config_hostname.rc == 0
 
 - name: Install NetworkManager in new system
-  ansible.builtin.shell: arch-chroot {{ mount_point }} pacman -S --noconfirm {{ system_config_chroot_core_packages | join(' ') }}
+  ansible.builtin.shell: arch-chroot {{ mount_point }} pacman -S --noconfirm {{ distro_packages.chroot_core | join(' ') }}
   args:
     executable: /bin/bash
   register: system_config_nm

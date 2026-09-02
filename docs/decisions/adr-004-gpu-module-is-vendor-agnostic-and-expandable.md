@@ -2,7 +2,7 @@
 tags: [ansible, gpu, nvidia, vendor-agnostic]
 ---
 
-# ADR-003: GPU Module Is Vendor-Agnostic and Expandable
+# ADR-004: GPU Module Is Vendor-Agnostic and Expandable
 
 Status: Accepted
 Date: 2026-08-23
@@ -20,8 +20,8 @@ code.
 A `gpu_vendor` inventory var (`nvidia` | `amd` | `intel` | `none`) selects the path in
 a single `gpu` role. `nvidia` and `none` are implemented; `amd` and `intel` are
 declared and hit a clear "not implemented yet" gate. All per-vendor values (packages,
-mkinitcpio modules, GRUB cmdline, hook content) live in `vars/distros/archlinux.yml`
-under a `gpu:` map. Adding a vendor is data plus one task branch.
+mkinitcpio modules, GRUB cmdline, hook content) live in `inventory/group_vars/archlinux.yml`
+under a `gpu:` map (home per ADR-002). Adding a vendor is data plus one task branch.
 
 ## Consequences
 
@@ -29,3 +29,9 @@ Later vendors (AMD, Intel) are added without a role rewrite, mirroring the exist
 `fstype`/`bootloader` (spec 003) and `cpu_vendor` (spec 002) selectable patterns. The
 cost is an unimplemented-option gate that must be kept honest (clear message, no
 silent no-op) until a vendor lands.
+
+> **Cross-reference (ADR-002):** the `gpu:` map in `inventory/group_vars/<distro>.yml` is the
+> first instance of the codified **variant-module data pattern** (a two-selector nested
+> case: `gpu.<vendor>.<driver>`). Future single-selector variant modules (e.g. `wifi`)
+> follow the same `<role>:` top-level section keyed by a host var, each variant carrying
+> `packages` + a `config` keyword. No `gpu` data changes from this codification.

@@ -28,7 +28,7 @@ packages their manifest entry lists and print a "doc is a placeholder —
 manual steps pending" note. The manifest is the single source of truth for
 which placeholder modules carry packages.
 
-**Config boundary (extension of ADR-014, resolved gate):** Play 4, like
+**Config boundary (extension of ADR-011, resolved gate):** Play 4, like
 Play 3, **writes no user dotfiles** — everything under `~/.config/`,
 `~/.ssh/`, `~/.zshrc`, `~/.continue/`, `~/.config/claude/` etc. is owned by
 the user's stow package (the Phase 4 `dotfiles-backup` module sets up that
@@ -93,7 +93,7 @@ of its config to the stow repo being created by its own shared module.
   keeping the role `when:` clauses identical in shape to Play 3's.
 
 - **D2 — System-level artifacts written, dotfiles never (extension of
-  ADR-014, resolved gate).** The ADR-014 boundary ("no user dotfiles; stow
+  ADR-011, resolved gate).** The ADR-011 boundary ("no user dotfiles; stow
   owns config") is extended to Play 4 with one named exception class:
   **service unit definitions and root-owned system artifacts**. Play 4
   writes exactly four: the devpod binary (`/usr/local/bin`), the podman
@@ -109,7 +109,7 @@ of its config to the stow repo being created by its own shared module.
   VSCodium settings — is a printed stow note. Alternative rejected: strict
   config-free (leaves llama-server impossible to enable as a service, which
   the inference doc's Path B explicitly wants) or writing configs (collides
-  with stow, violates ADR-014).
+  with stow, violates ADR-011).
 
 - **D3 — Placeholder modules are thin manifest-driven roles (resolved
   scope gate).** A placeholder module's role contains: (a) install the
@@ -197,7 +197,7 @@ of its config to the stow repo being created by its own shared module.
   the user's existing configs into the repo is an interactive,
   user-judgment step — printed instructions only). Alternative rejected:
   auto-adopt existing configs (destructive to user state; exactly the kind
-  of judgment ADR-014 assigns to the user).
+  of judgment ADR-011 assigns to the user).
 
 ## 3. Affected Files & Scope
 

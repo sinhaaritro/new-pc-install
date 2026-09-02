@@ -1,15 +1,12 @@
 ---
 # Play 1 — Live-USB install through first reboot (Phase 0-1).
 # Runs on the live USB (root@archiso). See ansible/README.md for the user flow.
-# Distro selected via the ansible_distro inventory var (Option A layer).
+# Distro selected by the inventory group localhost is under (auto-loads
+# inventory/group_vars/<distro>.yml — ADR-002).
 - name: Arch Linux live-USB install (Phase 0-1)
   hosts: localhost
   gather_facts: false
   pre_tasks:
-    - name: Load distro-specific vars (Option A layer)
-      ansible.builtin.include_vars:
-        file: "../vars/distros/{{ ansible_distro }}.yml"
-
     - name: Check for the live-USB marker (play 1 gate)
       ansible.builtin.stat:
         path: /run/archiso

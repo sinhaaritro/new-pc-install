@@ -3,10 +3,7 @@
 # Module 04: reflector mirror selection, keyring upgrade, pacstrap base.
 # CPU microcode is selected by the per-machine cpu_vendor var
 # (distro_packages.ucode.<vendor> in vars/distros/archlinux.yml).
-
-- name: Load distro defaults (install_base)
-  ansible.builtin.include_vars:
-    file: "defaults/{{ ansible_distro }}.yml"
+# Package lists are read directly from the global distro file (ADR-002).
 
 - name: Assert cpu_vendor and fstype select known packages (module install-base)
   ansible.builtin.assert:
@@ -38,7 +35,7 @@
 - name: Build pacstrap package list (base + CPU microcode + filesystem tools)
   ansible.builtin.set_fact:
     install_base_pacstrap_pkgs: >-
-      {{ install_base_packages
+      {{ distro_packages.base
          + [distro_packages.ucode[cpu_vendor], distro_packages.fstools[fstype]] }}
 
 - name: Install package with pacstrap base system (module install-base)

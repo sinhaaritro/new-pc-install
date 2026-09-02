@@ -1,0 +1,18 @@
+---
+# Role-local snapper retention + ACL policy for the root config.
+# This is NOT distro data - it is btrfs-gated snapper policy owned by the
+# snapshots role - so it lives in this role's vars/ (auto-loaded), not in the
+# global distro file. Each key is a key in the generated snapper config file.
+# See ADR-002 (role-local policy vs distro data).
+snapshots_retention:
+  NUMBER_CANCELLED: "3"
+  NUMBER_DAYS: "1"
+  NUMBER_HOURS: "10"
+  NUMBER_MINUTES: "10"
+  NUMBER_SECONDS: "360"
+  CLEANUP_NUMBER_MIN: "5"
+  CLEANUP_NUMBER_MAX: "16"
+  CLEANUP_NUMBER_OFFSET: "10"
+  CLEANUP_NUMBER_TIMEOUT: "10800"
+  SPACE_LIMIT: "4096M"
+  ALLOW_USER: "root"

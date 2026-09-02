@@ -2,7 +2,7 @@
 # Role: shell_terminal (manifest module id: shell-terminal)
 # Phase 3 shared module on the booted system: zsh + oh-my-zsh + fzf + zoxide
 # (spec 005). Installs the packages (root) and switches the end user's login
-# shell to zsh (chsh, root). Config-free (ADR-014): ~/.zshrc and
+# shell to zsh (chsh, root). Config-free (ADR-011): ~/.zshrc and
 # ~/.config/kitty/kitty.conf are owned by the user's stow package.
 
 - name: Install shell and terminal packages (module shell-terminal)

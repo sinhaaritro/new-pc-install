@@ -2,10 +2,7 @@
 # Role: bootloader_grub (manifest module id: bootloader)
 # Module 07: grub install, grub-mkconfig, os-prober, efibootmgr (chroot-stage).
 # The Windows EFI partition is mounted host-side so os-prober can see it.
-
-- name: Load distro defaults (bootloader_grub)
-  ansible.builtin.include_vars:
-    file: "defaults/{{ ansible_distro }}.yml"
+# Package lists are read directly from the global distro file (ADR-002).
 
 - name: Identify Windows EFI partition (module bootloader)
   ansible.builtin.shell: |
@@ -30,7 +27,7 @@
   when: bootloader_grub_win_efi_device is defined
 
 - name: Install GRUB packages in new system
-  ansible.builtin.shell: arch-chroot {{ mount_point }} pacman -S --noconfirm {{ bootloader_grub_packages | join(' ') }}
+  ansible.builtin.shell: arch-chroot {{ mount_point }} pacman -S --noconfirm {{ distro_packages.bootloader | join(' ') }}
   args:
     executable: /bin/bash
   register: bootloader_grub_pacman

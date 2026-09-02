@@ -2,7 +2,7 @@
 # Role: dev_remote_ssh (manifest module id: remote-ssh)
 # Phase 4 profile-dev module on the booted system: SSH tooling for remote
 # dev (openssh is Phase 2's; this role adds netcat + procps-ng). Config-free
-# (ADR-016): ~/.ssh/config host blocks and the vscodium-tunnel-proxy.sh
+# (ADR-011): ~/.ssh/config host blocks and the vscodium-tunnel-proxy.sh
 # helper are stow-owned - printed as notes, not written.
 
 - name: Install remote-ssh packages (module remote-ssh)

@@ -2,7 +2,7 @@
 # Role: ai_ide_integration (manifest module id: ide-integration)
 # Phase 4 profile-ai module on the booted system - package-free. The Neovim
 # AI plugins (lazy.nvim specs), Continue config, and VSCodium settings are
-# all stow-owned (ADR-016); VSCodium extensions install interactively from
+# all stow-owned (ADR-011); VSCodium extensions install interactively from
 # Open VSX. The role prints the notes and verification only.
 
 - name: Report ide-integration notes (module ide-integration)

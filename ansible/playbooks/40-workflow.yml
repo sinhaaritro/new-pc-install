@@ -2,7 +2,7 @@
 # Play 4 — Phase 4 workflow on the booted system (spec 006).
 # Runs AFTER Phase 3, logged in as the end user (wheel group):
 #   make run-phase4
-# System-level only (ADR-016): roles install packages + services and write
+# System-level only (ADR-011): roles install packages + services and write
 # exactly four named non-dotfile artifacts (devpod binary, podman subuid
 # range, ufw 8080 rule, llama-server user unit file); all user dotfiles are
 # owned by the user's stow package (shared module dotfiles-backup). Modules
@@ -19,10 +19,6 @@
   gather_facts: false
   become: true
   pre_tasks:
-    - name: Load distro-specific vars (Option A layer)
-      ansible.builtin.include_vars:
-        file: "../vars/distros/{{ ansible_distro }}.yml"
-
     - name: Check for the live-USB marker (play 4 gate)
       ansible.builtin.stat:
         path: /run/archiso

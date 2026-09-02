@@ -1,7 +1,7 @@
 ---
 # Role: status_bar (manifest module id: status-bar)
 # Phase 3 shared module on the booted system: waybar status bar.
-# Config-free (ADR-014): installs waybar only; ~/.config/waybar/ (config +
+# Config-free (ADR-011): installs waybar only; ~/.config/waybar/ (config +
 # style.css) and the 'exec-once = waybar' autostart are owned by the user's
 # stow package.
 

@@ -2,7 +2,7 @@
 # Role: fonts (manifest module id: fonts)
 # Phase 3 shared module on the booted system: Nerd Fonts (JetBrainsMono) +
 # Noto (latin/CJK/emoji) + Material Design Icons + fontconfig. Runs
-# fc-cache to rebuild the font index. Config-free (ADR-014): an optional
+# fc-cache to rebuild the font index. Config-free (ADR-011): an optional
 # ~/.config/fontconfig/fonts.conf (emoji/Nerd fallbacks) is owned by the
 # user's stow package.
 

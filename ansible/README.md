@@ -68,7 +68,7 @@ make run-phase3
 ```
 
 Play 3 installs the **packages and services** for a Hyprland Wayland desktop.
-It is **config-free** (spec 005, ADR-014): it writes **no user dotfiles** —
+It is **config-free** (spec 005, ADR-011): it writes **no user dotfiles** —
 every `hyprland.conf`, `waybar/`, `rofi/`, `swaync/`, `kitty.conf`, `yazi.toml`,
 `.zshrc`, and the wallpaper image is owned by the user's **stow** package. The
 single exception is `/etc/greetd/config.toml` (a *system service file* for the
@@ -101,7 +101,7 @@ make run-phase4
 Play 4 installs the **packages, user services, and system-level artifacts**
 for the Phase 4 workflow modules (see
 [`os/archlinux/phase-4-workflow/`](../os/archlinux/phase-4-workflow/README.md)).
-It is **system-level only** (spec 006, ADR-016): like Play 3 it writes **no
+It is **system-level only** (spec 006, ADR-011): like Play 3 it writes **no
 user dotfiles** — the one exception class is *service unit definitions and
 root-owned system artifacts*, of which Play 4 writes exactly four:
 
@@ -174,11 +174,16 @@ from its docs — e.g. `stow --version` + `ls -la ~/dotfiles/.git`
 
 ## Distro Selection (Option A: distros as data)
 
-`ansible_distro: archlinux` in the inventory selects
-`vars/distros/<distro>.yml`, which carries the per-distro package names,
-commands, paths, and layout constants (btrfs layout, gdisk hex codes, sudo
-group/shell). Adding a distro later means adding a data file — no role
-   rewrites. Only `archlinux.yml` exists in this spec (Phase 0–1 scope).
+The **inventory group the host is under** selects the distro (ADR-002).
+`localhost` sits in the `archlinux` group (`all:` → `archlinux:` → `hosts:` →
+`localhost:`), which auto-loads `inventory/group_vars/archlinux.yml` — the
+per-distro package names, commands, paths, and layout constants (btrfs layout,
+gdisk hex codes, sudo group/shell, and the variant-module maps). To run a
+different distro, move the host under a different group (e.g. `ubuntu:`) that
+has its own `group_vars/<distro>.yml` file. Adding a distro is a new group +
+a data file — no role rewrites. Only `archlinux.yml` exists in this spec
+(Phase 0–1 scope). The old `ansible_distro` var and the `vars/distros/` folder
+are retired.
 
 ## Passwords (spec 003)
 
@@ -193,22 +198,50 @@ Both are applied via `chroot chpasswd` with `no_log: true`. Prefer the
 prompt for a fresh install; the inventory pre-fill exists for re-runs and
 automation.
 
-## Var Layering (spec 002: single source of truth)
+## Var Layering (spec 002 / ADR-002 / ADR-002 / ADR-002: single source of truth)
 
 One rule for where values live:
 
 - **Per-machine values** → `inventory/hosts.yml` (`target_drive*`,
   `hostname`, `timezone`, `locale`, `end_user`, `country`, `efi_size`,
    `swap`, `swap_size`, `fstype`, `bootloader`, `root_password`,
-   `end_user_password`).
-- **Static shared layout constants** → `group_vars/all.yml`
-  (`ansible_distro`, `mount_point`, `efi_dir` — the UEFI efivars path — and
-  the `confirm_destructive` gate).
-- **Distro-specific data** (packages/commands/paths/btrfs/gdisk/sudo) →
-  `vars/distros/<distro>.yml`.
+   `end_user_password`). The host's **group** is also its distro selector
+  (ADR-002) — `localhost` is under `archlinux:`.
+- **Static shared layout constants** → `inventory/group_vars/all.yml`
+  (`mount_point`, `efi_dir` — the UEFI efivars path — and the
+  `confirm_destructive` gate), auto-loaded for every host.
+- **Distro-specific data** (packages/commands/paths/btrfs/gdisk/sudo + the
+  variant-module maps) → `inventory/group_vars/<distro>.yml`, auto-loaded
+  when the host is in the `<distro>` group (the group is the selector;
+  `ansible_distro` is retired).
+- **Role-local policy that is not a distro fact** (e.g. btrfs-gated snapper
+  retention) → `roles/<r>/vars/<name>.yml` (auto-loaded by Ansible).
 
 Roles reference these keys directly; no `roles/*/defaults/<distro>.yml`
-files remain.
+files remain, no per-role `include_vars` of a distro file is used, and no
+play-level `include_vars` loads the distro data — both the static and the
+distro layers arrive via standard `group_vars/` auto-load.
+
+### Variant-module data pattern (ADR-002)
+
+Two module shapes, both read from the global distro file:
+
+- **Simple** — `distro_packages.<module>` (a flat package list), e.g.
+  `distro_packages.base`, `distro_packages.bootloader`.
+- **Variant** — a top-level `<role>:` section keyed by a host var, each
+  variant carrying `packages` plus a **`config` keyword**. The keyword
+  resolves to `roles/<r>/vars/<kw>.yml` (lookup data) and optionally
+  `roles/<r>/templates/<kw>.*.j2` (a file rendered with `{{ }}` to a real
+  system file). A `<variant>: none` or absent host var makes the role skip —
+  the same gate as the `gpu:` map (ADR-003/ADR-004), which is the first
+  (two-selector nested) instance of this pattern. Single-selector variant
+  modules (e.g. the planned `wifi`) are flat: `wifi: { <variant>: { packages,
+  config } }`.
+
+**vars/ vs templates/ split** — by content type, not per module: data looked
+up inside a task → `roles/<r>/vars/` (`.yml`); a file rendered with `{{ }}` to
+a real system file → `roles/<r>/templates/` (`.j2`); never a `.j2` in
+`vars/`.
 
 ## Verification (always-on, no CI)
 
@@ -229,9 +262,9 @@ verification commands passing.
 ```
 ansible/
 ├── ansible.cfg
-├── inventory/hosts.yml        # per-machine values: drive, identity, layout, swap, fstype, bootloader, passwords, country, wm + enable_* flags
-├── group_vars/all.yml         # static shared constants: mount_point, efi_dir, gate
-├── vars/distros/archlinux.yml # Option A distro layer (packages/commands/paths/layout + wm map + per-module pkgs)
+├── inventory/hosts.yml            # per-machine values: drive, identity, layout, swap, fstype, bootloader, passwords, country, wm + enable_* flags; host is under the distro group (selector)
+├── inventory/group_vars/all.yml         # static shared constants: mount_point, efi_dir, gate (auto-loaded, every host)
+├── inventory/group_vars/archlinux.yml   # Option A distro layer (packages/commands/paths/layout + wm map + per-module pkgs + variant maps); auto-loaded when host is in the `archlinux` group (ADR-002)
 ├── playbooks/10-install.yml   # Play 1: verify_boot_network -> modules 01-09 -> reboot
 ├── playbooks/20-hardening.yml # Play 2: Phase 2 selectable modules (booted system)
 ├── playbooks/30-desktop.yml   # Play 3: Phase 3 selectable desktop modules (booted system, config-free)
@@ -247,7 +280,8 @@ ansible/
 │   ├── gpu/                   # 07 (NVIDIA driver in chroot: multilib, KMS cmdline, mkinitcpio, hook)
 │   ├── bootloader_grub/       # 08 (grub, mkconfig, os-prober, efibootmgr)
 │   ├── first_reboot/          # 09 (final checks, unmount, reboot)
-│   ├── snapshots/ aur/ sound/ networking/ clock_sync/ firewall/ external_drives/ ssh_git/  # Play 2
+│   ├── snapshots/             # Play 2 (snapper + snap-pac + grub-btrfs); vars/snapshots_retention.yml = role-local policy
+│   ├── aur/ sound/ networking/ clock_sync/ firewall/ external_drives/ ssh_git/  # Play 2
 │   ├── hyprland_install/ hyprland_config/ hyprland_lock/ hyprland_wallpaper/ hyprland_screenshare/  # Play 3 (WM)
 │   ├── shell_terminal/ app_launcher/ status_bar/ notifications/ clipboard/ screenshots/ file_manager/ fonts/  # Play 3 (shared)
 │   ├── display_manager/  # Play 3 (shared); templates/greetd-config.toml.j2 = only file Play 3 writes

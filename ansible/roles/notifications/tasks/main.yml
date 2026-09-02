@@ -1,7 +1,7 @@
 ---
 # Role: notifications (manifest module id: notifications)
 # Phase 3 shared module on the booted system: swaync notification center +
-# mako fallback. Config-free (ADR-014): installs the packages only;
+# mako fallback. Config-free (ADR-011): installs the packages only;
 # ~/.config/swaync/ and the 'exec-once = swaync' autostart + SUPER+N keybind
 # are owned by the user's stow package.
 

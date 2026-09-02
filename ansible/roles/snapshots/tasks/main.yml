@@ -4,13 +4,11 @@
 # flat btrfs layout from Phase 1 (module 03). Snapper's auto-created .snapshots
 # subvolume is swapped for the @snapshots subvolume already in fstab, so
 # snapshots live in the same place as the documented manual layout.
-
-- name: Load distro defaults (snapshots)
-  ansible.builtin.include_vars:
-    file: "defaults/{{ ansible_distro }}.yml"
+# Package list is read from the global distro file (ADR-002); the btrfs-gated
+# retention policy lives in this role's vars/snapshots_retention.yml (auto-loaded).
 
 - name: Install snapshot packages (module snapshots)
-  ansible.builtin.shell: pacman -S --noconfirm {{ snapshots_packages | join(' ') }}
+  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.snapshots | join(' ') }}
   args:
     executable: /bin/bash
   become: true

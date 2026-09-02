@@ -2,7 +2,7 @@
 # Play 3 — Phase 3 desktop on the booted system (spec 005).
 # Runs AFTER Phase 2, logged in as the end user (wheel group):
 #   make run-phase3
-# Config-free (ADR-014): roles install packages + enable services only; all
+# Config-free (ADR-011): roles install packages + enable services only; all
 # user dotfiles are owned by the user's stow package. Modules are selectable
 # two ways (spec 005 D2): the enable_<id> inventory flags in
 # inventory/hosts.yml, or --tags <id> at run time. Root tasks run via the
@@ -15,10 +15,6 @@
   gather_facts: false
   become: true
   pre_tasks:
-    - name: Load distro-specific vars (Option A layer)
-      ansible.builtin.include_vars:
-        file: "../vars/distros/{{ ansible_distro }}.yml"
-
     - name: Check for the live-USB marker (play 3 gate)
       ansible.builtin.stat:
         path: /run/archiso

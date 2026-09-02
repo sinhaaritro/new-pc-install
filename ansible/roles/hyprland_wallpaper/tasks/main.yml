@@ -1,7 +1,7 @@
 ---
 # Role: hyprland_wallpaper (manifest module id: hyprland-wallpaper)
 # Phase 3 module 04 on the booted system: swww wallpaper daemon (static +
-# animated). Config-free (ADR-014): installs swww only; the wallpaper image
+# animated). Config-free (ADR-011): installs swww only; the wallpaper image
 # and the 'exec-once = swww img ...' autostart are owned by the user's stow
 # package / home directory.
 

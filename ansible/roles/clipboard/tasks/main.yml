@@ -1,7 +1,7 @@
 ---
 # Role: clipboard (manifest module id: clipboard)
 # Phase 3 shared module on the booted system: wl-clipboard (wl-copy/wl-paste)
-# + clipse (TUI clipboard history). Config-free (ADR-014): installs the
+# + clipse (TUI clipboard history). Config-free (ADR-011): installs the
 # packages only; the 'exec-once = clipse -listen' autostart, the SUPER+V
 # keybind, and the clipse window rules are owned by the user's stow package.
 

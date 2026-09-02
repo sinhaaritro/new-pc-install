@@ -1,7 +1,7 @@
 ---
 # Role: hyprland_config (manifest module id: hyprland-config)
 # Phase 3 module 02 on the booted system: Hyprland core configuration
-# (keybinds, monitors, window rules, input). Config-free (ADR-014): this
+# (keybinds, monitors, window rules, input). Config-free (ADR-011): this
 # module is package-free and writes no hyprland.conf - the user's stow
 # package owns it. This role only prints what stow must provide + the
 # verification steps.

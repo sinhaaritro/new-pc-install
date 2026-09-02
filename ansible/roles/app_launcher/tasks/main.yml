@@ -1,7 +1,7 @@
 ---
 # Role: app_launcher (manifest module id: app-launcher)
 # Phase 3 shared module on the booted system: rofi-wayland app launcher.
-# Config-free (ADR-014): installs rofi-wayland only; ~/.config/rofi/ and the
+# Config-free (ADR-011): installs rofi-wayland only; ~/.config/rofi/ and the
 # SUPER+D keybind are owned by the user's stow package.
 
 - name: Install rofi-wayland (module app-launcher)

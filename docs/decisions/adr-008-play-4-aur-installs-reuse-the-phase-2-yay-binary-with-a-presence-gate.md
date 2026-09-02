@@ -2,7 +2,7 @@
 tags: [ansible, phase-4, aur, yay, dependencies]
 ---
 
-# ADR-018: Play 4 AUR installs reuse the Phase 2 yay binary with a presence gate
+# ADR-008: Play 4 AUR installs reuse the Phase 2 yay binary with a presence gate
 
 Status: Accepted
 Date: 2026-08-24

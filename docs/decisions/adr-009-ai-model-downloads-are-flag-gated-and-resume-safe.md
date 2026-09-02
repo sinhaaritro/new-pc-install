@@ -2,7 +2,7 @@
 tags: [ansible, phase-4, ai, models, downloads]
 ---
 
-# ADR-019: AI model downloads are flag-gated and resume-safe
+# ADR-010: AI model downloads are flag-gated and resume-safe
 
 Status: Accepted
 Date: 2026-08-24
@@ -31,7 +31,7 @@ stow-owned.
 
 A default run never touches the network for models; opting in is one
 inventory var, and interrupted downloads resume rather than restart. Costs:
-the model URL set is duplicated in vars/distros/archlinux.yml as data (the
+the model URL set is duplicated in inventory/group_vars/archlinux.yml as data (the
 docs' config.ini is the human-facing source — the two must be kept in sync
 when models change), and inference is not operable until the user opts in
 and the downloads finish. Follow-up: if the model list churns often,

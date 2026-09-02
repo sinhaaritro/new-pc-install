@@ -1,7 +1,7 @@
 ---
 # Role: hyprland_lock (manifest module id: hyprland-lock)
 # Phase 3 module 03 on the booted system: hyprlock (screen lock) + hypridle
-# (idle timeouts). Config-free (ADR-014): installs the packages only; the
+# (idle timeouts). Config-free (ADR-011): installs the packages only; the
 # user's stow package owns ~/.config/hyprlock/hyprlock.conf and
 # ~/.config/hypridle/hypridle.conf.
 

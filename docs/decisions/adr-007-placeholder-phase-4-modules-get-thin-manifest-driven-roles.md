@@ -2,7 +2,7 @@
 tags: [ansible, phase-4, placeholders, manifest, parity]
 ---
 
-# ADR-017: Placeholder Phase 4 modules get thin manifest-driven roles
+# ADR-007: Placeholder Phase 4 modules get thin manifest-driven roles
 
 Status: Accepted
 Date: 2026-08-24
