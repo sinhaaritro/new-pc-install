@@ -76,39 +76,45 @@ sudo nvim /etc/snapper/configs/root
 Modify or add the following settings:
 
 ```text
-# Allow your user to access snapshots
-ALLOW_USERS="username"
+# Who may operate on this config (root only)
+ALLOW_USER="root"
 
-# Allow users of these groups to operate on this config and view snapshots
-ALLOW_GROUPS="wheel"
-
-# Sync ACLs so these groups have read access to the .snapshots directory
-SYNC_ACL="yes"
-
-# Retention policy (reduce from defaults to save space)
-TIMELINE_MIN_AGE="1800"
-TIMELINE_LIMIT_HOURLY="5"
-TIMELINE_LIMIT_DAILY="7"
-TIMELINE_LIMIT_WEEKLY="0"
-TIMELINE_LIMIT_MONTHLY="0"
-TIMELINE_LIMIT_YEARLY="0"
+# Retention policy — cleanup-number scheme (keeps snapshots within a
+# min/max window, plus a per-timescale cap and a space limit)
+NUMBER_CANCELLED="3"
+NUMBER_DAYS="1"
+NUMBER_HOURS="10"
+NUMBER_MINUTES="10"
+NUMBER_SECONDS="360"
+CLEANUP_NUMBER_MIN="5"
+CLEANUP_NUMBER_MAX="16"
+CLEANUP_NUMBER_OFFSET="10"
+CLEANUP_NUMBER_TIMEOUT="10800"
+SPACE_LIMIT="4096M"
 ```
 
-*(Replace `username` with your actual username)*
+#### Tuning the Retention Policy
 
-#### Granting Group Access (Alternative & Details)
+The keys above use snapper's **cleanup-number** scheme rather than the timeline scheme. The timeline scheme (`TIMELINE_LIMIT_*`) keeps a fixed number of snapshots per timescale; the cleanup-number scheme keeps the total snapshot count within a window and enforces a space cap.
 
-By default, only root can access and manage snapper configurations. To grant access to users in specific system groups (like `sudo` or `wheel`), configure `ALLOW_GROUPS` and `SYNC_ACL`.
+| Key | Meaning |
+|-----|---------|
+| `ALLOW_USER` | Who may operate on this config. `root` = only root. |
+| `NUMBER_CANCELLED` | Snapshots kept per "cancelled" timescale (failed/aborted transactions). |
+| `NUMBER_DAYS` / `NUMBER_HOURS` / `NUMBER_MINUTES` / `NUMBER_SECONDS` | Max snapshots kept per timescale. |
+| `CLEANUP_NUMBER_MIN` | Never delete below this many snapshots. |
+| `CLEANUP_NUMBER_MAX` | Delete oldest snapshots once the count exceeds this. |
+| `CLEANUP_NUMBER_OFFSET` | Only run the number-based cleanup when the count exceeds `CLEANUP_NUMBER_MIN` by this much. |
+| `CLEANUP_NUMBER_TIMEOUT` | Only delete snapshots older than this (seconds), as an extra safety net. |
+| `SPACE_LIMIT` | Hard cap on total snapshot space. A fraction of the filesystem (e.g. `0.5`) or an absolute size (e.g. `4096M`). |
 
-- **Command Line Alternative**:
-  Instead of editing the file, you can apply these settings safely from the command line:
-  ```bash
-  sudo snapper -c root set-config "ALLOW_GROUPS=wheel sudo" SYNC_ACL="yes"
-  ```
-  *(Note: Group names are space-separated. For Arch Linux, `wheel` is typical; for Debian/Ubuntu, `sudo` is standard. Including both is safe).*
+To tune, edit `/etc/snapper/configs/root` and raise or lower the values. For example, to keep more hourly snapshots, increase `NUMBER_HOURS`; to free space faster, lower `CLEANUP_NUMBER_MAX` or reduce `SPACE_LIMIT`.
 
-- **Why `SYNC_ACL="yes"` is necessary**:
-  Setting `ALLOW_GROUPS` permits group members to run `snapper` commands (like listing snapshots). However, they won't be able to browse the physical `/.snapshots` directory to retrieve individual files unless `SYNC_ACL="yes"` is enabled. This setting instructs Snapper to automatically synchronize standard POSIX Access Control Lists (ACLs) onto the `/.snapshots` directory so that permitted groups can read the files within them.
+> [!TIP]
+> You can also apply a single setting from the command line without editing the file:
+> ```bash
+> sudo snapper -c root set-config NUMBER_HOURS="20"
+> ```
 
 
 ### Step 4: Enable Snapper Timers
@@ -125,7 +131,7 @@ sudo systemctl enable --now snapper-cleanup.timer
 
 ### Step 5: Enable Read-Write Snapshot Booting
 
-To boot into snapshots as read-write (so you can actually fix things), add `grub-btrfs-overlay` to mkinitcpio hooks.
+To boot into snapshots as read-write (so you can actually fix things), add `grub-btrfs-overlayfs` to mkinitcpio hooks.
 
 ```bash
 sudo nvim /etc/mkinitcpio.conf
@@ -163,7 +169,7 @@ Target=boot/*
 Depends=rsync
 Description=Backing up /boot
 When=PreTransaction
-Exec=/usr/bin/rsync -a --delete /boot /.bootbackup
+Exec=/bin/sh -c 'mkdir -p /.bootbackup && rsync -a --delete /boot /.bootbackup'
 ```
 
 ## How Snapshots Work Now

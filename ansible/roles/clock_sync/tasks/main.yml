@@ -12,18 +12,27 @@
   register: clock_sync_ntp
   changed_when: clock_sync_ntp.rc == 0
 
-- name: Read timedatectl state (module clock-sync)
+# systemd-timesyncd needs a moment to start and report active after set-ntp
+# true, and it also needs a working network. Poll (up to ~30s) instead of a
+# single immediate read so the assertion is not a cold-start race. The read is
+# read-only, so it runs even in --check (check_mode: false) - otherwise
+# command's stdout is empty in check mode and the poll could never match.
+- name: Wait for the NTP service to report active (module clock-sync)
   ansible.builtin.command: timedatectl
   become: true
   changed_when: false
+  check_mode: false
   register: clock_sync_timedatectl
+  until: "'NTP service: active' in clock_sync_timedatectl.stdout"
+  retries: 10
+  delay: 3
 
 - name: Assert NTP service is active (module clock-sync)
   ansible.builtin.assert:
     that:
       - "'NTP service: active' in clock_sync_timedatectl.stdout"
     fail_msg: >-
-      NTP is not active after timedatectl set-ntp true.
+      NTP is not active after timedatectl set-ntp true (waited ~30s).
       Check network connectivity and retry.
     success_msg: NTP active
 

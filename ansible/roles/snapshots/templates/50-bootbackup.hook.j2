@@ -9,4 +9,4 @@ Target=boot/*
 Depends=rsync
 Description=Backing up /boot
 When=PreTransaction
-Exec=/usr/bin/rsync -a --delete /boot /.bootbackup
+Exec=/bin/sh -c 'mkdir -p /.bootbackup && rsync -a --delete /boot /.bootbackup'

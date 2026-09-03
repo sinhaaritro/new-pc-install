@@ -4,23 +4,28 @@
 # rule commands are role-local (distro-agnostic); only the package list comes
 # from the global distro file (firewall.ufw.packages).
 #
-# CRUD the ruleset here: edit ufw_allow_rules to add services or ports
-# (e.g. ['8080/tcp']). The default deny-incoming / allow-outgoing policies are
-# applied below; anything in this list gets an explicit 'ufw allow' rule.
+# Optional allow-rules: edit ufw_allow_rules below to open extra inbound
+# ports/services. The default is an EMPTY list — only the deny-incoming /
+# allow-outgoing policies apply. To add a rule, uncomment (or add) an entry:
+#
+#   ufw_allow_rules:
+#     - "ssh"          # allow inbound SSH (service name)
+#     - "8080/tcp"     # allow inbound TCP 8080 (explicit port/proto)
+#     - "53/udp"       # allow inbound UDP 53 (explicit port/proto)
+#
+# Anything in the list gets an explicit 'ufw allow <rule>' applied below.
 #
 # TODO(phase-4): the llama.cpp inference server binds TCP 8080 and needs LAN
 # access (os/archlinux/phase-4-workflow/profile-ai/inference.md). When Phase 4
-# is complete, add '8080/tcp' to ufw_allow_rules below.
+# is complete, add "8080/tcp" to ufw_allow_rules below.
 
 - name: Set ufw allow rules (module firewall)
-  # Base allow-list. CRUD here: append services/ports as needed. Empty = no
-  # extra rules beyond the default deny-incoming / allow-outgoing policies.
-  # Accepts a service name (e.g. 'ssh', 'http') or an explicit port
-  # (e.g. '8080/tcp', '53/udp').
+  # Optional extra allow-rules. Empty by default — the default deny-incoming /
+  # allow-outgoing policies are enough for most setups. To open a port, add a
+  # line like '- "8080/tcp"' (explicit port/proto) or '- "ssh"' (service name).
+  # See the commented example in the file header above.
   ansible.builtin.set_fact:
-    ufw_allow_rules:
-      # TEMP EXAMPLE RULE - remove after demoing CRUD:
-      - "8080/tcp"   # allow inbound TCP 8080 (e.g. a local web server)
+    ufw_allow_rules: []
 
 - name: Install ufw (module firewall)
   ansible.builtin.shell: pacman -S --noconfirm {{ firewall.ufw.packages | join(' ') }}
