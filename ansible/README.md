@@ -198,7 +198,7 @@ Both are applied via `chroot chpasswd` with `no_log: true`. Prefer the
 prompt for a fresh install; the inventory pre-fill exists for re-runs and
 automation.
 
-## Var Layering (spec 002 / ADR-002 / ADR-002 / ADR-002: single source of truth)
+## Var Layering (spec 002 / ADR-002: single source of truth)
 
 One rule for where values live:
 

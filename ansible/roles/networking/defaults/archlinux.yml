@@ -1,3 +1,0 @@
----
-# Module 05 (networking): Bluetooth package list sourced from vars/distros/archlinux.yml.
-networking_packages: "{{ distro_packages.networking }}"

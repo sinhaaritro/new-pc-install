@@ -1,0 +1,64 @@
+---
+# Backend-specific tasks: ufw (loaded from main.yml via include_tasks).
+# ufw (Uncomplicated Firewall) wraps nftables. Service/enable/verify and the
+# rule commands are role-local (distro-agnostic); only the package list comes
+# from the global distro file (firewall.ufw.packages).
+#
+# CRUD the ruleset here: edit ufw_allow_rules to add services or ports
+# (e.g. ['8080/tcp']). The default deny-incoming / allow-outgoing policies are
+# applied below; anything in this list gets an explicit 'ufw allow' rule.
+#
+# TODO(phase-4): the llama.cpp inference server binds TCP 8080 and needs LAN
+# access (os/archlinux/phase-4-workflow/profile-ai/inference.md). When Phase 4
+# is complete, add '8080/tcp' to ufw_allow_rules below.
+
+- name: Set ufw allow rules (module firewall)
+  # Base allow-list. CRUD here: append services/ports as needed. Empty = no
+  # extra rules beyond the default deny-incoming / allow-outgoing policies.
+  # Accepts a service name (e.g. 'ssh', 'http') or an explicit port
+  # (e.g. '8080/tcp', '53/udp').
+  ansible.builtin.set_fact:
+    ufw_allow_rules:
+      # TEMP EXAMPLE RULE - remove after demoing CRUD:
+      - "8080/tcp"   # allow inbound TCP 8080 (e.g. a local web server)
+
+- name: Install ufw (module firewall)
+  ansible.builtin.shell: pacman -S --noconfirm {{ firewall.ufw.packages | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: firewall_pacman
+  changed_when: firewall_pacman.rc == 0
+
+- name: Configure ufw default rules (module firewall)
+  ansible.builtin.shell: ufw default deny incoming && ufw default allow outgoing
+  args:
+    executable: /bin/bash
+  become: true
+  register: firewall_defaults
+  changed_when: firewall_defaults.rc == 0
+
+- name: Apply ufw allow rules (module firewall)
+  ansible.builtin.shell: ufw allow {{ item }}
+  args:
+    executable: /bin/bash
+  become: true
+  register: firewall_allow
+  changed_when: firewall_allow.rc == 0
+  loop: "{{ ufw_allow_rules }}"
+
+- name: Enable ufw (module firewall)
+  ansible.builtin.shell: ufw --force enable && systemctl enable ufw
+  args:
+    executable: /bin/bash
+  become: true
+  register: firewall_enable
+  changed_when: firewall_enable.rc == 0
+
+- name: Report firewall verification (module firewall)
+  ansible.builtin.debug:
+    msg: >-
+      ufw applied (allow: {{ ufw_allow_rules | join(', ') or 'none' }}). Verify
+      with: sudo ufw status verbose (expect 'Status: active'). Note: with
+      deny-incoming, any service you later expose needs its own 'sudo ufw allow
+      <port>' rule.

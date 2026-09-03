@@ -10,6 +10,11 @@
   hosts: localhost
   gather_facts: false
   become: true
+  vars:
+    # Distro gate: true when the host is in the archlinux inventory group (the
+    # group is the distro selector - ADR-002). Used to gate Arch-only modules
+    # (aur builds yay from the AUR, which does not exist on other distros).
+    is_archlinux: "{{ 'archlinux' in group_names }}"
   pre_tasks:
     - name: Check for the live-USB marker (play 2 gate)
       ansible.builtin.stat:
@@ -72,7 +77,11 @@
     - role: aur
       tags:
         - aur
-      when: enable_aur | default(false)
+      # Arch-only: building yay from the AUR has no equivalent on other distros,
+      # so this is gated on the host being Arch (group selector, see vars). It is
+      # otherwise always-on (no enable flag) and is a prerequisite of the
+      # AUR-dependent modules (networking's wlctl-bin, Play 4's AUR installs).
+      when: is_archlinux
     - role: sound
       tags:
         - sound
@@ -84,11 +93,9 @@
     - role: clock_sync
       tags:
         - clock_sync
-      when: enable_clock_sync | default(false)
     - role: firewall
       tags:
         - firewall
-      when: enable_firewall | default(false)
     - role: external_drives
       tags:
         - external_drives

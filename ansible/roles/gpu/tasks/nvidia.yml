@@ -1,8 +1,9 @@
 ---
 # Vendor-specific tasks: nvidia (loaded from main.yml via include_tasks).
 # nvidia_driver (inventory) selects the base driver package from the
-# gpu.nvidia.drivers map in vars/distros/archlinux.yml. Default: nvidia-open
-# (Turing/RTX 20xx and newer). Use 'nvidia' for Maxwell-Pascal (GTX 9xx/10xx).
+# gpu.nvidia.drivers map in inventory/group_vars/archlinux.yml.
+# Default: nvidia-open (Turing/RTX 20xx and newer).
+# Use 'nvidia' for Maxwell-Pascal (GTX 9xx/10xx).
 
 - name: Assert nvidia_driver selects a known driver (module nvidia)
   ansible.builtin.assert:

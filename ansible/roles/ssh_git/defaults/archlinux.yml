@@ -1,3 +1,0 @@
----
-# Module 09 (ssh): package list sourced from vars/distros/archlinux.yml.
-ssh_git_packages: "{{ distro_packages.ssh }}"

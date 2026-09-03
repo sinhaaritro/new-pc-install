@@ -6,13 +6,10 @@
 # pre-fill semantics: a non-empty value is used as-is, an empty/absent value
 # prompts (spec 004 D4). The public key is always printed. The key is never
 # overwritten if it already exists.
-
-- name: Load distro defaults (ssh_git)
-  ansible.builtin.include_vars:
-    file: "defaults/{{ ansible_distro }}.yml"
+# Package list is read from the global distro file (ADR-002).
 
 - name: Install openssh (module ssh)
-  ansible.builtin.shell: pacman -S --noconfirm {{ ssh_git_packages | join(' ') }}
+  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.ssh | join(' ') }}
   args:
     executable: /bin/bash
   become: true

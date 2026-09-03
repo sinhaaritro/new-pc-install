@@ -1,8 +1,8 @@
 ---
-# Shared defaults for Play 1 (Phase 0-1, live-USB install).
+# Shared static layout constants for all plays (auto-loaded for every host).
 # Var layering (spec 002): per-machine values live in inventory/hosts.yml;
 # static shared layout constants live here; distro-specific data lives in
-# vars/distros/<distro>.yml.
+# inventory/group_vars/<distro>.yml (group membership is the selector).
 # Where the new system is mounted on the live USB.
 mount_point: /mnt
 # UEFI efivars path (kernel ABI, distro-agnostic) - UEFI-mode assertion.

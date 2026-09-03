@@ -5,13 +5,10 @@
 # entry (ntfs) plus mountpoint is written; otherwise the manual mapping steps
 # are printed for the user to do after identifying drives (spec 004 D4).
 # The USB plug-in test is user verification.
-
-- name: Load distro defaults (external_drives)
-  ansible.builtin.include_vars:
-    file: "defaults/{{ ansible_distro }}.yml"
+# Package list is read from the global distro file (ADR-002).
 
 - name: Install NTFS and auto-mount packages (module external-drives)
-  ansible.builtin.shell: pacman -S --noconfirm {{ external_drives_packages | join(' ') }}
+  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.external_drives | join(' ') }}
   args:
     executable: /bin/bash
   become: true

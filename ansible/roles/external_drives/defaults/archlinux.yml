@@ -1,3 +1,0 @@
----
-# Module 08 (external-drives): package list sourced from vars/distros/archlinux.yml.
-external_drives_packages: "{{ distro_packages.external_drives }}"

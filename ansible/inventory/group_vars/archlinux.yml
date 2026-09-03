@@ -94,14 +94,18 @@ distro_packages:
     - bluez
     - bluez-utils
     - bluetui
-  firewall:
-    - ufw
   external_drives:
     - ntfs-3g
     - udisks2
     - udiskie
   ssh:
     - openssh
+  # yay build dependencies (module aur; built from the AUR, so not manifest
+  # packages). Role order above omits aur on purpose: aur is a prerequisite of
+  # networking/external_drives, not a parallel module.
+  aur_makedepends:
+    - base-devel
+    - rust
   # --- Play 3 (Phase 3, booted system) ---
   # Per-module lists, selected by the enable_<module> inventory flags. Keep in
   # sync with the phase-3 modules in os/archlinux/manifest.yaml (parity checker
@@ -173,6 +177,22 @@ distro_packages:
     - obs-studio
   media_players:
     - mpv
+# Firewall (Play 2, module 07): variant module (mirrors gpu:/wm:).
+# firewall_backend (inventory) selects the entry AND gates the role: 'ufw' runs
+# the ufw tasks; 'none' skips; 'nftables'/'firewalld'/'iptables' are declared
+# (not implemented yet - the role fails with a clear message). Each entry
+# carries only distro-specific data (packages); service/enable/verify and the
+# rule commands are role-local (distro-agnostic) in tasks/<backend>.yml.
+firewall:
+  ufw:
+    packages: [ufw]
+  nftables:
+    packages: [nftables]
+  firewalld:
+    packages: [firewalld]
+  iptables:
+    packages: [iptables]
+  none: {}
 # GPU (Play 1, module 07, chroot): vendor-agnostic data. gpu_vendor (inventory)
 # selects the entry AND gates the role (no separate enable flag): 'nvidia' runs
 # the nvidia tasks; 'none'/'amd'/'intel' skip. The nvidia_driver inventory var

@@ -2,7 +2,7 @@
 # Role: install_base (manifest module id: install-base)
 # Module 04: reflector mirror selection, keyring upgrade, pacstrap base.
 # CPU microcode is selected by the per-machine cpu_vendor var
-# (distro_packages.ucode.<vendor> in vars/distros/archlinux.yml).
+# (distro_packages.ucode.<vendor> in inventory/group_vars/archlinux.yml).
 # Package lists are read directly from the global distro file (ADR-002).
 
 - name: Assert cpu_vendor and fstype select known packages (module install-base)

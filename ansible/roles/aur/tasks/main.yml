@@ -4,11 +4,9 @@
 # Build context is the end user (become: false) so the sources and cache
 # live in the user's home (excluded from @ snapshots via @home); the final
 # package install runs as root with --noconfirm. Makedepends are pre-installed
-# so the build itself needs no interactive prompts (spec 004 D4).
-
-- name: Load distro defaults (aur)
-  ansible.builtin.include_vars:
-    file: "defaults/{{ ansible_distro }}.yml"
+# so the build itself needs no interactive prompts (spec 004 D4). The
+# makedepends (distro_packages.aur_makedepends) are built-from-AUR inputs, not
+# manifest packages, so the parity checker does not require them.
 
 - name: Install yay build dependencies (module aur)
   ansible.builtin.shell: pacman -S --noconfirm --needed {{ aur_makedepends | join(' ') }}
