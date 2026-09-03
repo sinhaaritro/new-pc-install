@@ -111,8 +111,9 @@ distro_packages:
   # sync with the phase-3 modules in os/archlinux/manifest.yaml (parity checker
   # enforces this). Config-free (spec 005, ADR-011): these roles install packages
   # only; all dotfiles are owned by the user's stow package. Role order:
+  # fonts first (fc-cache must precede the visual tools), then
   # shell_terminal -> app_launcher -> status_bar -> notifications ->
-  # display_manager -> clipboard -> screenshots -> file_manager -> fonts.
+  # display_manager -> clipboard -> screenshots -> file_manager.
   shell_terminal:
     - zsh
     - oh-my-zsh
@@ -146,6 +147,10 @@ distro_packages:
     - noto-fonts-emoji
     - ttf-jetbrains-mono-nerd
     - ttf-material-design-icons
+  # browser (shared module): firefox already ships with hyprland-install's base
+  # set (wm.hyprland.packages); this is the no-op guard's package list.
+  browser:
+    - firefox
   # --- Play 4 (Phase 4, booted system) ---
   # Per-module lists, selected by the enable_<module> inventory flags (and the
   # profile_* convenience vars). Keep in sync with the phase-4 modules in
@@ -300,6 +305,11 @@ keyring_package: archlinux-keyring
 # ===========================================================================
 # Cross-play lookups (used by many plays — kept grouped, not pinned to one play)
 # ===========================================================================
+# The package-install verb, as a single distro-specific string. Roles call
+# `{{ distro_install }} <pkgs>`; swapping the value (not the roles) moves the
+# play to another distro (e.g. ubuntu: "apt-get install -y"). Flags that vary
+# per distro live in this string, so the role side stays distro-agnostic.
+distro_install: "pacman -S --noconfirm"
 # Command names as they appear on the archlinux live USB / installed system.
 distro_commands:
   pacstrap: pacstrap

@@ -7,7 +7,7 @@
 # (spec 006 D7, sound role pattern).
 
 - name: Install podman (module containers)
-  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.containers | join(' ') }}
+  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.containers | join(' ') }}"
   args:
     executable: /bin/bash
   become: true

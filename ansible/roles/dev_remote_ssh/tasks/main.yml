@@ -6,7 +6,7 @@
 # helper are stow-owned - printed as notes, not written.
 
 - name: Install remote-ssh packages (module remote-ssh)
-  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.remote_ssh | join(' ') }}
+  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.remote_ssh | join(' ') }}"
   args:
     executable: /bin/bash
   become: true

@@ -30,7 +30,7 @@
   when: wm_vendor == 'none'
 
 - name: Install Hyprland base packages (module hyprland-install)
-  ansible.builtin.shell: pacman -S --noconfirm {{ wm.hyprland.packages | join(' ') }}
+  ansible.builtin.shell: "{{ distro_install }} {{ wm.hyprland.packages | join(' ') }}"
   args:
     executable: /bin/bash
   become: true

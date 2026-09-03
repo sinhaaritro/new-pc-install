@@ -6,7 +6,7 @@
 # by the user's stow package.
 
 - name: Install thunar and plugins (module file-manager)
-  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.file_manager | join(' ') }}
+  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.file_manager | join(' ') }}"
   args:
     executable: /bin/bash
   become: true

@@ -317,6 +317,14 @@ phases:
         prerequisites: [hyprland-install]
         description: "Nerd Fonts, Noto fonts, emoji support"
 
+      - id: browser
+        name: "Browser"
+        file: "phase-3-desktop/browser.md"
+        required: optional
+        packages: [firefox]
+        prerequisites: [hyprland-install]
+        description: "Web browser (firefox ships with hyprland-install; no-op guard)"
+
   # ===========================================================================
   # PHASE 4: Workflow Profiles
   # ===========================================================================

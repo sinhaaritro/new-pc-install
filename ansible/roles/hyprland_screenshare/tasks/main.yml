@@ -6,7 +6,7 @@
 # the portal backend selection (ADR-011).
 
 - name: Ensure Hyprland portal package is present (module hyprland-screenshare)
-  ansible.builtin.shell: pacman -S --noconfirm xdg-desktop-portal-hyprland
+  ansible.builtin.shell: "{{ distro_install }} xdg-desktop-portal-hyprland"
   args:
     executable: /bin/bash
   become: true

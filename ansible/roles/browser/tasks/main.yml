@@ -1,0 +1,23 @@
+---
+# Role: browser (manifest module id: browser)
+# Phase 3 shared module on the booted system: the web browser. Firefox ships
+# with hyprland-install's base set, so this role is a no-op install guard (the
+# package is already present) plus a stow note for any browser-specific config
+# (ADR-011). Config-free: ~/.mozilla/ and any browser profile/flags are owned
+# by the user's stow package / home directory.
+
+- name: Ensure the web browser package is present (module browser)
+  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.browser | join(' ') }}"
+  args:
+    executable: /bin/bash
+  become: true
+  register: browser_pacman
+  changed_when: browser_pacman.rc == 0
+
+- name: Report browser verification (module browser)
+  ansible.builtin.debug:
+    msg: >-
+      Web browser present (firefox ships with hyprland-install; this role is a
+      no-op guard). Your stow package may provide ~/.mozilla/ or browser
+      profile/flag tweaks. Verify: 'firefox --version' prints; the browser
+      opens from SUPER+D (rofi) or the SUPER+T keybind if you bind one.

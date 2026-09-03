@@ -66,7 +66,7 @@
   changed_when: system_config_hostname.rc == 0
 
 - name: Install NetworkManager in new system
-  ansible.builtin.shell: arch-chroot {{ mount_point }} pacman -S --noconfirm {{ distro_packages.chroot_core | join(' ') }}
+  ansible.builtin.shell: "arch-chroot {{ mount_point }} {{ distro_install }} {{ distro_packages.chroot_core | join(' ') }}"
   args:
     executable: /bin/bash
   register: system_config_nm

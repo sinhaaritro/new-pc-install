@@ -6,7 +6,7 @@
 # stow package.
 
 - name: Install waybar (module status-bar)
-  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.status_bar | join(' ') }}
+  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.status_bar | join(' ') }}"
   args:
     executable: /bin/bash
   become: true

@@ -5,7 +5,7 @@
 # SUPER+D keybind are owned by the user's stow package.
 
 - name: Install rofi-wayland (module app-launcher)
-  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.app_launcher | join(' ') }}
+  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.app_launcher | join(' ') }}"
   args:
     executable: /bin/bash
   become: true

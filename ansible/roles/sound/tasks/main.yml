@@ -7,7 +7,7 @@
 # Package list is read from the global distro file (ADR-002).
 
 - name: Install PipeWire stack (module sound)
-  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.sound | join(' ') }}
+  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.sound | join(' ') }}"
   args:
     executable: /bin/bash
   become: true

@@ -7,7 +7,7 @@
 # user's stow package.
 
 - name: Install font packages (module fonts)
-  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.fonts | join(' ') }}
+  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.fonts | join(' ') }}"
   args:
     executable: /bin/bash
   become: true

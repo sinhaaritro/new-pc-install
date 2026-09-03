@@ -8,7 +8,7 @@
 # llama-start/llm() aliases are stow-owned - printed as notes.
 
 - name: Install the CUDA toolkit (module inference)
-  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.inference | join(' ') }}
+  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.inference | join(' ') }}"
   args:
     executable: /bin/bash
   become: true

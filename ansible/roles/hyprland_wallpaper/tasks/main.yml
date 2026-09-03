@@ -6,7 +6,7 @@
 # package / home directory.
 
 - name: Install swww (module hyprland-wallpaper)
-  ansible.builtin.shell: pacman -S --noconfirm swww
+  ansible.builtin.shell: "{{ distro_install }} swww"
   args:
     executable: /bin/bash
   become: true

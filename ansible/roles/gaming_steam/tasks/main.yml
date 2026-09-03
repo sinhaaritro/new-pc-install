@@ -5,7 +5,7 @@
 # manifest-listed package (steam) and prints the pending manual steps.
 
 - name: Install steam (module steam)
-  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.steam | join(' ') }}
+  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.steam | join(' ') }}"
   args:
     executable: /bin/bash
   become: true

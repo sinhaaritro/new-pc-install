@@ -6,7 +6,7 @@
 # The lazy.nvim plugin spec (LSP, treesitter) is stow-owned regardless.
 
 - name: Install neovim (module neovim)
-  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.neovim | join(' ') }}
+  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.neovim | join(' ') }}"
   args:
     executable: /bin/bash
   become: true

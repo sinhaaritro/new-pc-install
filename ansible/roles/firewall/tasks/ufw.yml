@@ -28,7 +28,7 @@
     ufw_allow_rules: []
 
 - name: Install ufw (module firewall)
-  ansible.builtin.shell: pacman -S --noconfirm {{ firewall.ufw.packages | join(' ') }}
+  ansible.builtin.shell: "{{ distro_install }} {{ firewall.ufw.packages | join(' ') }}"
   args:
     executable: /bin/bash
   become: true

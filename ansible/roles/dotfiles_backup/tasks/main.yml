@@ -9,7 +9,7 @@
 # configs is an interactive, user-judgment step.
 
 - name: Install GNU Stow (module dotfiles-backup)
-  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.dotfiles_backup | join(' ') }}
+  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.dotfiles_backup | join(' ') }}"
   args:
     executable: /bin/bash
   become: true

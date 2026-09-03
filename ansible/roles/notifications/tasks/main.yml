@@ -6,7 +6,7 @@
 # are owned by the user's stow package.
 
 - name: Install swaync and mako (module notifications)
-  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.notifications | join(' ') }}
+  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.notifications | join(' ') }}"
   args:
     executable: /bin/bash
   become: true

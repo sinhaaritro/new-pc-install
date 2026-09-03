@@ -6,7 +6,7 @@
 # keybind, and the clipse window rules are owned by the user's stow package.
 
 - name: Install wl-clipboard and clipse (module clipboard)
-  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.clipboard | join(' ') }}
+  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.clipboard | join(' ') }}"
   args:
     executable: /bin/bash
   become: true

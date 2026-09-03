@@ -9,7 +9,7 @@
 # manifest packages, so the parity checker does not require them.
 
 - name: Install yay build dependencies (module aur)
-  ansible.builtin.shell: pacman -S --noconfirm --needed {{ distro_packages.aur_makedepends | join(' ') }}
+  ansible.builtin.shell: "{{ distro_install }} --needed {{ distro_packages.aur_makedepends | join(' ') }}"
   args:
     executable: /bin/bash
   become: true

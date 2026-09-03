@@ -17,7 +17,7 @@
   failed_when: false
 
 - name: Install opencode from pacman (module harness)
-  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.harness | join(' ') }}
+  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.harness | join(' ') }}"
   args:
     executable: /bin/bash
   become: true

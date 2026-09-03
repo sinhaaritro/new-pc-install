@@ -6,7 +6,7 @@
 # from a template and enables the greetd system service.
 
 - name: Install greetd and tuigreet (module display-manager)
-  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.display_manager | join(' ') }}
+  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.display_manager | join(' ') }}"
   args:
     executable: /bin/bash
   become: true

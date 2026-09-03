@@ -9,7 +9,7 @@
 # Package list is read from the global distro file (ADR-002).
 
 - name: Install openssh (module ssh)
-  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.ssh | join(' ') }}
+  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.ssh | join(' ') }}"
   args:
     executable: /bin/bash
   become: true

@@ -58,6 +58,7 @@ ROLE_MAP = {
     "screenshots": "screenshots",
     "file-manager": "file_manager",
     "fonts": "fonts",
+    "browser": "browser",
     # Phase 4 (profile-structured; spec 006 D6). Module ids stay flat - they
     # are unique across profiles in the manifest. 'davinci' maps to an
     # extended role name to avoid the Phase 3 namespace collision (ADR-006).

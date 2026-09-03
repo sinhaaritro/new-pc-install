@@ -7,7 +7,7 @@
 # Package list is read from the global distro file (ADR-002).
 
 - name: Install Bluetooth packages (module networking)
-  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.networking | join(' ') }}
+  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.networking | join(' ') }}"
   args:
     executable: /bin/bash
   become: true

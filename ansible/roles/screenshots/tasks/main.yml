@@ -6,7 +6,7 @@
 # package.
 
 - name: Install grim, slurp, and swappy (module screenshots)
-  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.screenshots | join(' ') }}
+  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.screenshots | join(' ') }}"
   args:
     executable: /bin/bash
   become: true

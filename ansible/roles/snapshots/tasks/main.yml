@@ -14,7 +14,7 @@
     file: vars/snapshots_retention.yml
 
 - name: Install snapshot packages (module snapshots)
-  ansible.builtin.shell: pacman -S --noconfirm {{ distro_packages.snapshots | join(' ') }}
+  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.snapshots | join(' ') }}"
   args:
     executable: /bin/bash
   become: true

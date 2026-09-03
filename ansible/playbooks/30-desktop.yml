@@ -43,8 +43,8 @@
       ansible.builtin.assert:
         that:
           - play3_invoker.stdout_lines | length > 0 and (
-              play3_invoker.stdout_lines | first | int == 0
-              or "'wheel' in (play3_invoker.stdout_lines | last).split(' ')"
+            play3_invoker.stdout_lines | first | int == 0
+            or "'wheel' in (play3_invoker.stdout_lines | last).split(' ')"
             )
         fail_msg: >-
           Play 3 must be run as root or as a wheel-group user (for sudo).
@@ -71,6 +71,25 @@
           account created during Phase 1 (module 06).
       when: not ansible_check_mode
   roles:
+    # --- Fonts first: every visual tool below (kitty, rofi, waybar, swaync,
+    # thunar, greetd) renders glyph boxes until fc-cache has run, so fonts are
+    # the one module that must precede the rest of the desktop (spec 005). ---
+    - role: fonts
+      tags:
+        - fonts
+      when: enable_fonts | default(false)
+    - role: file_manager
+      tags:
+        - file-manager
+      when: enable_file_manager | default(false)
+    - role: shell_terminal
+      tags:
+        - shell-terminal
+      when: enable_shell_terminal | default(false)
+    - role: browser
+      tags:
+        - browser
+      when: enable_browser | default(false)
     # --- Hyprland (sequential; 02-05 gated on 01 per spec 005 D5) ---
     - role: hyprland_install
       tags:
@@ -100,11 +119,6 @@
       when:
         - enable_hyprland_screenshare | default(false)
         - enable_hyprland_install | default(false)
-    # --- Shared desktop modules (order flexible) ---
-    - role: shell_terminal
-      tags:
-        - shell-terminal
-      when: enable_shell_terminal | default(false)
     - role: app_launcher
       tags:
         - app-launcher
@@ -129,11 +143,3 @@
       tags:
         - screenshots
       when: enable_screenshots | default(false)
-    - role: file_manager
-      tags:
-        - file-manager
-      when: enable_file_manager | default(false)
-    - role: fonts
-      tags:
-        - fonts
-      when: enable_fonts | default(false)

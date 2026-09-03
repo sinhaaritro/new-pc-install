@@ -37,7 +37,7 @@
 
 - name: Install NVIDIA driver packages (module nvidia)
   ansible.builtin.shell: >-
-    arch-chroot {{ mount_point }} pacman -S --noconfirm
+    arch-chroot {{ mount_point }} {{ distro_install }}
     {{ gpu_nvidia_packages | join(' ') }}
   args:
     executable: /bin/bash
