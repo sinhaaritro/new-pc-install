@@ -1,0 +1,21 @@
+---
+# Role: desktop_wallpaper (manifest module id: desktop-wallpaper)
+# Phase 3 module 04 on the booted system: the wallpaper daemon (swww for
+# hyprland; selected by wm_vendor). Config-free (ADR-011): installs the daemon
+# only; the wallpaper image and the autostart wiring are owned by the user's
+# stow package / home directory.
+
+- name: Resolve desktop-wallpaper backends (module desktop-wallpaper)
+  ansible.builtin.set_fact:
+    install_backends: "{{ distro_packages.desktop_wallpaper }}"
+
+- name: Install the wallpaper daemon by backend (module desktop-wallpaper)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
+
+- name: Report wallpaper verification (module desktop-wallpaper)
+  ansible.builtin.debug:
+    msg: >-
+      Wallpaper daemon installed (see distro_packages.desktop_wallpaper). Your
+      stow package should add the wallpaper autostart to the compositor config
+      (see Phase 3 module Wallpaper). Verify: the daemon sets the wallpaper
+      image and reports the active output.

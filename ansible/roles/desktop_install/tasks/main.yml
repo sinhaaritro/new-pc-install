@@ -1,0 +1,51 @@
+---
+# Role: desktop_install (manifest module id: desktop-install)
+# Phase 3 module 01 on the booted system: install the window manager +
+# Wayland base + portal + Qt-wayland. The exact package set is data
+# (wm[wm_vendor]), so the compositor (hyprland today; niri/sway later) is a
+# data-only change. The terminal emulator and file manager are separate
+# modules (desktop's shell opens in them), not part of this base set.
+# wm_vendor (inventory) selects the WM; only 'hyprland' is implemented
+# (niri/sway/none hit a "not implemented" gate). Config-free (ADR-011): no
+# compositor config is written - the user's stow package owns it.
+
+- name: Assert wm_vendor selects a known window manager (module desktop-install)
+  ansible.builtin.assert:
+    that:
+      - wm_vendor is defined
+      - wm_vendor in wm
+    fail_msg: >-
+      wm_vendor "{{ wm_vendor | default('') }}" must be one of
+      {{ wm.keys() | join(', ') }}. Set it in ansible/inventory/hosts.yml.
+    success_msg: wm_vendor={{ wm_vendor }}
+
+- name: Gate unimplemented window managers (module desktop-install)
+  ansible.builtin.assert:
+    that:
+      - wm_vendor in ['hyprland', 'none']
+    fail_msg: >-
+      wm_vendor "{{ wm_vendor }}" is declared but not implemented yet.
+      Implemented: hyprland, none.
+
+- name: Note WM vendor none skips desktop install (module desktop-install)
+  ansible.builtin.debug:
+    msg: "wm_vendor=none - no window manager is installed."
+  when: wm_vendor == 'none'
+
+- name: Resolve the window manager backends (module desktop-install)
+  ansible.builtin.set_fact:
+    install_backends: "{{ wm[wm_vendor] }}"
+  when: wm_vendor == 'hyprland'
+
+- name: Install the window manager base packages by backend (module desktop-install)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
+  when: wm_vendor == 'hyprland'
+
+- name: Report window manager install verification (module desktop-install)
+  ansible.builtin.debug:
+    msg: >-
+      Window manager installed (see wm[wm_vendor]). From a TTY launch the
+      compositor to enter the desktop. Your stow package should provide the
+      compositor config (see Phase 3 module Desktop Config). Verify: the
+      compositor launches from the TTY without errors.
+  when: wm_vendor == 'hyprland'

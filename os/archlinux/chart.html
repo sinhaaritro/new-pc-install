@@ -133,7 +133,7 @@
 <body>
     <div class="header">
         <h1>Arch Linux Installation Guide — Dependency Map</h1>
-        <p>Interactive visualization of 48 modules across 5 phases &middot; 73 unique packages</p>
+        <p>Interactive visualization of 54 modules across 5 phases &middot; 74 unique packages</p>
     </div>
 
     <div class="stats-bar">
@@ -147,36 +147,36 @@
 
         <div class="stat-card">
             <h3>Base System</h3>
-            <div class="number">8</div>
-            <div class="detail">8 required &middot; 0 recommended &middot; 0 optional</div>
+            <div class="number">9</div>
+            <div class="detail">8 required &middot; 1 recommended &middot; 0 optional</div>
             <div class="detail" style="color:#8b949e;margin-top:4px">Bootable CLI-only Arch Linux (TTY)</div>
         </div>
 
         <div class="stat-card">
             <h3>System Hardening</h3>
-            <div class="number">9</div>
-            <div class="detail">0 required &middot; 5 recommended &middot; 4 optional</div>
+            <div class="number">8</div>
+            <div class="detail">0 required &middot; 4 recommended &middot; 4 optional</div>
             <div class="detail" style="color:#8b949e;margin-top:4px">Stable system with drivers, snapshots, audio, and security</div>
         </div>
 
         <div class="stat-card">
             <h3>Desktop</h3>
-            <div class="number">14</div>
-            <div class="detail">2 required &middot; 9 recommended &middot; 3 optional</div>
+            <div class="number">17</div>
+            <div class="detail">2 required &middot; 11 recommended &middot; 4 optional</div>
             <div class="detail" style="color:#8b949e;margin-top:4px">Full graphical desktop environment with Hyprland</div>
         </div>
 
         <div class="stat-card">
             <h3>Workflow</h3>
-            <div class="number">15</div>
-            <div class="detail">0 required &middot; 4 recommended &middot; 11 optional</div>
+            <div class="number">18</div>
+            <div class="detail">0 required &middot; 6 recommended &middot; 12 optional</div>
             <div class="detail" style="color:#8b949e;margin-top:4px">Productive daily driver (pick your profile)</div>
         </div>
 
         <div class="stat-card">
             <h3>Total</h3>
-            <div class="number">48</div>
-            <div class="detail">73 unique packages</div>
+            <div class="number">54</div>
+            <div class="detail">74 unique packages</div>
         </div>
     </div>
 
@@ -202,12 +202,12 @@ flowchart TD
         install_base(["Install Base Packages"])
         system_config(["System Configuration"])
         users_sudo(["Users & Sudo"])
+        nvidia(["GPU (NVIDIA)"])
         bootloader(["Bootloader (GRUB)"])
         first_reboot(["First Reboot"])
     end
 
     subgraph phase_2["🛡️ Phase: System Hardening"]
-        nvidia(["NVIDIA Drivers"])
         snapshots(["Btrfs Snapshots & Recovery"])
         aur(["AUR Helper (yay)"])
         sound(["Sound (PipeWire)"])
@@ -219,11 +219,12 @@ flowchart TD
     end
 
     subgraph phase_3["🪟 Phase: Desktop"]
-        hyprland_install(["Install Hyprland"])
-        hyprland_config(["Hyprland Core Config"])
-        hyprland_lock(["Lock & Idle"])
-        hyprland_wallpaper{{"Wallpaper"}}
-        hyprland_screenshare(["Screen Sharing"])
+        terminal_emulator(["Terminal Emulator"])
+        desktop_install(["Window Manager"])
+        desktop_config(["Desktop Config"])
+        desktop_lock(["Lock & Idle"])
+        desktop_wallpaper{{"Wallpaper"}}
+        desktop_screenshare(["Screen Sharing"])
         shell_terminal(["Shell & Terminal"])
         app_launcher(["App Launcher"])
         status_bar(["Status Bar"])
@@ -233,17 +234,24 @@ flowchart TD
         screenshots{{"Screenshots"}}
         file_manager(["File Manager"])
         fonts(["Fonts"])
+        browser{{"Browser"}}
+        dotfiles_backup(["Dotfiles (GNU Stow)"])
     end
 
     subgraph phase_4["🚀 Phase: Workflow"]
-        dotfiles(["Dotfiles Backup (GNU Stow)"])
         subgraph profile_dev["Developer"]
             neovim(["NeoVim"])
             containers{{"Containers (Podman)"}}
             devpod{{"DevPod"}}
-            local_ai{{"Local AI Models"}}
             languages{{"Language Runtimes"}}
             api_testing{{"API Testing"}}
+        end
+        subgraph profile_ai["AI"]
+            inference(["Local Inference (llama.cpp)"])
+            harness(["AI Harness Tools"])
+            ide_integration(["IDE Integration"])
+            agents{{"Autonomous Agents"}}
+            training{{"AI Training"}}
         end
         subgraph profile_gaming["Gaming"]
             steam(["Steam"])
@@ -267,9 +275,9 @@ flowchart TD
     filesystems --> install_base
     install_base --> system_config
     system_config --> users_sudo
-    users_sudo --> bootloader
+    users_sudo --> nvidia
+    nvidia --> bootloader
     bootloader --> first_reboot
-    first_reboot --> nvidia
     first_reboot --> snapshots
     first_reboot --> aur
     first_reboot --> sound
@@ -279,36 +287,45 @@ flowchart TD
     first_reboot --> firewall
     first_reboot --> external_drives
     first_reboot --> ssh
-    nvidia --> hyprland_install
-    hyprland_install --> hyprland_config
-    hyprland_config --> hyprland_lock
-    hyprland_config --> hyprland_wallpaper
-    hyprland_config --> hyprland_screenshare
-    sound --> hyprland_screenshare
-    hyprland_install --> shell_terminal
-    hyprland_install --> app_launcher
-    hyprland_install --> status_bar
-    hyprland_install --> notifications
-    hyprland_install --> display_manager
-    hyprland_install --> clipboard
-    hyprland_install --> screenshots
-    hyprland_install --> file_manager
-    hyprland_install --> fonts
-    ssh --> dotfiles
-    hyprland_install --> neovim
+    fonts --> terminal_emulator
+    nvidia --> desktop_install
+    terminal_emulator --> desktop_install
+    desktop_install --> desktop_config
+    desktop_config --> desktop_lock
+    desktop_config --> desktop_wallpaper
+    desktop_config --> desktop_screenshare
+    sound --> desktop_screenshare
+    desktop_install --> shell_terminal
+    desktop_install --> app_launcher
+    desktop_install --> status_bar
+    desktop_install --> notifications
+    desktop_install --> display_manager
+    desktop_install --> clipboard
+    desktop_install --> screenshots
+    desktop_install --> file_manager
+    desktop_install --> fonts
+    desktop_install --> browser
+    aur --> browser
+    ssh --> dotfiles_backup
+    desktop_install --> neovim
     shell_terminal --> neovim
     first_reboot --> containers
     containers --> devpod
-    containers --> local_ai
-    nvidia --> local_ai
     first_reboot --> languages
     first_reboot --> api_testing
+    nvidia --> inference
+    aur --> inference
+    inference --> harness
+    inference --> ide_integration
+    inference --> agents
+    inference --> training
+    nvidia --> training
     nvidia --> steam
     steam --> proton
     nvidia --> heroic
     nvidia --> mangohud
     first_reboot --> controllers
-    hyprland_screenshare --> obs
+    desktop_screenshare --> obs
     sound --> obs
     nvidia --> davinci
     sound --> media_players
@@ -329,9 +346,9 @@ flowchart TD
     click install_base "phase-1-base-system/04-install-base.md" "Open Install Base Packages module"
     click system_config "phase-1-base-system/05-system-config.md" "Open System Configuration module"
     click users_sudo "phase-1-base-system/06-users-and-sudo.md" "Open Users & Sudo module"
+    click nvidia "phase-1-base-system/07-gpu-nvidia.md" "Open GPU (NVIDIA) module"
     click bootloader "phase-1-base-system/07-bootloader-grub.md" "Open Bootloader (GRUB) module"
     click first_reboot "phase-1-base-system/08-first-reboot.md" "Open First Reboot module"
-    click nvidia "phase-2-system-hardening/nvidia-drivers.md" "Open NVIDIA Drivers module"
     click snapshots "phase-2-system-hardening/btrfs-snapshots.md" "Open Btrfs Snapshots & Recovery module"
     click aur "phase-2-system-hardening/aur-helper.md" "Open AUR Helper (yay) module"
     click sound "phase-2-system-hardening/sound-pipewire.md" "Open Sound (PipeWire) module"
@@ -340,11 +357,12 @@ flowchart TD
     click firewall "phase-2-system-hardening/firewall.md" "Open Firewall module"
     click external_drives "phase-2-system-hardening/external-drives.md" "Open External Drives & NTFS module"
     click ssh "phase-2-system-hardening/ssh.md" "Open SSH & Git module"
-    click hyprland_install "phase-3-desktop/hyprland/01-install.md" "Open Install Hyprland module"
-    click hyprland_config "phase-3-desktop/hyprland/02-core-config.md" "Open Hyprland Core Config module"
-    click hyprland_lock "phase-3-desktop/hyprland/03-lock-idle.md" "Open Lock & Idle module"
-    click hyprland_wallpaper "phase-3-desktop/hyprland/04-wallpaper.md" "Open Wallpaper module"
-    click hyprland_screenshare "phase-3-desktop/hyprland/05-screen-sharing.md" "Open Screen Sharing module"
+    click terminal_emulator "phase-3-desktop/terminal-emulator.md" "Open Terminal Emulator module"
+    click desktop_install "phase-3-desktop/hyprland/01-install.md" "Open Window Manager module"
+    click desktop_config "phase-3-desktop/hyprland/02-core-config.md" "Open Desktop Config module"
+    click desktop_lock "phase-3-desktop/hyprland/03-lock-idle.md" "Open Lock & Idle module"
+    click desktop_wallpaper "phase-3-desktop/hyprland/04-wallpaper.md" "Open Wallpaper module"
+    click desktop_screenshare "phase-3-desktop/hyprland/05-screen-sharing.md" "Open Screen Sharing module"
     click shell_terminal "phase-3-desktop/shell-and-terminal.md" "Open Shell & Terminal module"
     click app_launcher "phase-3-desktop/app-launcher.md" "Open App Launcher module"
     click status_bar "phase-3-desktop/status-bar.md" "Open Status Bar module"
@@ -354,13 +372,18 @@ flowchart TD
     click screenshots "phase-3-desktop/screenshots.md" "Open Screenshots module"
     click file_manager "phase-3-desktop/file-manager.md" "Open File Manager module"
     click fonts "phase-3-desktop/fonts.md" "Open Fonts module"
-    click dotfiles "phase-4-workflow/dotfiles-backup.md" "Open Dotfiles Backup (GNU Stow) module"
+    click browser "phase-3-desktop/browser.md" "Open Browser module"
+    click dotfiles_backup "phase-3-desktop/dotfiles-backup.md" "Open Dotfiles (GNU Stow) module"
     click neovim "phase-4-workflow/profile-dev/neovim.md" "Open NeoVim module"
     click containers "phase-4-workflow/profile-dev/containers.md" "Open Containers (Podman) module"
     click devpod "phase-4-workflow/profile-dev/devpod.md" "Open DevPod module"
-    click local_ai "phase-4-workflow/profile-dev/local-ai.md" "Open Local AI Models module"
     click languages "phase-4-workflow/profile-dev/languages.md" "Open Language Runtimes module"
     click api_testing "phase-4-workflow/profile-dev/api-testing.md" "Open API Testing module"
+    click inference "phase-4-workflow/profile-ai/inference.md" "Open Local Inference (llama.cpp) module"
+    click harness "phase-4-workflow/profile-ai/harness.md" "Open AI Harness Tools module"
+    click ide_integration "phase-4-workflow/profile-ai/ide-integration.md" "Open IDE Integration module"
+    click agents "phase-4-workflow/profile-ai/agents.md" "Open Autonomous Agents module"
+    click training "phase-4-workflow/profile-ai/training.md" "Open AI Training module"
     click steam "phase-4-workflow/profile-gaming/steam.md" "Open Steam module"
     click proton "phase-4-workflow/profile-gaming/proton.md" "Open Proton & ProtonGE module"
     click heroic "phase-4-workflow/profile-gaming/heroic.md" "Open Heroic Launcher module"

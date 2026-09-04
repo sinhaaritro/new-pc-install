@@ -44,11 +44,12 @@ ROLE_MAP = {
     "firewall": "firewall",
     "external-drives": "external_drives",
     "ssh": "ssh_git",
-    "hyprland-install": "hyprland_install",
-    "hyprland-config": "hyprland_config",
-    "hyprland-lock": "hyprland_lock",
-    "hyprland-wallpaper": "hyprland_wallpaper",
-    "hyprland-screenshare": "hyprland_screenshare",
+    "desktop-install": "desktop_install",
+    "desktop-config": "desktop_config",
+    "desktop-lock": "desktop_lock",
+    "desktop-wallpaper": "desktop_wallpaper",
+    "desktop-screenshare": "desktop_screenshare",
+    "terminal-emulator": "terminal_emulator",
     "shell-terminal": "shell_terminal",
     "app-launcher": "app_launcher",
     "status-bar": "status_bar",
@@ -62,8 +63,8 @@ ROLE_MAP = {
     # Phase 4 (profile-structured; spec 006 D6). Module ids stay flat - they
     # are unique across profiles in the manifest. 'davinci' maps to an
     # extended role name to avoid the Phase 3 namespace collision (ADR-006).
-    # 'dotfiles' is the manifest id of the SHARED Phase 4 module (its docs
-    # file is dotfiles-backup.md; the role directory is dotfiles_backup).
+    # 'dotfiles-backup' is the Phase 3 dotfiles module (GNU Stow + ~/dotfiles).
+    # Its docs file is dotfiles-backup.md; the role directory is dotfiles_backup.
     "dotfiles": "dotfiles_backup",
     "dotfiles-backup": "dotfiles_backup",
     "neovim": "dev_neovim",

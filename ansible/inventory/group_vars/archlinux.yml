@@ -128,8 +128,15 @@ distro_packages:
   # enforces this). Config-free (spec 005, ADR-011): these roles install packages
   # only; all dotfiles are owned by the user's stow package. Role order:
   # fonts first (fc-cache must precede the visual tools), then
-  # shell_terminal -> app_launcher -> status_bar -> notifications ->
-  # display_manager -> clipboard -> screenshots -> file_manager.
+  # terminal_emulator -> shell_terminal -> app_launcher -> status_bar ->
+  # notifications -> display_manager -> clipboard -> screenshots ->
+  # file_manager.
+  # Terminal emulator (WM-independent): the shell (shell_terminal) and the WM
+  # both open in it, so it installs before desktop_install. kitty for now;
+  # alacritty/ghostty later (add the package here + in the manifest).
+  terminal_emulator:
+    pacman:
+      - kitty
   shell_terminal:
     pacman:
       - zsh
@@ -159,11 +166,11 @@ distro_packages:
       - grim
       - slurp
       - swappy
+  # File manager: yazi (the chosen file manager; thunar dropped). Config is
+  # stow-owned (ADR-011) - ~/.config/yazi/yazi.toml.
   file_manager:
     pacman:
-      - thunar
-      - thunar-archive-plugin
-      - thunar-vcs-plugin
+      - yazi
   fonts:
     pacman:
       - fontconfig
@@ -175,35 +182,39 @@ distro_packages:
     # AUR fonts (installed via yay; the aur role must have run first).
     aur:
       - maplemono-ttf
-  # browser (shared module): firefox already ships with hyprland-install's base
-  # set (wm.hyprland.pacman); this is the no-op guard's package list.
+  # Browsers: firefox (official) + zen (AUR, zen-browser-bin). The aur role must
+  # have run first for the aur backend. Config is stow-owned (ADR-011).
   browser:
     pacman:
       - firefox
-  # Hyprland sub-modules (spec 005). hyprlock/hypridle (lock) and swww
+    aur:
+      - zen-browser-bin
+  # Dotfiles (GNU Stow) - moved here from Phase 4: a desktop dependency
+  # (desktop-config stows from ~/dotfiles), so it lives in Play 3.
+  dotfiles_backup:
+    pacman:
+      - stow
+  # Desktop sub-modules (spec 005). hyprlock/hypridle (lock) and swww
   # (wallpaper) were previously hardcoded in their roles; they live here now so
   # the universal install loop can install them (keeps the manifest in sync).
-  hyprland_lock:
+  # The compositor-specific packages are selected by wm_vendor.
+  desktop_lock:
     pacman:
       - hyprlock
       - hypridle
-  hyprland_wallpaper:
+  desktop_wallpaper:
     pacman:
       - swww
-  # hyprland-screenshare: no package list - the portal package ships with
-  # hyprland-install (wm.hyprland.pacman); the role is a no-op guard.
+  # desktop-screenshare: no package list - the portal package ships with
+  # desktop-install (wm.hyprland.pacman); the role is a no-op guard.
   # --- Play 4 (Phase 4, booted system) ---
   # Per-module lists, selected by the enable_<module> inventory flags (and the
   # profile_* convenience vars). Keep in sync with the phase-4 modules in
   # os/archlinux/manifest.yaml (parity checker enforces this). Config-free
   # (spec 006, ADR-011): roles install packages + the four named system-level
   # artifacts only; all dotfiles are owned by the user's stow package. Role
-  # order: dotfiles_backup -> dev (neovim/containers/remote_ssh) ->
-  # ai (inference/harness) -> gaming (steam/mangohud) -> creative (obs/
-  # media_players).
-  dotfiles_backup:
-    pacman:
-      - stow
+  # order: dev (neovim/containers/remote_ssh) -> ai (inference/harness) ->
+  # gaming (steam/mangohud) -> creative (obs/ media_players).
   containers:
     pacman:
       - podman
@@ -296,17 +307,14 @@ gpu:
 # the base list carries packages only; hyprland.conf and friends are stow-owned.
 wm:
   hyprland:
-    # Backend-keyed leaf (mirrors gpu) so hyprland_install uses the universal
-    # install loop.
     pacman:
       - hyprland
       - wayland
       - xdg-desktop-portal-hyprland
-      - kitty
       - qt5-wayland
       - qt6-wayland
+      - kitty
       - firefox
-      - yazi
   niri: {}
   sway: {}
   none: {}

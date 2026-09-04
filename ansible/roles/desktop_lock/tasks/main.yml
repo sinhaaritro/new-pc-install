@@ -1,0 +1,21 @@
+---
+# Role: desktop_lock (manifest module id: desktop-lock)
+# Phase 3 module 03 on the booted system: screen lock + idle timeout. The
+# packages (hyprlock/hypridle for hyprland) are selected by wm_vendor.
+# Config-free (ADR-011): installs the packages only; the lock/idle config is
+# owned by the user's stow package.
+
+- name: Resolve desktop-lock backends (module desktop-lock)
+  ansible.builtin.set_fact:
+    install_backends: "{{ distro_packages.desktop_lock }}"
+
+- name: Install the lock/idle packages by backend (module desktop-lock)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
+
+- name: Report lock/idle verification (module desktop-lock)
+  ansible.builtin.debug:
+    msg: >-
+      Lock + idle packages installed (see distro_packages.desktop_lock). Your
+      stow package should provide the lock + idle config and the autostart/
+      keybind wiring (see Phase 3 module Lock & Idle). Verify: the lock screen
+      appears on the lock keybind; idle triggers the configured timeout.

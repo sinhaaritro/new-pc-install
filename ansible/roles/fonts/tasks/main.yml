@@ -1,12 +1,12 @@
 ---
 # Role: fonts (manifest module id: fonts)
-# Phase 3 shared module on the booted system: Maple Mono (AUR, primary) +
-# Nerd Fonts (JetBrainsMono) + Noto (latin/CJK/emoji) + Material Design Icons
-# + fontconfig. Writes a system-wide /etc/fonts/local.conf with the Maple Mono
-# fallback chain (display-server agnostic: applies to both Wayland and X11),
-# then runs fc-cache. ADR-011: local.conf is a system config (not a user
-# dotfile), so this role owns it; the user's stow package may additionally
-# provide ~/.config/fontconfig/fonts.conf for per-user overrides.
+# Phase 3 shared module on the booted system: the monospace/primary font +
+# Nerd Fonts + Noto (latin/CJK/emoji) + Material Design Icons + fontconfig.
+# Writes a system-wide /etc/fonts/local.conf with the primary-font fallback
+# chain (display-server agnostic: applies to both Wayland and X11), then runs
+# fc-cache. ADR-011: local.conf is a system config (not a user dotfile), so
+# this role owns it; the user's stow package may additionally provide
+# ~/.config/fontconfig/fonts.conf for per-user overrides.
 
 - name: Resolve font backends (module fonts)
   ansible.builtin.set_fact:
@@ -33,11 +33,12 @@
 - name: Report fonts verification (module fonts)
   ansible.builtin.debug:
     msg: >-
-      Font packages installed; /etc/fonts/local.conf written (Maple Mono NF
-      primary, Noto CJK/emoji + Nerd Font icon fallbacks); fc-cache rebuilt.
+      Font packages installed; /etc/fonts/local.conf written (primary
+      monospace + CJK/emoji + Nerd Font icon fallbacks); fc-cache rebuilt.
       Log out/in so running apps pick up the new fonts. Applies to both
       Wayland and X11 (fontconfig is display-server agnostic). Your stow
       package may provide ~/.config/fontconfig/fonts.conf for per-user
       overrides (see Phase 3 module Fonts). Verify: 'fc-list | wc -l' is
-      healthy (200+); 'fc-match monospace' returns Maple Mono NF; CJK and
-      emoji render in a browser; Nerd Font icons show in Kitty/waybar/rofi.
+      healthy (200+); 'fc-match monospace' returns the configured primary
+      font; CJK and emoji render in a browser; Nerd Font icons show in
+      Kitty/waybar/rofi.

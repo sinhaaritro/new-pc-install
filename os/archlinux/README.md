@@ -39,12 +39,12 @@ flowchart TD
         install_base(["Install Base Packages"])
         system_config(["System Configuration"])
         users_sudo(["Users & Sudo"])
+        nvidia(["GPU (NVIDIA)"])
         bootloader(["Bootloader (GRUB)"])
         first_reboot(["First Reboot"])
     end
 
     subgraph phase_2["🛡️ Phase: System Hardening"]
-        nvidia(["NVIDIA Drivers"])
         snapshots(["Btrfs Snapshots & Recovery"])
         aur(["AUR Helper (yay)"])
         sound(["Sound (PipeWire)"])
@@ -56,11 +56,12 @@ flowchart TD
     end
 
     subgraph phase_3["🪟 Phase: Desktop"]
-        hyprland_install(["Install Hyprland"])
-        hyprland_config(["Hyprland Core Config"])
-        hyprland_lock(["Lock & Idle"])
-        hyprland_wallpaper{{"Wallpaper"}}
-        hyprland_screenshare(["Screen Sharing"])
+        terminal_emulator(["Terminal Emulator"])
+        desktop_install(["Window Manager"])
+        desktop_config(["Desktop Config"])
+        desktop_lock(["Lock & Idle"])
+        desktop_wallpaper{{"Wallpaper"}}
+        desktop_screenshare(["Screen Sharing"])
         shell_terminal(["Shell & Terminal"])
         app_launcher(["App Launcher"])
         status_bar(["Status Bar"])
@@ -70,10 +71,11 @@ flowchart TD
         screenshots{{"Screenshots"}}
         file_manager(["File Manager"])
         fonts(["Fonts"])
+        browser{{"Browser"}}
+        dotfiles_backup(["Dotfiles (GNU Stow)"])
     end
 
     subgraph phase_4["🚀 Phase: Workflow"]
-        dotfiles(["Dotfiles Backup (GNU Stow)"])
         subgraph profile_dev["Developer"]
             neovim(["NeoVim"])
             containers{{"Containers (Podman)"}}
@@ -82,7 +84,7 @@ flowchart TD
             api_testing{{"API Testing"}}
         end
         subgraph profile_ai["AI"]
-            inference(["Local Inference"])
+            inference(["Local Inference (llama.cpp)"])
             harness(["AI Harness Tools"])
             ide_integration(["IDE Integration"])
             agents{{"Autonomous Agents"}}
@@ -110,9 +112,9 @@ flowchart TD
     filesystems --> install_base
     install_base --> system_config
     system_config --> users_sudo
-    users_sudo --> bootloader
+    users_sudo --> nvidia
+    nvidia --> bootloader
     bootloader --> first_reboot
-    first_reboot --> nvidia
     first_reboot --> snapshots
     first_reboot --> aur
     first_reboot --> sound
@@ -122,23 +124,27 @@ flowchart TD
     first_reboot --> firewall
     first_reboot --> external_drives
     first_reboot --> ssh
-    nvidia --> hyprland_install
-    hyprland_install --> hyprland_config
-    hyprland_config --> hyprland_lock
-    hyprland_config --> hyprland_wallpaper
-    hyprland_config --> hyprland_screenshare
-    sound --> hyprland_screenshare
-    hyprland_install --> shell_terminal
-    hyprland_install --> app_launcher
-    hyprland_install --> status_bar
-    hyprland_install --> notifications
-    hyprland_install --> display_manager
-    hyprland_install --> clipboard
-    hyprland_install --> screenshots
-    hyprland_install --> file_manager
-    hyprland_install --> fonts
-    ssh --> dotfiles
-    hyprland_install --> neovim
+    fonts --> terminal_emulator
+    nvidia --> desktop_install
+    terminal_emulator --> desktop_install
+    desktop_install --> desktop_config
+    desktop_config --> desktop_lock
+    desktop_config --> desktop_wallpaper
+    desktop_config --> desktop_screenshare
+    sound --> desktop_screenshare
+    desktop_install --> shell_terminal
+    desktop_install --> app_launcher
+    desktop_install --> status_bar
+    desktop_install --> notifications
+    desktop_install --> display_manager
+    desktop_install --> clipboard
+    desktop_install --> screenshots
+    desktop_install --> file_manager
+    desktop_install --> fonts
+    desktop_install --> browser
+    aur --> browser
+    ssh --> dotfiles_backup
+    desktop_install --> neovim
     shell_terminal --> neovim
     first_reboot --> containers
     containers --> devpod
@@ -156,7 +162,7 @@ flowchart TD
     nvidia --> heroic
     nvidia --> mangohud
     first_reboot --> controllers
-    hyprland_screenshare --> obs
+    desktop_screenshare --> obs
     sound --> obs
     nvidia --> davinci
     sound --> media_players

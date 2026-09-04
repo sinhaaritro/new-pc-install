@@ -1,22 +1,21 @@
 ---
 # Role: file_manager (manifest module id: file-manager)
-# Phase 3 shared module on the booted system: thunar (GUI file manager) +
-# plugins. yazi (TUI) already ships with hyprland-install, so it is not
-# re-installed here. Config-free (ADR-011): ~/.config/yazi/yazi.toml is owned
-# by the user's stow package.
+# Phase 3 shared module on the booted system: the file manager (yazi for now).
+# The package list is data (distro_packages.file_manager), so swapping the
+# file manager later is a data-only change - no role rewrite. Config-free
+# (ADR-011): the file manager's config dir is owned by the user's stow package.
 
 - name: Resolve file-manager backends (module file-manager)
   ansible.builtin.set_fact:
     install_backends: "{{ distro_packages.file_manager }}"
 
-- name: Install thunar and plugins by backend (module file-manager)
+- name: Install the file manager by backend (module file-manager)
   ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
 
 - name: Report file-manager verification (module file-manager)
   ansible.builtin.debug:
     msg: >-
-      thunar + archive/vcs plugins installed (yazi ships with
-      hyprland-install). Your stow package should provide
-      ~/.config/yazi/yazi.toml if you want yazi tweaks (see Phase 3 module
-      File Manager). Verify: 'thunar' opens; archive files open with thunar;
-      yazi navigates in Kitty.
+      File manager installed (see distro_packages.file_manager). Your stow
+      package should provide the file manager's config (see Phase 3 module File
+      Manager). Verify: the file manager launches from the terminal and
+      navigates your home directory.

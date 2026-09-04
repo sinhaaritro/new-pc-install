@@ -7,8 +7,8 @@
 # two ways (spec 005 D2): the enable_<id> inventory flags in
 # inventory/hosts.yml, or --tags <id> at run time. Root tasks run via the
 # play-level become; the only file Play 3 writes is /etc/greetd/config.toml
-# (display-manager, a system service file). The 4 downstream Hyprland roles
-# are additionally gated on enable_hyprland_install (D5). See
+# (display-manager, a system service file). The 4 downstream desktop-config
+# roles are additionally gated on enable_desktop_install (D5). See
 # ansible/README.md for the flow.
 - name: Arch Linux Phase 3 desktop (booted system, config-free)
   hosts: localhost
@@ -71,9 +71,6 @@
           account created during Phase 1 (module 06).
       when: not ansible_check_mode
   roles:
-    # --- Fonts first: every visual tool below (kitty, rofi, waybar, swaync,
-    # thunar, greetd) renders glyph boxes until fc-cache has run, so fonts are
-    # the one module that must precede the rest of the desktop (spec 005). ---
     - role: fonts
       tags:
         - fonts
@@ -90,35 +87,38 @@
       tags:
         - browser
       when: enable_browser | default(false)
-    # --- Hyprland (sequential; 02-05 gated on 01 per spec 005 D5) ---
-    - role: hyprland_install
+    - role: terminal_emulator
       tags:
-        - hyprland-install
-      when: enable_hyprland_install | default(false)
-    - role: hyprland_config
+        - terminal-emulator
+      when: enable_terminal_emulator | default(false)
+    - role: desktop_install
       tags:
-        - hyprland-config
+        - desktop-install
+      when: enable_desktop_install | default(false)
+    - role: desktop_config
+      tags:
+        - desktop-config
       when:
-        - enable_hyprland_config | default(false)
-        - enable_hyprland_install | default(false)
-    - role: hyprland_lock
+        - enable_desktop_config | default(false)
+        - enable_desktop_install | default(false)
+    - role: desktop_lock
       tags:
-        - hyprland-lock
+        - desktop-lock
       when:
-        - enable_hyprland_lock | default(false)
-        - enable_hyprland_install | default(false)
-    - role: hyprland_wallpaper
+        - enable_desktop_lock | default(false)
+        - enable_desktop_install | default(false)
+    - role: desktop_wallpaper
       tags:
-        - hyprland-wallpaper
+        - desktop-wallpaper
       when:
-        - enable_hyprland_wallpaper | default(false)
-        - enable_hyprland_install | default(false)
-    - role: hyprland_screenshare
+        - enable_desktop_wallpaper | default(false)
+        - enable_desktop_install | default(false)
+    - role: desktop_screenshare
       tags:
-        - hyprland-screenshare
+        - desktop-screenshare
       when:
-        - enable_hyprland_screenshare | default(false)
-        - enable_hyprland_install | default(false)
+        - enable_desktop_screenshare | default(false)
+        - enable_desktop_install | default(false)
     - role: app_launcher
       tags:
         - app-launcher
@@ -143,3 +143,7 @@
       tags:
         - screenshots
       when: enable_screenshots | default(false)
+    - role: dotfiles_backup
+      tags:
+        - dotfiles-backup
+      when: enable_dotfiles_backup | default(false)

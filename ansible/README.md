@@ -12,8 +12,8 @@ Four plays automate the Arch Linux build:
   system (selectable, **config-free** modules: Hyprland + desktop tools; all
   dotfiles are owned by the user's stow package).
 - **Play 4** (`playbooks/40-workflow.yml`) — Phase 4 workflow on the booted
-  system (profile-selectable modules: dev / ai / gaming / creative + shared
-  dotfiles-backup; **system-level only** — dotfiles stay stow-owned).
+  system (profile-selectable modules: dev / ai / gaming / creative;
+  **system-level only** — dotfiles stay stow-owned).
 
 The module/package source of truth is
 [`os/archlinux/manifest.yaml`](../os/archlinux/manifest.yaml); the generator
@@ -78,10 +78,11 @@ display manager, not a dotfile), which Play 3 writes and enables.
   `inventory/hosts.yml` (Recommended default on, Optional off), or `--tags
   <id>` at run time. Example: `--tags fonts,shell-terminal`.
 - **Window manager** — `wm_vendor: hyprland` (only `hyprland` is implemented;
-  `niri`/`sway`/`none` hit a "not implemented" gate). Only the 5 `hyprland-*`
-  roles are WM-gated; the 9 shared modules are WM-agnostic.
-- **Prerequisite gate** — the 4 downstream Hyprland roles (`config`, `lock`,
-  `wallpaper`, `screenshare`) only run when `enable_hyprland_install` is also
+  `niri`/`sway`/`none` hit a "not implemented" gate). Module ids are
+  WM-agnostic (`desktop-*`); only the 5 `desktop-*` roles are WM-gated, and the
+  9 shared modules are WM-agnostic.
+- **Prerequisite gate** — the 4 downstream desktop roles (`config`, `lock`,
+  `wallpaper`, `screenshare`) only run when `enable_desktop_install` is also
   true (spec 005 D5).
 - **After the play**: log in to the desktop (or reboot for greetd) and run each
   applied module's verification from its docs (e.g. `hyprland --version`,
@@ -114,7 +115,7 @@ root-owned system artifacts*, of which Play 4 writes exactly four:
 
 Everything else in the Phase 4 docs (`~/.ssh/config`, `~/models/config.ini`,
 `opencode.json`, neovim specs, aliases, …) is printed as a "your stow package
-should provide X" note — the shared `dotfiles-backup` module sets up that
+should provide X" note — the `dotfiles-backup` module (Phase 3) sets up that
 stow + git-repo boundary (GNU Stow, `~/dotfiles`; it never moves your
 existing configs).
 
@@ -129,7 +130,7 @@ existing configs).
   cannot be switched *off* while its profile is *on* — narrow at run time with
   `--tags` instead.
 - **Tags**: `--tags <id>` at run time (ids: `containers`, `devpod`,
-  `inference`, `agents`, …, plus the shared `dotfiles-backup`).
+  `inference`, `agents`, …).
 
 Prerequisite gates: `devpod` needs `containers` (podman as its provider);
 `agents` needs `inference` (llama-server). The `yay` AUR helper must exist
@@ -149,8 +150,7 @@ print a "doc is a placeholder — manual steps pending" note. No playbook
 redesign is needed when the docs are filled in later.
 
 **After the play** (manual bring-up): run each applied module's verification
-from its docs — e.g. `stow --version` + `ls -la ~/dotfiles/.git`
-(dotfiles-backup), `podman run --rm hello-world` + `lazypodman` (containers),
+from its docs — e.g. `podman run --rm hello-world` + `lazypodman` (containers),
 `devpod list` (devpod), `nvim --version` (neovim),
 `llama-server --version` + `systemctl --user status llama-server.service` +
 `curl -s http://127.0.0.1:8080/v1/models` (inference), `npm ls -g` (harness),
@@ -282,10 +282,10 @@ ansible/
 │   ├── first_reboot/          # 09 (final checks, unmount, reboot)
 │   ├── snapshots/             # Play 2 (snapper + snap-pac + grub-btrfs); vars/snapshots_retention.yml = role-local policy
 │   ├── aur/ sound/ networking/ clock_sync/ firewall/ external_drives/ ssh_git/  # Play 2
-│   ├── hyprland_install/ hyprland_config/ hyprland_lock/ hyprland_wallpaper/ hyprland_screenshare/  # Play 3 (WM)
+│   ├── desktop_install/ desktop_config/ desktop_lock/ desktop_wallpaper/ desktop_screenshare/  # Play 3 (window manager)
 │   ├── shell_terminal/ app_launcher/ status_bar/ notifications/ clipboard/ screenshots/ file_manager/ fonts/  # Play 3 (shared)
 │   ├── display_manager/  # Play 3 (shared); templates/greetd-config.toml.j2 = only file Play 3 writes
-│   ├── dotfiles_backup/  # Play 4 (shared): stow + ~/dotfiles git bootstrap (config-free)
+│   ├── dotfiles_backup/  # Play 3 (desktop): stow + ~/dotfiles git bootstrap (config-free)
 │   ├── dev_neovim/ dev_containers/ dev_devpod/ dev_languages/ dev_api_testing/  # Play 4 (dev profile)
 │   ├── ai_inference/ ai_harness/ ai_ide_integration/ ai_agents/ ai_training/  # Play 4 (ai profile)
 │   ├── gaming_steam/ gaming_proton/ gaming_heroic/ gaming_mangohud/ gaming_controllers/  # Play 4 (gaming profile)

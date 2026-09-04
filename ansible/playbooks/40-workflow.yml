@@ -5,7 +5,8 @@
 # System-level only (ADR-011): roles install packages + services and write
 # exactly four named non-dotfile artifacts (devpod binary, podman subuid
 # range, ufw 8080 rule, llama-server user unit file); all user dotfiles are
-# owned by the user's stow package (shared module dotfiles-backup). Modules
+# owned by the user's stow package (the dotfiles-backup module now lives in
+# Play 3 / Phase 3). Modules
 # are selectable three ways (spec 006 D1): the profile_* inventory vars
 # (whole profile), the per-module enable_<id> flags, or --tags <id> at run
 # time - the profile vars are OR-ed into the flags by the fold pre_task
@@ -97,7 +98,6 @@
     - name: Fold the profile vars into the module flags (spec 006 D1)
       ansible.builtin.set_fact:
         play4_flags:
-          dotfiles_backup: "{{ ((enable_dotfiles_backup | default(false)) | bool) | bool }}"
           neovim: "{{ ((enable_neovim | default(false)) | bool or (profile_dev | default(false)) | bool) | bool }}"
           containers: "{{ ((enable_containers | default(false)) | bool or (profile_dev | default(false)) | bool) | bool }}"
           devpod: "{{ ((enable_devpod | default(false)) | bool or (profile_dev | default(false)) | bool) | bool }}"
@@ -117,11 +117,6 @@
           davinci: "{{ ((enable_davinci | default(false)) | bool or (profile_creative | default(false)) | bool) | bool }}"
           media_players: "{{ ((enable_media_players | default(false)) | bool or (profile_creative | default(false)) | bool) | bool }}"
   roles:
-    # --- Shared (all profiles) ---
-    - role: dotfiles_backup
-      tags:
-        - dotfiles-backup
-      when: play4_flags.dotfiles_backup | bool
     # --- Developer profile ---
     - role: dev_neovim
       tags:

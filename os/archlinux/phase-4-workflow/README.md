@@ -19,11 +19,5 @@ Pick one or more profiles based on how you'll use this system. Profiles are **in
 | 🎮 [**Gaming**](./profile-gaming/README.md) | Steam, Proton, Heroic, MangoHud, controllers | 5 modules |
 | 🎨 [**Creative**](./profile-creative/README.md) | OBS, DaVinci Resolve, media players | 3 modules |
 
-## Shared Module (All Profiles)
-
-| Module | Required | Notes |
-|--------|----------|-------|
-| [Dotfiles Backup (Stow)](./dotfiles-backup.md) | ⚡ Recommended | GNU Stow + git for config management |
-
-> [!TIP]
-> Set up dotfiles backup **after** configuring your desktop and tools. That way, you have meaningful configs to version-control from the start.
+> [!NOTE]
+> Dotfiles (GNU Stow) moved to [Phase 3: Desktop](../phase-3-desktop/dotfiles-backup.md) — it is a desktop dependency (the desktop-config module stows the compositor config from `~/dotfiles`).

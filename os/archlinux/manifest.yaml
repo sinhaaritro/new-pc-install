@@ -198,51 +198,65 @@ phases:
     name: "Desktop"
     milestone: "Full graphical desktop environment with Hyprland"
     modules:
-      # --- Hyprland (Window Manager) ---
-      - id: hyprland-install
-        name: "Install Hyprland"
+      # --- Shared Desktop Modules ---
+      - id: terminal-emulator
+        name: "Terminal Emulator"
+        file: "phase-3-desktop/terminal-emulator.md"
+        required: recommended
+        packages: [kitty]
+        prerequisites: [fonts]
+        tags: [terminal]
+        description: "Terminal emulator (kitty for now; alacritty/ghostty later). WM-independent: the shell (shell-terminal) and the WM both open in it, so it installs before desktop-install."
+
+      # --- Desktop (Window Manager) ---
+      # Module ids/names are WM-agnostic (like terminal-emulator, not kitty):
+      # they describe the function, so a future niri/sway WM reuses the same
+      # modules. The concrete compositor (hyprland + hyprlock/hypridle/swww)
+      # lives in the package lists / wm_vendor selectable, not the module names.
+      - id: desktop-install
+        name: "Window Manager"
         file: "phase-3-desktop/hyprland/01-install.md"
         required: true
-        packages: [hyprland, wayland, xdg-desktop-portal-hyprland, kitty, qt5-wayland, qt6-wayland]
-        prerequisites: [nvidia]
-        tags: [wm, hyprland]
-        description: "Install Wayland, Hyprland, Kitty terminal, first launch from TTY"
+        packages: [hyprland, wayland, xdg-desktop-portal-hyprland, qt5-wayland, qt6-wayland]
+        prerequisites: [nvidia, terminal-emulator]
+        tags: [wm, desktop]
+        description: "Install the window manager (hyprland via wm_vendor) + Wayland base; first launch from TTY. Terminal emulator is its own module."
 
-      - id: hyprland-config
-        name: "Hyprland Core Config"
+      - id: desktop-config
+        name: "Desktop Config"
         file: "phase-3-desktop/hyprland/02-core-config.md"
         required: true
         packages: []
-        prerequisites: [hyprland-install]
-        tags: [wm, hyprland]
-        description: "Keybinds, monitors, window rules, input config, workspaces"
+        prerequisites: [desktop-install]
+        tags: [wm, desktop]
+        description: "Desktop compositor config (keybinds, monitors, window rules, input) - installed via GNU Stow from the user's dotfiles; this role is package-free and only documents the stow handoff"
 
-      - id: hyprland-lock
+      - id: desktop-lock
         name: "Lock & Idle"
         file: "phase-3-desktop/hyprland/03-lock-idle.md"
         required: recommended
         packages: [hyprlock, hypridle]
-        prerequisites: [hyprland-config]
-        tags: [wm, hyprland]
-        description: "hyprlock screen lock, hypridle timeout management"
+        prerequisites: [desktop-config]
+        tags: [wm, desktop]
+        description: "Screen lock + idle timeout (hyprlock/hypridle via wm_vendor)"
 
-      - id: hyprland-wallpaper
+      - id: desktop-wallpaper
         name: "Wallpaper"
         file: "phase-3-desktop/hyprland/04-wallpaper.md"
         required: optional
         packages: [swww]
-        prerequisites: [hyprland-config]
-        tags: [wm, hyprland]
-        description: "swww animated wallpaper daemon"
+        prerequisites: [desktop-config]
+        tags: [wm, desktop]
+        description: "Wallpaper daemon (swww via wm_vendor)"
 
-      - id: hyprland-screenshare
+      - id: desktop-screenshare
         name: "Screen Sharing"
         file: "phase-3-desktop/hyprland/05-screen-sharing.md"
         required: recommended
         packages: [xdg-desktop-portal-hyprland]
-        prerequisites: [hyprland-config, sound]
-        tags: [wm, hyprland]
-        description: "xdg-desktop-portal for screen sharing in video calls"
+        prerequisites: [desktop-config, sound]
+        tags: [wm, desktop]
+        description: "Screen sharing portal for video calls (xdg-desktop-portal via wm_vendor)"
 
       # --- Shared Desktop Modules ---
       - id: shell-terminal
@@ -250,7 +264,7 @@ phases:
         file: "phase-3-desktop/shell-and-terminal.md"
         required: recommended
         packages: [zsh, fzf, zoxide]
-        prerequisites: [hyprland-install]
+        prerequisites: [desktop-install]
         description: "Kitty config, zsh + oh-my-zsh, fzf fuzzy finder, zoxide jump"
 
       - id: app-launcher
@@ -258,7 +272,7 @@ phases:
         file: "phase-3-desktop/app-launcher.md"
         required: recommended
         packages: [rofi-wayland]
-        prerequisites: [hyprland-install]
+        prerequisites: [desktop-install]
         description: "rofi-wayland application launcher config"
 
       - id: status-bar
@@ -266,7 +280,7 @@ phases:
         file: "phase-3-desktop/status-bar.md"
         required: recommended
         packages: [waybar]
-        prerequisites: [hyprland-install]
+        prerequisites: [desktop-install]
         description: "waybar status bar with modules and custom CSS"
 
       - id: notifications
@@ -274,7 +288,7 @@ phases:
         file: "phase-3-desktop/notifications.md"
         required: recommended
         packages: [swaync]
-        prerequisites: [hyprland-install]
+        prerequisites: [desktop-install]
         description: "swaync notification center (Action Center equivalent)"
 
       - id: display-manager
@@ -282,7 +296,7 @@ phases:
         file: "phase-3-desktop/display-manager.md"
         required: optional
         packages: [greetd, greetd-tuigreet]
-        prerequisites: [hyprland-install]
+        prerequisites: [desktop-install]
         description: "greetd + tuigreet login screen"
 
       - id: clipboard
@@ -290,7 +304,7 @@ phases:
         file: "phase-3-desktop/clipboard.md"
         required: recommended
         packages: [wl-clipboard, clipse]
-        prerequisites: [hyprland-install]
+        prerequisites: [desktop-install]
         description: "wl-clipboard + clipse clipboard manager"
 
       - id: screenshots
@@ -298,32 +312,44 @@ phases:
         file: "phase-3-desktop/screenshots.md"
         required: optional
         packages: [grim, slurp, swappy]
-        prerequisites: [hyprland-install]
+        prerequisites: [desktop-install]
         description: "grim + slurp screen capture, swappy annotation"
 
       - id: file-manager
         name: "File Manager"
         file: "phase-3-desktop/file-manager.md"
         required: recommended
-        packages: [yazi, thunar]
-        prerequisites: [hyprland-install]
-        description: "yazi TUI file manager + thunar GUI fallback"
+        packages: [yazi]
+        prerequisites: [desktop-install]
+        description: "yazi TUI file manager (the chosen file manager; thunar dropped)"
 
       - id: fonts
         name: "Fonts"
         file: "phase-3-desktop/fonts.md"
         required: recommended
         packages: [noto-fonts, noto-fonts-emoji, ttf-jetbrains-mono-nerd]
-        prerequisites: [hyprland-install]
+        prerequisites: [desktop-install]
         description: "Nerd Fonts, Noto fonts, emoji support"
 
       - id: browser
         name: "Browser"
         file: "phase-3-desktop/browser.md"
         required: optional
-        packages: [firefox]
-        prerequisites: [hyprland-install]
-        description: "Web browser (firefox ships with hyprland-install; no-op guard)"
+        packages: [firefox, zen-browser-bin]
+        prerequisites: [desktop-install, aur]
+        description: "Web browsers (firefox + zen; zen is AUR, hence the aur prerequisite)"
+
+      # Dotfiles (GNU Stow) moved here from Phase 4 (was the shared 'dotfiles'
+      # module): it is a desktop dependency (desktop-config stows from
+      # ~/dotfiles), so it belongs in Phase 3. Prerequisite is ssh (Phase 2) -
+      # the private repo is cloned over SSH with the end user's key.
+      - id: dotfiles-backup
+        name: "Dotfiles (GNU Stow)"
+        file: "phase-3-desktop/dotfiles-backup.md"
+        required: recommended
+        packages: [stow]
+        prerequisites: [ssh]
+        description: "GNU Stow + git repo at ~/dotfiles; the ownership boundary for all user dotfiles (desktop-config stows from it)"
 
   # ===========================================================================
   # PHASE 4: Workflow Profiles
@@ -342,7 +368,7 @@ phases:
             file: "phase-4-workflow/profile-dev/neovim.md"
             required: recommended
             packages: [neovim]
-            prerequisites: [hyprland-install, shell-terminal]
+            prerequisites: [desktop-install, shell-terminal]
             description: "NeoVim setup with plugin manager, LSP, treesitter"
 
           - id: containers
@@ -477,7 +503,7 @@ phases:
             file: "phase-4-workflow/profile-creative/obs.md"
             required: optional
             packages: [obs-studio]
-            prerequisites: [hyprland-screenshare, sound]
+            prerequisites: [desktop-screenshare, sound]
             description: "OBS with Wayland capture and PipeWire audio"
 
           - id: davinci
@@ -495,13 +521,3 @@ phases:
             packages: [mpv]
             prerequisites: [sound]
             description: "mpv video player, ncmpcpp + mpd music"
-
-    # --- Shared Phase 4 Modules ---
-    modules:
-      - id: dotfiles
-        name: "Dotfiles Backup (GNU Stow)"
-        file: "phase-4-workflow/dotfiles-backup.md"
-        required: recommended
-        packages: [stow]
-        prerequisites: [ssh]
-        description: "GNU Stow dotfile management with git version control"

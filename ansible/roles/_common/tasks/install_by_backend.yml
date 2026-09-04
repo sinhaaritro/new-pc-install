@@ -26,5 +26,10 @@
     executable: /bin/bash
   become: true
   loop: "{{ install_backends | dict2items }}"
-  register: install_by_backend
-  changed_when: install_by_backend.rc == 0
+  # ansible-lint var-naming[no-role-prefix]: the role dir is '_common'
+  # (leading underscore) and ansible-lint cannot derive its prefix from it, so it
+  # keeps flagging this register var despite the '_common_' prefix. Rename the
+  # role dir (e.g. to 'common') to clear it; do not drop the prefix to satisfy
+  # it — that breaks the repo's role-name-prefix convention.
+  register: _common_install_by_backend
+  changed_when: _common_install_by_backend.rc == 0

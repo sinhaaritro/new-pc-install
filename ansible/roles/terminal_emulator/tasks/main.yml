@@ -1,0 +1,23 @@
+---
+# Role: terminal_emulator (manifest module id: terminal-emulator)
+# Phase 3 shared module on the booted system: the GUI terminal emulator
+# (kitty for now; alacritty/ghostty later — data-only change in
+# group_vars/archlinux.yml + the manifest). Installs the package (root).
+# WM-independent: the shell (shell-terminal) and the WM both open in it, so
+# it runs before desktop_install in play 3. Config-free (ADR-011):
+# ~/.config/kitty/kitty.conf is owned by the user's stow package.
+
+- name: Resolve terminal emulator backends (module terminal-emulator)
+  ansible.builtin.set_fact:
+    install_backends: "{{ distro_packages.terminal_emulator }}"
+
+- name: Install terminal emulator packages by backend (module terminal-emulator)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
+
+- name: Report terminal emulator verification (module terminal-emulator)
+  ansible.builtin.debug:
+    msg: >-
+      Terminal emulator (kitty) installed. Your stow package should provide
+      ~/.config/kitty/kitty.conf (see Phase 3 module Terminal Emulator).
+      Verify: 'kitty --version' prints a version; launching it from the TTY
+      (before desktop_install) opens a GPU-accelerated terminal window.

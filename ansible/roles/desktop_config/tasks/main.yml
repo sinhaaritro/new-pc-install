@@ -1,0 +1,101 @@
+---
+# Role: desktop_config (manifest module id: desktop-config)
+# Phase 3 module 02 on the booted system: apply the desktop compositor config
+# (keybinds, monitors, window rules, input) via GNU Stow from the user's
+# dotfiles repo at ~/dotfiles. The repo is PRIVATE and is cloned/pulled over
+# SSH with the end user's key (git@github.com:sinhaaritro/dotfiles.git).
+#
+# Ordering: this is the LAST thing the desktop play loads - the compositor is
+# already installed (desktop-install) and the dotfiles repo is ready
+# (dotfiles-backup). It runs as the end user (become: false), since the repo,
+# the SSH key, and stow all live in the user's home directory.
+#
+# Graceful degradation (by design): because this is the final step, an SSH or
+# auth failure must NOT fail the play. Every repo/stow step is best-effort
+# (failed_when: false); on any failure the role prints a clear
+# "register your SSH key / re-run" message and moves on. The config content
+# itself is stow-owned (ADR-011) - this role applies it, it does not author it.
+
+- name: Resolve the dotfiles repo location (module desktop-config)
+  ansible.builtin.set_fact:
+    dotfiles_repo_url: "git@github.com:sinhaaritro/dotfiles.git"
+    dotfiles_dir: "/home/{{ end_user }}/dotfiles"
+
+- name: Check whether ~/dotfiles is already a git repo (module desktop-config)
+  ansible.builtin.stat:
+    path: "/home/{{ end_user }}/dotfiles/.git"
+  become: false
+  register: desktop_config_repo
+  failed_when: false
+
+- name: Clone the private dotfiles repo over SSH (module desktop-config)
+  ansible.builtin.shell: |
+    set -e
+    git clone {{ dotfiles_repo_url }} {{ dotfiles_dir }}
+  args:
+    executable: /bin/bash
+  become: false
+  when: not desktop_config_repo.stat.exists
+  register: desktop_config_clone
+  failed_when: false
+
+- name: Pull the latest dotfiles over SSH (module desktop-config)
+  ansible.builtin.shell: |
+    set -e
+    cd {{ dotfiles_dir }}
+    git pull --ff-only
+  args:
+    executable: /bin/bash
+  become: false
+  when: desktop_config_repo.stat.exists
+  register: desktop_config_pull
+  failed_when: false
+
+- name: Decide whether the dotfiles repo is usable (module desktop-config)
+  ansible.builtin.set_fact:
+    dotfiles_repo_ok: >-
+      {{ (desktop_config_repo.stat.exists and desktop_config_pull.rc == 0)
+         or (not desktop_config_repo.stat.exists and desktop_config_clone.rc == 0) }}
+
+- name: List the stow packages in the dotfiles repo (module desktop-config)
+  ansible.builtin.find:
+    paths: "{{ dotfiles_dir }}"
+    file_type: directory
+    depth: 1
+    excludes: ['.git']
+  become: false
+  register: dotfiles_stow_pkgs
+  failed_when: false
+  when: dotfiles_repo_ok | bool
+
+- name: Apply every stow package from the dotfiles repo (module desktop-config)
+  ansible.builtin.shell: |
+    set -e
+    cd {{ dotfiles_dir }}
+    stow {{ item.basename }}
+  args:
+    executable: /bin/bash
+  become: false
+  loop: "{{ dotfiles_stow_pkgs.files | default([]) }}"
+  loop_control:
+    label: "{{ item.path | basename }}"
+  register: desktop_config_stow
+  failed_when: false
+  changed_when: desktop_config_stow.rc == 0
+  when: dotfiles_repo_ok | bool
+
+- name: Report the desktop-config result (module desktop-config)
+  ansible.builtin.debug:
+    msg: >-
+      {%- if dotfiles_repo_ok | bool -%}
+      Desktop config applied via GNU Stow from the private dotfiles repo
+      ({{ dotfiles_repo_url }}). {{ dotfiles_stow_pkgs.files | default([]) |
+      length }} stow package(s) stowed into {{ end_user }}'s home.
+      {%- else -%}
+      SKIPPED desktop config: the private dotfiles repo could not be fetched
+      over SSH. Either the end user's SSH key is not registered on GitHub,
+      or the host could not reach github.com:22. Register
+      /home/{{ end_user }}/.ssh/id_ed25519.pub on the repo (GitHub -> Settings
+      -> Deploy keys / your account), then re-run this module:
+      ansible-playbook 30-desktop.yml --tags desktop-config
+      {%- endif -%}

@@ -1,22 +1,22 @@
 ---
 # Role: browser (manifest module id: browser)
-# Phase 3 shared module on the booted system: the web browser. Firefox ships
-# with hyprland-install's base set, so this role is a no-op install guard (the
-# package is already present) plus a stow note for any browser-specific config
-# (ADR-011). Config-free: ~/.mozilla/ and any browser profile/flags are owned
-# by the user's stow package / home directory.
+# Phase 3 shared module on the booted system: the web browser(s). The package
+# list is data (distro_packages.browser), keyed by backend (pacman/aur), so
+# adding a browser later (e.g. another AUR build) is a data-only change - no
+# role rewrite. Config-free (ADR-011): browser profiles/flags are owned by the
+# user's stow package / home directory.
 
 - name: Resolve browser backends (module browser)
   ansible.builtin.set_fact:
     install_backends: "{{ distro_packages.browser }}"
 
-- name: Ensure the web browser package is present by backend (module browser)
+- name: Install the web browser(s) by backend (module browser)
   ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
 
 - name: Report browser verification (module browser)
   ansible.builtin.debug:
     msg: >-
-      Web browser present (firefox ships with hyprland-install; this role is a
-      no-op guard). Your stow package may provide ~/.mozilla/ or browser
-      profile/flag tweaks. Verify: 'firefox --version' prints; the browser
-      opens from SUPER+D (rofi) or the SUPER+T keybind if you bind one.
+      Web browser(s) installed (see distro_packages.browser; AUR browsers need
+      the aur role to have run first). Your stow package may provide browser
+      profile/flag tweaks. Verify: each browser launches from the terminal or
+      the app launcher.

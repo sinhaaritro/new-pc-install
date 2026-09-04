@@ -1,0 +1,15 @@
+---
+# Role: desktop_screenshare (manifest module id: desktop-screenshare)
+# Phase 3 module 05 on the booted system: screen sharing for video calls via
+# the xdg-desktop-portal backend + PipeWire. The portal package ships with
+# desktop-install, so this role is a no-op install guard + a stow note for the
+# portal backend selection (ADR-011).
+
+- name: Report screen-sharing verification (module desktop-screenshare)
+  ansible.builtin.debug:
+    msg: >-
+      Screen-sharing portal present (ships with desktop-install). Your stow
+      package should provide the portal backend selection (e.g.
+      ~/.config/xdg-desktop-portal/portals.conf picking the pipewire backend;
+      see Phase 3 module Screen Sharing). Verify: a browser video call shows a
+      monitor/window picker; the pipewire service is active.

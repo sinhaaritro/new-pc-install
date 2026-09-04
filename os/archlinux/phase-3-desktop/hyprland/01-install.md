@@ -1,14 +1,15 @@
-# Install Hyprland
+# Window Manager
 
 > **Phase**: 3 — Desktop
-> **Prerequisites**: [GPU (NVIDIA)](../../phase-1-base-system/07-gpu-nvidia.md)
-> **Packages**: `wayland hyprland xdg-desktop-portal-hyprland kitty qt5-wayland qt6-wayland firefox yazi`
+> **Module**: `desktop-install` (WM-agnostic id; the concrete compositor is selected by `wm_vendor`, hyprland today)
+> **Prerequisites**: [GPU (NVIDIA)](../../phase-1-base-system/07-gpu-nvidia.md), [Terminal Emulator](../terminal-emulator.md)
+> **Packages**: `wayland hyprland xdg-desktop-portal-hyprland qt5-wayland qt6-wayland firefox`
 
 ---
 
 ## Overview
 
-Install the Hyprland Wayland compositor, Kitty terminal, and launch into a graphical environment for the first time.
+Install the window manager (Hyprland, via `wm_vendor`) and launch into a graphical environment for the first time. The terminal emulator (Kitty) is installed by the [Terminal Emulator](../terminal-emulator.md) module, which runs before this one.
 
 ## Steps
 
@@ -18,20 +19,21 @@ Install the Hyprland Wayland compositor, Kitty terminal, and launch into a graph
 sudo pacman -S wayland
 ```
 
-### Step 2: Install Hyprland and Essentials
+### Step 2: Install the Window Manager and Essentials
 
 ```bash
-sudo pacman -S hyprland xdg-desktop-portal-hyprland kitty qt5-wayland qt6-wayland firefox yazi
+sudo pacman -S hyprland xdg-desktop-portal-hyprland qt5-wayland qt6-wayland firefox
 ```
 
 | Package | Purpose |
 |---------|---------|
 | `hyprland` | Tiling Wayland compositor |
 | `xdg-desktop-portal-hyprland` | Screen sharing, file picker portals |
-| `kitty` | GPU-accelerated terminal (Hyprland's default) |
 | `qt5-wayland` / `qt6-wayland` | Qt app Wayland support |
 | `firefox` | Web browser |
-| `yazi` | TUI file manager |
+
+> [!NOTE]
+> The terminal emulator and file manager are separate modules: [Terminal Emulator](../terminal-emulator.md) and [File Manager](../file-manager.md).
 
 ### Step 3: Launch Hyprland
 
@@ -59,6 +61,6 @@ You should see a tiled desktop. The default keybinds:
 ## Verification
 
 - [ ] Hyprland launches from TTY without errors
-- [ ] Kitty terminal opens with `SUPER + Q`
+- [ ] Kitty terminal (installed by the Terminal Emulator module) opens with `SUPER + Q`
 - [ ] Firefox launches from terminal
 - [ ] `SUPER + M` exits Hyprland cleanly back to TTY

@@ -19,6 +19,7 @@
 | Install Base Packages | `base`, `base-devel`, `linux`, `linux-headers`, `linux-firmware`, `amd-ucode`, `btrfs-progs`, `nano`, `git` | ✅ Required |
 | System Configuration | `networkmanager` | ✅ Required |
 | Users & Sudo | — | ✅ Required |
+| GPU (NVIDIA) | `nvidia-open`, `nvidia-utils`, `lib32-nvidia-utils`, `nvidia-settings` | ⚡ Recommended |
 | Bootloader (GRUB) | `grub`, `efibootmgr`, `os-prober`, `mtools`, `dosfstools` | ✅ Required |
 | First Reboot | — | ✅ Required |
 
@@ -26,7 +27,6 @@
 
 | Module | Packages | Required |
 |--------|----------|----------|
-| NVIDIA Drivers | `nvidia-open`, `nvidia-utils`, `lib32-nvidia-utils`, `nvidia-settings` | ⚡ Recommended |
 | Btrfs Snapshots & Recovery | `snapper`, `snap-pac`, `grub-btrfs`, `btrfs-assistant`, `rsync` | ⚡ Recommended |
 | AUR Helper (yay) | — | ⚡ Recommended |
 | Sound (PipeWire) | `pipewire`, `wireplumber`, `pipewire-alsa`, `pipewire-pulse`, `pipewire-jack`, `helvum` | ⚡ Recommended |
@@ -40,8 +40,9 @@
 
 | Module | Packages | Required |
 |--------|----------|----------|
-| Install Hyprland | `hyprland`, `wayland`, `xdg-desktop-portal-hyprland`, `kitty`, `qt5-wayland`, `qt6-wayland` | ✅ Required |
-| Hyprland Core Config | — | ✅ Required |
+| Terminal Emulator | `kitty` | ⚡ Recommended |
+| Window Manager | `hyprland`, `wayland`, `xdg-desktop-portal-hyprland`, `qt5-wayland`, `qt6-wayland` | ✅ Required |
+| Desktop Config | — | ✅ Required |
 | Lock & Idle | `hyprlock`, `hypridle` | ⚡ Recommended |
 | Wallpaper | `swww` | 💡 Optional |
 | Screen Sharing | `xdg-desktop-portal-hyprland` | ⚡ Recommended |
@@ -52,14 +53,15 @@
 | Display Manager | `greetd`, `greetd-tuigreet` | 💡 Optional |
 | Clipboard | `wl-clipboard`, `clipse` | ⚡ Recommended |
 | Screenshots | `grim`, `slurp`, `swappy` | 💡 Optional |
-| File Manager | `yazi`, `thunar` | ⚡ Recommended |
+| File Manager | `yazi` | ⚡ Recommended |
 | Fonts | `noto-fonts`, `noto-fonts-emoji`, `ttf-jetbrains-mono-nerd` | ⚡ Recommended |
+| Browser | `firefox`, `zen-browser-bin` | 💡 Optional |
+| Dotfiles (GNU Stow) | `stow` | ⚡ Recommended |
 
 ## Workflow
 
 | Module | Packages | Required |
 |--------|----------|----------|
-| Dotfiles Backup (GNU Stow) | `stow` | ⚡ Recommended |
 
 ### Profile: Developer
 
@@ -68,9 +70,18 @@
 | NeoVim | `neovim` | ⚡ Recommended |
 | Containers (Podman) | `podman` | 💡 Optional |
 | DevPod | — | 💡 Optional |
-| Local AI Models | `nvidia-container-toolkit` | 💡 Optional |
 | Language Runtimes | — | 💡 Optional |
 | API Testing | — | 💡 Optional |
+
+### Profile: AI
+
+| Module | Packages | Required |
+|--------|----------|----------|
+| Local Inference (llama.cpp) | `cuda` | ⚡ Recommended |
+| AI Harness Tools | — | ⚡ Recommended |
+| IDE Integration | — | ⚡ Recommended |
+| Autonomous Agents | — | 💡 Optional |
+| AI Training | — | 💡 Optional |
 
 ### Profile: Gaming
 
@@ -92,9 +103,9 @@
 
 ---
 
-**Total unique packages:** 73
+**Total unique packages:** 74
 
 **Full list (alphabetical):**
 ```
-amd-ucode base base-devel bluetui bluez bluez-utils btrfs-assistant btrfs-progs clipse dosfstools efibootmgr fzf git greetd greetd-tuigreet grim grub grub-btrfs helvum hypridle hyprland hyprlock kitty lib32-nvidia-utils linux linux-firmware linux-headers mangohud mpv mtools nano neovim networkmanager noto-fonts noto-fonts-emoji ntfs-3g nvidia-container-toolkit nvidia-open nvidia-settings nvidia-utils obs-studio openssh os-prober pipewire pipewire-alsa pipewire-jack pipewire-pulse podman qt5-wayland qt6-wayland rofi-wayland rsync slurp snap-pac snapper steam stow swappy swaync swww thunar ttf-jetbrains-mono-nerd udiskie udisks2 ufw waybar wayland wireplumber wl-clipboard xdg-desktop-portal-hyprland yazi zoxide zsh
+amd-ucode base base-devel bluetui bluez bluez-utils btrfs-assistant btrfs-progs clipse cuda dosfstools efibootmgr firefox fzf git greetd greetd-tuigreet grim grub grub-btrfs helvum hypridle hyprland hyprlock kitty lib32-nvidia-utils linux linux-firmware linux-headers mangohud mpv mtools nano neovim networkmanager noto-fonts noto-fonts-emoji ntfs-3g nvidia-open nvidia-settings nvidia-utils obs-studio openssh os-prober pipewire pipewire-alsa pipewire-jack pipewire-pulse podman qt5-wayland qt6-wayland rofi-wayland rsync slurp snap-pac snapper steam stow swappy swaync swww ttf-jetbrains-mono-nerd udiskie udisks2 ufw waybar wayland wireplumber wl-clipboard xdg-desktop-portal-hyprland yazi zen-browser-bin zoxide zsh
 ```

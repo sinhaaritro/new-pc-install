@@ -45,13 +45,9 @@
     msg: >-
       Stow installed; ~/dotfiles git repo present
       ({{ 'created now' if not dotfiles_backup_dir.stat.exists else 'already existed - left untouched' }}).
-      Naming convention: [type]_[name]_[variant]
-      (p = package-specific, e.g. p_kitty; s = style group, e.g. s_dark_theme).
-      Suggested stow packages: p_hyprland/.config/hypr/, p_kitty/.config/kitty/,
-      p_waybar/.config/waybar/, p_rofi/.config/rofi/, p_zsh/.zshrc,
-      p_neovim/.config/nvim/, p_swaync/.config/swaync/.
-      To adopt an existing config: move it into ~/dotfiles/<pkg>/ mirroring the
-      home-relative path, then 'cd ~/dotfiles && stow <pkg>' (or
-      'stow --adopt <pkg>' followed by 'git checkout -- .' to restore the repo
-      versions). This role moves no files on your behalf. Verify:
-      stow --version; ls -la ~/dotfiles/.git.
+      The desktop-config module (this phase, runs last) will clone/pull the
+      private dotfiles repo into ~/dotfiles over SSH and stow every top-level
+      package. This role only sets up the stow boundary - it fetches no repo and
+      moves no files. Naming convention: [type]_[name]_[variant] (p =
+      package-specific, e.g. p_kitty; s = style group, e.g. s_dark_theme).
+      Verify: stow --version; ls -la ~/dotfiles/.git.

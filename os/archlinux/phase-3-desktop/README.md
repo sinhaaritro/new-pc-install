@@ -7,12 +7,15 @@
 
 Currently, this guide covers **Hyprland**. The structure supports adding alternatives (e.g., Niri, Sway) as additional `wm-*/` subdirectories in the future.
 
-### Hyprland Modules (Sequential)
+### Desktop / Window-Manager Modules (Sequential)
+
+Module ids are WM-agnostic (`desktop-*`); the concrete compositor is selected
+by `wm_vendor` (hyprland today).
 
 | # | Module | Required | Depends On | Notes |
 |---|--------|----------|------------|-------|
-| 1 | [Install Hyprland](./hyprland/01-install.md) | ✅ Required | NVIDIA Drivers | Wayland, Hyprland, Kitty, first launch |
-| 2 | [Core Config](./hyprland/02-core-config.md) | ✅ Required | #1 | Keybinds, monitors, window rules |
+| 1 | [Window Manager](./hyprland/01-install.md) | ✅ Required | NVIDIA Drivers | Wayland + compositor (hyprland via wm_vendor), first launch |
+| 2 | [Desktop Config](./hyprland/02-core-config.md) | ✅ Required | #1 | Keybinds, monitors, window rules — installed via GNU Stow |
 | 3 | [Lock & Idle](./hyprland/03-lock-idle.md) | ⚡ Recommended | #2 | hyprlock, hypridle |
 | 4 | [Wallpaper](./hyprland/04-wallpaper.md) | 💡 Optional | #2 | swww animated wallpapers |
 | 5 | [Screen Sharing](./hyprland/05-screen-sharing.md) | ⚡ Recommended | #2, Sound | For video calls |
@@ -30,8 +33,9 @@ These work with any window manager:
 | 10 | [Display Manager](./display-manager.md) | 💡 Optional | #1 | greetd + tuigreet |
 | 11 | [Clipboard](./clipboard.md) | ⚡ Recommended | #1 | wl-clipboard, clipse |
 | 12 | [Screenshots](./screenshots.md) | 💡 Optional | #1 | grim, slurp, swappy |
-| 13 | [File Manager](./file-manager.md) | ⚡ Recommended | #1 | yazi, thunar |
+| 13 | [File Manager](./file-manager.md) | ⚡ Recommended | #1 | yazi |
 | 14 | [Fonts](./fonts.md) | ⚡ Recommended | #1 | Nerd Fonts, Noto |
+| 15 | [Dotfiles (GNU Stow)](./dotfiles-backup.md) | ⚡ Recommended | Phase 2 (SSH) | stow + private dotfiles repo; #2 (Desktop Config) stows from it |
 
 ## What's Next
 

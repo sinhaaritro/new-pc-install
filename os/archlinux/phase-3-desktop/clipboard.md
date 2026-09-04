@@ -1,7 +1,7 @@
 # Clipboard
 
 > **Phase**: 3 — Desktop
-> **Prerequisites**: [Install Hyprland](./hyprland/01-install.md)
+> **Prerequisites**: [Window Manager](./hyprland/01-install.md)
 > **Packages**: `wl-clipboard clipse`
 
 ---
