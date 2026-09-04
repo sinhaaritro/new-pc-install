@@ -4,13 +4,12 @@
 # (profile-gaming/mangohud.md) is a placeholder, so this role installs only
 # the manifest-listed package (mangohud) and prints the pending manual steps.
 
-- name: Install mangohud (module mangohud)
-  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.mangohud | join(' ') }}"
-  args:
-    executable: /bin/bash
-  become: true
-  register: gaming_mangohud_pacman
-  changed_when: gaming_mangohud_pacman.rc == 0
+- name: Resolve mangohud backends (module mangohud)
+  ansible.builtin.set_fact:
+    install_backends: "{{ distro_packages.mangohud }}"
+
+- name: Install mangohud by backend (module mangohud)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
 
 - name: Report mangohud placeholder status (module mangohud)
   ansible.builtin.debug:

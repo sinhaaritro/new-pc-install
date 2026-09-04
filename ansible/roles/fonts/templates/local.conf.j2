@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+<!--
+  System-wide fontconfig fallback (written by the fonts role, module fonts).
+  Applies to all apps on both Wayland and X11 — fontconfig is display-server
+  agnostic; there is no compositor-specific branch.
+
+  Primary font: Maple Mono NF (Nerd Font variant, installed via AUR
+  maplemono-ttf). The NF build embeds Nerd Font icon glyphs, so terminals
+  (Kitty), waybar, rofi, and swaync resolve icons from the primary font
+  without a separate icon-font match.
+
+  Fallback chain (in order):
+    1. Maple Mono NF        - primary + icons (Nerd Font embedded)
+    2. JetBrainsMono Nerd   - icon fallback if Maple Mono NF is absent
+    3. Noto Sans CJK        - CJK glyphs (JP/SC/TC/KR)
+    4. Noto Color Emoji     - colour emoji
+    5. Material Design Icons- secondary icon set (Material Design)
+    6. Noto Sans            - Latin sans fallback
+
+  Generic family aliases:
+    monospace  -> Maple Mono NF  (terminals, code editors)
+    sans-serif -> Maple Mono     (proportional UI font)
+
+  Owned by the fonts role (system config, not a user dotfile - ADR-011).
+  Re-run the fonts role (or: fc-cache -fv) after editing.
+-->
+<fontconfig>
+
+  <!-- Map the generic "monospace" family to Maple Mono NF. -->
+  <match target="pattern">
+    <test qual="any" name="family"><string>monospace</string></test>
+    <edit name="family" mode="prepend" binding="strong">
+      <string>Maple Mono NF</string>
+    </edit>
+  </match>
+
+  <!-- Map the generic "sans-serif" family to Maple Mono (proportional). -->
+  <match target="pattern">
+    <test qual="any" name="family"><string>sans-serif</string></test>
+    <edit name="family" mode="prepend" binding="strong">
+      <string>Maple Mono</string>
+    </edit>
+  </match>
+
+  <!--
+    Fallback chain for the monospace family. Prepends the fallback list to
+    any pattern that already requests a monospace font (Kitty, waybar, rofi,
+    swappy, etc.). binding="same" keeps the user's explicitly requested font
+    first; the list below is appended as fallbacks for missing glyphs.
+  -->
+  <match target="pattern">
+    <test qual="any" name="family" compare="contains">
+      <string>Maple Mono NF</string>
+    </test>
+    <edit name="family" mode="prepend_last" binding="same">
+      <string>Maple Mono NF</string>
+      <string>JetBrainsMono Nerd Font</string>
+      <string>Noto Sans CJK JP</string>
+      <string>Noto Sans CJK SC</string>
+      <string>Noto Sans CJK TC</string>
+      <string>Noto Sans CJK KR</string>
+      <string>Noto Color Emoji</string>
+      <string>Material Design Icons</string>
+      <string>Noto Sans</string>
+    </edit>
+  </match>
+
+  <!--
+    Fallback chain for the proportional Maple Mono family (UI text).
+    Same fallbacks, minus the Nerd Font icon layers (UI text doesn't need
+    icon glyphs; the NF variant is for monospace/terminal contexts).
+  -->
+  <match target="pattern">
+    <test qual="any" name="family" compare="contains">
+      <string>Maple Mono</string>
+    </test>
+    <edit name="family" mode="prepend_last" binding="same">
+      <string>Maple Mono</string>
+      <string>Noto Sans CJK JP</string>
+      <string>Noto Sans CJK SC</string>
+      <string>Noto Sans CJK TC</string>
+      <string>Noto Sans CJK KR</string>
+      <string>Noto Color Emoji</string>
+      <string>Material Design Icons</string>
+      <string>Noto Sans</string>
+    </edit>
+  </match>
+
+  <!--
+    Catch-all: any font pattern that has no explicit CJK/emoji fallback gets
+    one appended. This covers apps that request a bare family name (e.g.
+    "Sans" or a default) without going through the monospace/sans-serif
+    aliases above.
+  -->
+  <match target="pattern">
+    <edit name="family" mode="prepend_last" binding="weak">
+      <string>Noto Sans CJK JP</string>
+      <string>Noto Sans CJK SC</string>
+      <string>Noto Sans CJK TC</string>
+      <string>Noto Sans CJK KR</string>
+      <string>Noto Color Emoji</string>
+      <string>Material Design Icons</string>
+    </edit>
+  </match>
+
+  <!-- Hinting: slight hinting for crisp rendering on HiDPI Wayland. -->
+  <match target="font">
+    <edit name="hinting" mode="assign"><bool>true</bool></edit>
+    <edit name="hintstyle" mode="assign"><const>hintslight</const></edit>
+    <edit name="antialias" mode="assign"><bool>true</bool></edit>
+    <edit name="rgba" mode="assign"><const>rgb</const></edit>
+  </match>
+
+</fontconfig>

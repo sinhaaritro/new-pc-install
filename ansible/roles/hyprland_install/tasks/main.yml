@@ -29,13 +29,13 @@
     msg: "wm_vendor=none - no window manager is installed."
   when: wm_vendor == 'none'
 
-- name: Install Hyprland base packages (module hyprland-install)
-  ansible.builtin.shell: "{{ distro_install }} {{ wm.hyprland.packages | join(' ') }}"
-  args:
-    executable: /bin/bash
-  become: true
-  register: hyprland_install_pacman
-  changed_when: hyprland_install_pacman.rc == 0
+- name: Resolve Hyprland backends (module hyprland-install)
+  ansible.builtin.set_fact:
+    install_backends: "{{ wm[wm_vendor] }}"
+  when: wm_vendor == 'hyprland'
+
+- name: Install Hyprland base packages by backend (module hyprland-install)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
   when: wm_vendor == 'hyprland'
 
 - name: Report Hyprland install verification (module hyprland-install)

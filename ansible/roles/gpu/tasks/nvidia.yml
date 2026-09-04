@@ -16,10 +16,14 @@
       ansible/inventory/hosts.yml.
     success_msg: nvidia_driver={{ nvidia_driver }}
 
-- name: Set selected NVIDIA driver packages (module nvidia)
+- name: Set selected NVIDIA driver backend dict (module nvidia)
   ansible.builtin.set_fact:
-    gpu_nvidia_packages: "{{ gpu.nvidia.drivers[nvidia_driver].packages }}"
+    install_backends: "{{ gpu.nvidia.drivers[nvidia_driver] | dict2items | selectattr('key', 'ne', 'hook_target') | items2dict }}"
     gpu_nvidia_hook_target: "{{ gpu.nvidia.drivers[nvidia_driver].hook_target }}"
+
+- name: Use chroot-prefixed install verb (module nvidia)
+  ansible.builtin.set_fact:
+    distro_commands: "{{ distro_commands | combine({'distro_install_pacman': 'arch-chroot ' + mount_point + ' pacman -S --noconfirm'}) }}"
 
 - name: Enable multilib repository section (module nvidia)
   ansible.builtin.lineinfile:
@@ -35,14 +39,8 @@
     line: "Include = /etc/pacman.d/mirrorlist"
     state: present
 
-- name: Install NVIDIA driver packages (module nvidia)
-  ansible.builtin.shell: >-
-    arch-chroot {{ mount_point }} {{ distro_install }}
-    {{ gpu_nvidia_packages | join(' ') }}
-  args:
-    executable: /bin/bash
-  register: gpu_pacman
-  changed_when: gpu_pacman.rc == 0
+- name: Install NVIDIA driver packages by backend (module nvidia)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
 
 - name: Ensure NVIDIA KMS parameters are in GRUB cmdline (module nvidia)
   ansible.builtin.shell: |

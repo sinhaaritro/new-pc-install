@@ -13,13 +13,12 @@
   ansible.builtin.include_vars:
     file: vars/snapshots_retention.yml
 
-- name: Install snapshot packages (module snapshots)
-  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.snapshots | join(' ') }}"
-  args:
-    executable: /bin/bash
-  become: true
-  register: snapshots_pacman
-  changed_when: snapshots_pacman.rc == 0
+- name: Resolve snapshot backends (module snapshots)
+  ansible.builtin.set_fact:
+    install_backends: "{{ distro_packages.snapshots }}"
+
+- name: Install snapshot packages by backend (module snapshots)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
 
 - name: Check whether the snapper root config exists (module snapshots)
   ansible.builtin.stat:

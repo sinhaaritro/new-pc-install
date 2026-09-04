@@ -5,13 +5,12 @@
 # style.css) and the 'exec-once = waybar' autostart are owned by the user's
 # stow package.
 
-- name: Install waybar (module status-bar)
-  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.status_bar | join(' ') }}"
-  args:
-    executable: /bin/bash
-  become: true
-  register: status_bar_pacman
-  changed_when: status_bar_pacman.rc == 0
+- name: Resolve status-bar backends (module status-bar)
+  ansible.builtin.set_fact:
+    install_backends: "{{ distro_packages.status_bar }}"
+
+- name: Install waybar by backend (module status-bar)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
 
 - name: Report status-bar verification (module status-bar)
   ansible.builtin.debug:

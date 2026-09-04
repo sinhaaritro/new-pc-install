@@ -5,13 +5,12 @@
 # only; the PRINT keybinds in hyprland.conf are owned by the user's stow
 # package.
 
-- name: Install grim, slurp, and swappy (module screenshots)
-  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.screenshots | join(' ') }}"
-  args:
-    executable: /bin/bash
-  become: true
-  register: screenshots_pacman
-  changed_when: screenshots_pacman.rc == 0
+- name: Resolve screenshot backends (module screenshots)
+  ansible.builtin.set_fact:
+    install_backends: "{{ distro_packages.screenshots }}"
+
+- name: Install grim, slurp, and swappy by backend (module screenshots)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
 
 - name: Report screenshots verification (module screenshots)
   ansible.builtin.debug:

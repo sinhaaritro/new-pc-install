@@ -27,4 +27,4 @@ A modular PC installation and configuration guide. Documentation is split into l
 
 # DEV AGENT
 
-Read `.agents/rules/system.md` (behavioral contract - read it and obey)
+Read `.agents/rules/system.md` (behavioral contract **mandatory** - read it and obey)

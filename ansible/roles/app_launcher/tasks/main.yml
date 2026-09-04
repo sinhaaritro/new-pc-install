@@ -4,13 +4,12 @@
 # Config-free (ADR-011): installs rofi-wayland only; ~/.config/rofi/ and the
 # SUPER+D keybind are owned by the user's stow package.
 
-- name: Install rofi-wayland (module app-launcher)
-  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.app_launcher | join(' ') }}"
-  args:
-    executable: /bin/bash
-  become: true
-  register: app_launcher_pacman
-  changed_when: app_launcher_pacman.rc == 0
+- name: Resolve app-launcher backends (module app-launcher)
+  ansible.builtin.set_fact:
+    install_backends: "{{ distro_packages.app_launcher }}"
+
+- name: Install rofi-wayland by backend (module app-launcher)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
 
 - name: Report app-launcher verification (module app-launcher)
   ansible.builtin.debug:

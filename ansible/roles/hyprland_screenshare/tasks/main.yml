@@ -5,14 +5,6 @@
 # hyprland-install, so this role is a no-op install guard + a stow note for
 # the portal backend selection (ADR-011).
 
-- name: Ensure Hyprland portal package is present (module hyprland-screenshare)
-  ansible.builtin.shell: "{{ distro_install }} xdg-desktop-portal-hyprland"
-  args:
-    executable: /bin/bash
-  become: true
-  register: hyprland_screenshare_pacman
-  changed_when: hyprland_screenshare_pacman.rc == 0
-
 - name: Report screen-sharing verification (module hyprland-screenshare)
   ansible.builtin.debug:
     msg: >-

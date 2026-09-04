@@ -7,13 +7,12 @@
 # The USB plug-in test is user verification.
 # Package list is read from the global distro file (ADR-002).
 
-- name: Install NTFS and auto-mount packages (module external-drives)
-  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.external_drives | join(' ') }}"
-  args:
-    executable: /bin/bash
-  become: true
-  register: external_drives_pacman
-  changed_when: external_drives_pacman.rc == 0
+- name: Resolve external-drive backends (module external-drives)
+  ansible.builtin.set_fact:
+    install_backends: "{{ distro_packages.external_drives }}"
+
+- name: Install NTFS and auto-mount packages by backend (module external-drives)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
 
 - name: Create the external drive mountpoint (module external-drives)
   ansible.builtin.file:

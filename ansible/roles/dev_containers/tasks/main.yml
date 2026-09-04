@@ -6,13 +6,12 @@
 # alias) is a stow note. User-context commands use the sudo -u wrapper
 # (spec 006 D7, sound role pattern).
 
-- name: Install podman (module containers)
-  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.containers | join(' ') }}"
-  args:
-    executable: /bin/bash
-  become: true
-  register: dev_containers_pacman
-  changed_when: dev_containers_pacman.rc == 0
+- name: Resolve podman backends (module containers)
+  ansible.builtin.set_fact:
+    install_backends: "{{ distro_packages.containers }}"
+
+- name: Install podman by backend (module containers)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
 
 - name: Install lazydocker from the AUR (module containers)
   ansible.builtin.shell: yay -S --noconfirm --needed {{ phase4.aur.containers | join(' ') }}

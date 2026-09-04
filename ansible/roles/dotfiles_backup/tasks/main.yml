@@ -8,13 +8,12 @@
 # It moves no files and writes no stow package contents - adopting existing
 # configs is an interactive, user-judgment step.
 
-- name: Install GNU Stow (module dotfiles-backup)
-  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.dotfiles_backup | join(' ') }}"
-  args:
-    executable: /bin/bash
-  become: true
-  register: dotfiles_backup_pacman
-  changed_when: dotfiles_backup_pacman.rc == 0
+- name: Resolve dotfiles-backup backends (module dotfiles-backup)
+  ansible.builtin.set_fact:
+    install_backends: "{{ distro_packages.dotfiles_backup }}"
+
+- name: Install GNU Stow by backend (module dotfiles-backup)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
 
 - name: Check whether ~/dotfiles already exists (module dotfiles-backup)
   ansible.builtin.stat:

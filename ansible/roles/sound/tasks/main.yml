@@ -6,13 +6,12 @@
 # which works whether the play is invoked by the user or by root.
 # Package list is read from the global distro file (ADR-002).
 
-- name: Install PipeWire stack (module sound)
-  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.sound | join(' ') }}"
-  args:
-    executable: /bin/bash
-  become: true
-  register: sound_pacman
-  changed_when: sound_pacman.rc == 0
+- name: Resolve PipeWire stack backends (module sound)
+  ansible.builtin.set_fact:
+    install_backends: "{{ distro_packages.sound }}"
+
+- name: Install PipeWire stack by backend (module sound)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
 
 - name: Resolve the end user uid (module sound)
   ansible.builtin.shell: id -u {{ end_user }}

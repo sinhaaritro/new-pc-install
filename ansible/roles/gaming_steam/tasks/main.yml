@@ -4,13 +4,12 @@
 # (profile-gaming/steam.md) is a placeholder, so this role installs only the
 # manifest-listed package (steam) and prints the pending manual steps.
 
-- name: Install steam (module steam)
-  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.steam | join(' ') }}"
-  args:
-    executable: /bin/bash
-  become: true
-  register: gaming_steam_pacman
-  changed_when: gaming_steam_pacman.rc == 0
+- name: Resolve steam backends (module steam)
+  ansible.builtin.set_fact:
+    install_backends: "{{ distro_packages.steam }}"
+
+- name: Install steam by backend (module steam)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
 
 - name: Report steam placeholder status (module steam)
   ansible.builtin.debug:

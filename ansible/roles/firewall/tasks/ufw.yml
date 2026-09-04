@@ -27,13 +27,12 @@
   ansible.builtin.set_fact:
     ufw_allow_rules: []
 
-- name: Install ufw (module firewall)
-  ansible.builtin.shell: "{{ distro_install }} {{ firewall.ufw.packages | join(' ') }}"
-  args:
-    executable: /bin/bash
-  become: true
-  register: firewall_pacman
-  changed_when: firewall_pacman.rc == 0
+- name: Resolve ufw backends (module firewall)
+  ansible.builtin.set_fact:
+    install_backends: "{{ {'pacman': firewall.ufw.packages} }}"
+
+- name: Install ufw by backend (module firewall)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
 
 - name: Configure ufw default rules (module firewall)
   ansible.builtin.shell: ufw default deny incoming && ufw default allow outgoing

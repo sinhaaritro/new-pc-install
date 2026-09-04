@@ -5,13 +5,12 @@
 # ~/.config/swaync/ and the 'exec-once = swaync' autostart + SUPER+N keybind
 # are owned by the user's stow package.
 
-- name: Install swaync and mako (module notifications)
-  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.notifications | join(' ') }}"
-  args:
-    executable: /bin/bash
-  become: true
-  register: notifications_pacman
-  changed_when: notifications_pacman.rc == 0
+- name: Resolve notification backends (module notifications)
+  ansible.builtin.set_fact:
+    install_backends: "{{ distro_packages.notifications }}"
+
+- name: Install swaync and mako by backend (module notifications)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
 
 - name: Report notifications verification (module notifications)
   ansible.builtin.debug:

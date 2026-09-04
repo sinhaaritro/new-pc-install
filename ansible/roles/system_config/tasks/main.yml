@@ -65,12 +65,16 @@
   register: system_config_hostname
   changed_when: system_config_hostname.rc == 0
 
-- name: Install NetworkManager in new system
-  ansible.builtin.shell: "arch-chroot {{ mount_point }} {{ distro_install }} {{ distro_packages.chroot_core | join(' ') }}"
-  args:
-    executable: /bin/bash
-  register: system_config_nm
-  changed_when: system_config_nm.rc == 0
+- name: Use chroot-prefixed install verb (module system-config)
+  ansible.builtin.set_fact:
+    distro_commands: "{{ distro_commands | combine({'distro_install_pacman': 'arch-chroot ' + mount_point + ' pacman -S --noconfirm'}) }}"
+
+- name: Resolve NetworkManager backend (module system-config)
+  ansible.builtin.set_fact:
+    install_backends: "{{ distro_packages.chroot_core }}"
+
+- name: Install NetworkManager in new system (module system-config)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
 
 - name: Enable NetworkManager
   ansible.builtin.shell: arch-chroot {{ mount_point }} systemctl enable NetworkManager

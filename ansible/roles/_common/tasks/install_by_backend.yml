@@ -1,0 +1,30 @@
+---
+# Universal backend install loop — the ONLY install logic in the repo.
+#
+# A role's job ends when it has resolved a backend-keyed dict
+# `install_backends: {pacman: [...], aur: [...]}`. Importing this file installs
+# whatever backends that dict declares. The verb is resolved per backend via the
+# invariant: distro_commands['distro_install_' + <backend>]. Adding a backend
+# (e.g. 'apt' on a future Ubuntu distro) is data-only: add the verb to the
+# distro file and key the package list by it — this file is untouched.
+#
+# Usage (in a role, after setting install_backends):
+#   - name: Resolve <module> backends
+#     ansible.builtin.set_fact:
+#       install_backends: "{{ ... }}"
+#   - name: Install <module> packages by backend
+#     ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
+#
+# Chroot stages (Play 1) override the pacman verb for the role, e.g.
+#   distro_commands: "{{ distro_commands | combine({'distro_install_pacman': 'arch-chroot <mount> pacman -S --noconfirm'}) }}"
+
+- name: Install packages by backend
+  ansible.builtin.shell: >-
+    {{ distro_commands['distro_install_' + item.key] }}
+    {{ item.value | join(' ') }}
+  args:
+    executable: /bin/bash
+  become: true
+  loop: "{{ install_backends | dict2items }}"
+  register: install_by_backend
+  changed_when: install_by_backend.rc == 0

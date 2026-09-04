@@ -5,13 +5,12 @@
 # packages only; the 'exec-once = clipse -listen' autostart, the SUPER+V
 # keybind, and the clipse window rules are owned by the user's stow package.
 
-- name: Install wl-clipboard and clipse (module clipboard)
-  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.clipboard | join(' ') }}"
-  args:
-    executable: /bin/bash
-  become: true
-  register: clipboard_pacman
-  changed_when: clipboard_pacman.rc == 0
+- name: Resolve clipboard backends (module clipboard)
+  ansible.builtin.set_fact:
+    install_backends: "{{ distro_packages.clipboard }}"
+
+- name: Install wl-clipboard and clipse by backend (module clipboard)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
 
 - name: Report clipboard verification (module clipboard)
   ansible.builtin.debug:

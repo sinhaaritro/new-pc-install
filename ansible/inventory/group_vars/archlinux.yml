@@ -36,20 +36,27 @@ btrfs:
 # Packages: one flat map for every play (roles read distro_packages.<module>).
 # Keys inside are ordered by play, then by role execution order within a play.
 distro_packages:
+  # Every module's packages are a backend-keyed dict {pacman: [...], aur: [...]}.
+  # The leaf is always a flat package list keyed by backend; the install verb is
+  # resolved per backend via distro_commands['distro_install_' + <backend>]
+  # (see roles/_common/tasks/install_by_backend.yml). Adding a backend (e.g.
+  # 'apt' on a future distro) is data-only: add the verb + key the list by it.
+  #
   # --- Play 1 (live-USB install) ---
   # install_base (module 04): pacstrap base + CPU microcode (cpu_vendor) +
   # filesystem tooling (fstype). Keep the base list in sync with the install-base
   # packages in os/archlinux/manifest.yaml (parity checker enforces this).
   base:
-    - base
-    - base-devel
-    - linux
-    - linux-headers
-    - linux-firmware
-    - man-db
-    - man-pages
-    - nano
-    - git
+    pacman:
+      - base
+      - base-devel
+      - linux
+      - linux-headers
+      - linux-firmware
+      - man-db
+      - man-pages
+      - nano
+      - git
   # CPU microcode selected by cpu_vendor (per-machine, inventory/hosts.yml).
   # intel-ucode is a same-name swap for amd-ucode, so the parity checker passes
   # for either vendor.
@@ -62,50 +69,59 @@ distro_packages:
     btrfs: btrfs-progs
   # system_config (module 05): chroot-stage core packages.
   chroot_core:
-    - networkmanager
+    pacman:
+      - networkmanager
   # bootloader_grub (module 08): grub + EFI probing.
   bootloader:
-    - grub
-    - efibootmgr
-    - os-prober
-    - mtools
-    - dosfstools
+    pacman:
+      - grub
+      - efibootmgr
+      - os-prober
+      - mtools
+      - dosfstools
   # --- Play 2 (Phase 2, booted system) ---
   # Per-module lists, selected by the enable_<module> inventory flags. Keep in
   # sync with the phase-2 modules in os/archlinux/manifest.yaml (parity checker
   # enforces this). Role order: snapshots -> sound -> networking -> firewall ->
   # external_drives -> ssh.
   snapshots:
-    - snapper
-    - snap-pac
-    - grub-btrfs
-    - btrfs-assistant
-    - rsync
+    pacman:
+      - snapper
+      - snap-pac
+      - grub-btrfs
+      - btrfs-assistant
+      - rsync
   sound:
-    - pipewire
-    - wireplumber
-    - pipewire-alsa
-    - pipewire-pulse
-    - pipewire-jack
-    - helvum
-    - playerctl
-    - mpv-mpris
+    pacman:
+      - pipewire
+      - wireplumber
+      - pipewire-alsa
+      - pipewire-pulse
+      - pipewire-jack
+      - helvum
+      - playerctl
+      - mpv-mpris
   networking:
-    - bluez
-    - bluez-utils
-    - bluetui
+    pacman:
+      - bluez
+      - bluez-utils
+      - bluetui
   external_drives:
-    - ntfs-3g
-    - udisks2
-    - udiskie
+    pacman:
+      - ntfs-3g
+      - udisks2
+      - udiskie
   ssh:
-    - openssh
-  # yay build dependencies (module aur; built from the AUR, so not manifest
-  # packages). Role order above omits aur on purpose: aur is a prerequisite of
-  # networking/external_drives, not a parallel module.
+    pacman:
+      - openssh
+  # yay build dependencies (module aur; pacman-only, installed with --needed so
+  # the AUR build has no missing makedeps). Role order above omits aur on
+  # purpose: aur is a prerequisite of networking/external_drives, not a parallel
+  # module.
   aur_makedepends:
-    - base-devel
-    - rust
+    pacman:
+      - base-devel
+      - rust
   # --- Play 3 (Phase 3, booted system) ---
   # Per-module lists, selected by the enable_<module> inventory flags. Keep in
   # sync with the phase-3 modules in os/archlinux/manifest.yaml (parity checker
@@ -115,42 +131,67 @@ distro_packages:
   # shell_terminal -> app_launcher -> status_bar -> notifications ->
   # display_manager -> clipboard -> screenshots -> file_manager.
   shell_terminal:
-    - zsh
-    - oh-my-zsh
-    - fzf
-    - zoxide
+    pacman:
+      - zsh
+      - oh-my-zsh
+      - fzf
+      - zoxide
   app_launcher:
-    - rofi-wayland
+    pacman:
+      - rofi-wayland
   status_bar:
-    - waybar
+    pacman:
+      - waybar
   notifications:
-    - swaync
-    - mako
+    pacman:
+      - swaync
+      - mako
   display_manager:
-    - greetd
-    - greetd-tuigreet
+    pacman:
+      - greetd
+      - greetd-tuigreet
   clipboard:
-    - wl-clipboard
-    - clipse
+    pacman:
+      - wl-clipboard
+      - clipse
   screenshots:
-    - grim
-    - slurp
-    - swappy
+    pacman:
+      - grim
+      - slurp
+      - swappy
   file_manager:
-    - thunar
-    - thunar-archive-plugin
-    - thunar-vcs-plugin
+    pacman:
+      - thunar
+      - thunar-archive-plugin
+      - thunar-vcs-plugin
   fonts:
-    - fontconfig
-    - noto-fonts
-    - noto-fonts-cjk
-    - noto-fonts-emoji
-    - ttf-jetbrains-mono-nerd
-    - ttf-material-design-icons
+    pacman:
+      - fontconfig
+      - noto-fonts
+      - noto-fonts-cjk
+      - noto-fonts-emoji
+      - ttf-jetbrains-mono-nerd
+      - ttf-material-design-icons
+    # AUR fonts (installed via yay; the aur role must have run first).
+    aur:
+      - maplemono-ttf
   # browser (shared module): firefox already ships with hyprland-install's base
-  # set (wm.hyprland.packages); this is the no-op guard's package list.
+  # set (wm.hyprland.pacman); this is the no-op guard's package list.
   browser:
-    - firefox
+    pacman:
+      - firefox
+  # Hyprland sub-modules (spec 005). hyprlock/hypridle (lock) and swww
+  # (wallpaper) were previously hardcoded in their roles; they live here now so
+  # the universal install loop can install them (keeps the manifest in sync).
+  hyprland_lock:
+    pacman:
+      - hyprlock
+      - hypridle
+  hyprland_wallpaper:
+    pacman:
+      - swww
+  # hyprland-screenshare: no package list - the portal package ships with
+  # hyprland-install (wm.hyprland.pacman); the role is a no-op guard.
   # --- Play 4 (Phase 4, booted system) ---
   # Per-module lists, selected by the enable_<module> inventory flags (and the
   # profile_* convenience vars). Keep in sync with the phase-4 modules in
@@ -161,27 +202,37 @@ distro_packages:
   # ai (inference/harness) -> gaming (steam/mangohud) -> creative (obs/
   # media_players).
   dotfiles_backup:
-    - stow
+    pacman:
+      - stow
   containers:
-    - podman
+    pacman:
+      - podman
   remote_ssh:
-    - openssh
-    - openbsd-netcat
-    - procps-ng
+    pacman:
+      - openssh
+      - openbsd-netcat
+      - procps-ng
   neovim:
-    - neovim
+    pacman:
+      - neovim
   inference:
-    - cuda
+    pacman:
+      - cuda
   harness:
-    - opencode
+    pacman:
+      - opencode
   steam:
-    - steam
+    pacman:
+      - steam
   mangohud:
-    - mangohud
+    pacman:
+      - mangohud
   obs:
-    - obs-studio
+    pacman:
+      - obs-studio
   media_players:
-    - mpv
+    pacman:
+      - mpv
 # Firewall (Play 2, module 07): variant module (mirrors gpu:/wm:).
 # firewall_backend (inventory) selects the entry AND gates the role: 'ufw' runs
 # the ufw tasks; 'none' skips; 'nftables'/'firewalld'/'iptables' are declared
@@ -211,15 +262,18 @@ gpu:
     # (-dkms variants exist for non-linux kernels but install_base always
     #  pacstraps the standard 'linux' kernel, so they are not listed here.)
     drivers:
+      # Leaf is backend-keyed {pacman: [...]} so the universal install loop
+      # (roles/_common/tasks/install_by_backend.yml) can install it; hook_target
+      # (non-package data) stays beside it and is stripped by the role.
       nvidia-open:
-        packages:
+        pacman:
           - nvidia-open
           - nvidia-utils
           - lib32-nvidia-utils
           - nvidia-settings
         hook_target: nvidia-open
       nvidia:
-        packages:
+        pacman:
           - nvidia
           - nvidia-utils
           - lib32-nvidia-utils
@@ -242,7 +296,9 @@ gpu:
 # the base list carries packages only; hyprland.conf and friends are stow-owned.
 wm:
   hyprland:
-    packages:
+    # Backend-keyed leaf (mirrors gpu) so hyprland_install uses the universal
+    # install loop.
+    pacman:
       - hyprland
       - wayland
       - xdg-desktop-portal-hyprland
@@ -305,13 +361,17 @@ keyring_package: archlinux-keyring
 # ===========================================================================
 # Cross-play lookups (used by many plays — kept grouped, not pinned to one play)
 # ===========================================================================
-# The package-install verb, as a single distro-specific string. Roles call
-# `{{ distro_install }} <pkgs>`; swapping the value (not the roles) moves the
-# play to another distro (e.g. ubuntu: "apt-get install -y"). Flags that vary
-# per distro live in this string, so the role side stays distro-agnostic.
-distro_install: "pacman -S --noconfirm"
-# Command names as they appear on the archlinux live USB / installed system.
+# Per-backend install verbs. The universal install loop
+# (roles/_common/tasks/install_by_backend.yml) resolves the verb for each backend
+# key via the invariant: distro_commands['distro_install_' + <backend>]. Flags
+# that vary per distro live in these strings, so the role side stays
+# distro-agnostic. A future distro (e.g. Ubuntu) adds distro_install_apt and
+# keys its package lists by 'apt'; the loop is untouched.
 distro_commands:
+  # Package-install verbs (consumed by the universal install loop).
+  distro_install_pacman: "pacman -S --noconfirm"
+  distro_install_aur: "yay -S --noconfirm --needed --answerclean n"
+  # Command names as they appear on the archlinux live USB / installed system.
   pacstrap: pacstrap
   genfstab: genfstab
   arch_chroot: arch-chroot

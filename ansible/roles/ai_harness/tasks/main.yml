@@ -16,13 +16,12 @@
   changed_when: false
   failed_when: false
 
-- name: Install opencode from pacman (module harness)
-  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.harness | join(' ') }}"
-  args:
-    executable: /bin/bash
-  become: true
-  register: ai_harness_pacman
-  changed_when: ai_harness_pacman.rc == 0
+- name: Resolve opencode backends (module harness)
+  ansible.builtin.set_fact:
+    install_backends: "{{ distro_packages.harness }}"
+
+- name: Install opencode from pacman by backend (module harness)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
 
 - name: Resolve the end user uid (module harness)
   ansible.builtin.shell: id -u {{ end_user }}

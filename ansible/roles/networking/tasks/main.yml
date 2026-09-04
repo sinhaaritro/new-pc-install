@@ -6,13 +6,12 @@
 # the OS-external parts (BT device pairing) cannot be scripted.
 # Package list is read from the global distro file (ADR-002).
 
-- name: Install Bluetooth packages (module networking)
-  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.networking | join(' ') }}"
-  args:
-    executable: /bin/bash
-  become: true
-  register: networking_pacman
-  changed_when: networking_pacman.rc == 0
+- name: Resolve Bluetooth backends (module networking)
+  ansible.builtin.set_fact:
+    install_backends: "{{ distro_packages.networking }}"
+
+- name: Install Bluetooth packages by backend (module networking)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
 
 - name: Enable Bluetooth service (module networking)
   ansible.builtin.systemd:

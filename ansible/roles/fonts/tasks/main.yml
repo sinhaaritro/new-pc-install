@@ -1,18 +1,26 @@
 ---
 # Role: fonts (manifest module id: fonts)
-# Phase 3 shared module on the booted system: Nerd Fonts (JetBrainsMono) +
-# Noto (latin/CJK/emoji) + Material Design Icons + fontconfig. Runs
-# fc-cache to rebuild the font index. Config-free (ADR-011): an optional
-# ~/.config/fontconfig/fonts.conf (emoji/Nerd fallbacks) is owned by the
-# user's stow package.
+# Phase 3 shared module on the booted system: Maple Mono (AUR, primary) +
+# Nerd Fonts (JetBrainsMono) + Noto (latin/CJK/emoji) + Material Design Icons
+# + fontconfig. Writes a system-wide /etc/fonts/local.conf with the Maple Mono
+# fallback chain (display-server agnostic: applies to both Wayland and X11),
+# then runs fc-cache. ADR-011: local.conf is a system config (not a user
+# dotfile), so this role owns it; the user's stow package may additionally
+# provide ~/.config/fontconfig/fonts.conf for per-user overrides.
 
-- name: Install font packages (module fonts)
-  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.fonts | join(' ') }}"
-  args:
-    executable: /bin/bash
+- name: Resolve font backends (module fonts)
+  ansible.builtin.set_fact:
+    install_backends: "{{ distro_packages.fonts }}"
+
+- name: Install font packages by backend (module fonts)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
+
+- name: Write the system-wide fontconfig fallback (module fonts)
+  ansible.builtin.template:
+    src: local.conf.j2
+    dest: /etc/fonts/local.conf
+    mode: "0644"
   become: true
-  register: fonts_pacman
-  changed_when: fonts_pacman.rc == 0
 
 - name: Rebuild the fontconfig cache (module fonts)
   ansible.builtin.shell: fc-cache -fv
@@ -25,8 +33,11 @@
 - name: Report fonts verification (module fonts)
   ansible.builtin.debug:
     msg: >-
-      Font packages installed and fc-cache rebuilt. Log out/in so running
-      apps pick up the new fonts. Your stow package may provide
-      ~/.config/fontconfig/fonts.conf for emoji/Nerd fallbacks (see Phase 3
-      module Fonts). Verify: 'fc-list | wc -l' is healthy (200+); CJK and
+      Font packages installed; /etc/fonts/local.conf written (Maple Mono NF
+      primary, Noto CJK/emoji + Nerd Font icon fallbacks); fc-cache rebuilt.
+      Log out/in so running apps pick up the new fonts. Applies to both
+      Wayland and X11 (fontconfig is display-server agnostic). Your stow
+      package may provide ~/.config/fontconfig/fonts.conf for per-user
+      overrides (see Phase 3 module Fonts). Verify: 'fc-list | wc -l' is
+      healthy (200+); 'fc-match monospace' returns Maple Mono NF; CJK and
       emoji render in a browser; Nerd Font icons show in Kitty/waybar/rofi.

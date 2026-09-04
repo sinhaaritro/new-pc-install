@@ -5,13 +5,12 @@
 # (ADR-011): ~/.ssh/config host blocks and the vscodium-tunnel-proxy.sh
 # helper are stow-owned - printed as notes, not written.
 
-- name: Install remote-ssh packages (module remote-ssh)
-  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.remote_ssh | join(' ') }}"
-  args:
-    executable: /bin/bash
-  become: true
-  register: dev_remote_ssh_pacman
-  changed_when: dev_remote_ssh_pacman.rc == 0
+- name: Resolve remote-ssh backends (module remote-ssh)
+  ansible.builtin.set_fact:
+    install_backends: "{{ distro_packages.remote_ssh }}"
+
+- name: Install remote-ssh packages by backend (module remote-ssh)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
 
 - name: Report remote-ssh verification (module remote-ssh)
   ansible.builtin.debug:

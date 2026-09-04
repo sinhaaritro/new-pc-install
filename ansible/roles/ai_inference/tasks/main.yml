@@ -7,13 +7,12 @@
 # (D5, resume-safe). The model preset (~/models/config.ini) and the
 # llama-start/llm() aliases are stow-owned - printed as notes.
 
-- name: Install the CUDA toolkit (module inference)
-  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.inference | join(' ') }}"
-  args:
-    executable: /bin/bash
-  become: true
-  register: ai_inference_pacman
-  changed_when: ai_inference_pacman.rc == 0
+- name: Resolve CUDA toolkit backends (module inference)
+  ansible.builtin.set_fact:
+    install_backends: "{{ distro_packages.inference }}"
+
+- name: Install the CUDA toolkit by backend (module inference)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
 
 - name: Install llama-cpp-cuda from the AUR (module inference)
   ansible.builtin.shell: yay -S --noconfirm --needed {{ phase4.aur.inference | join(' ') }}

@@ -5,13 +5,12 @@
 # shell to zsh (chsh, root). Config-free (ADR-011): ~/.zshrc and
 # ~/.config/kitty/kitty.conf are owned by the user's stow package.
 
-- name: Install shell and terminal packages (module shell-terminal)
-  ansible.builtin.shell: "{{ distro_install }} {{ distro_packages.shell_terminal | join(' ') }}"
-  args:
-    executable: /bin/bash
-  become: true
-  register: shell_terminal_pacman
-  changed_when: shell_terminal_pacman.rc == 0
+- name: Resolve shell/terminal backends (module shell-terminal)
+  ansible.builtin.set_fact:
+    install_backends: "{{ distro_packages.shell_terminal }}"
+
+- name: Install shell and terminal packages by backend (module shell-terminal)
+  ansible.builtin.import_tasks: ../_common/tasks/install_by_backend.yml
 
 - name: Set the end user login shell to zsh (module shell-terminal)
   ansible.builtin.shell: chsh -s /usr/bin/zsh {{ end_user }}
