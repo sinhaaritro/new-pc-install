@@ -18,29 +18,7 @@ untouched.
 <!-- TOC:START -->
 ## Index
 - 📁 specs/
-  - 📄 [001-ansible-play-1-live-usb-install-through-first-reboot-phase-0-1.md](./specs/001-ansible-play-1-live-usb-install-through-first-reboot-phase-0-1.md) — APPROVED
-  - 📄 [002-var-dedup-layering-single-source-of-truth-for-play-1-variables.md](./specs/002-var-dedup-layering-single-source-of-truth-for-play-1-variables.md) — APPROVED
-  - 📄 [003-role-consolidation-selectable-layout-verify-boot-merge-fstype-conditional-checks-bootloader-pattern-password-flow.md](./specs/003-role-consolidation-selectable-layout-verify-boot-merge-fstype-conditional-checks-bootloader-pattern-password-flow.md) — APPROVED
-  - 📄 [004-ansible-play-2-phase-2-system-hardening-boot-system-selectable-modules.md](./specs/004-ansible-play-2-phase-2-system-hardening-boot-system-selectable-modules.md) — APPROVED
-  - 📄 [005-ansible-play-3-phase-3-desktop-boot-system-selectable-modules-config-free.md](./specs/005-ansible-play-3-phase-3-desktop-boot-system-selectable-modules-config-free.md) — APPROVED
-  - 📄 [006-ansible-play-4-phase-4-workflow-booted-system-profile-selectable-modules-system-level-only.md](./specs/006-ansible-play-4-phase-4-workflow-booted-system-profile-selectable-modules-system-level-only.md) — APPROVED
-  - 📄 [007-variant-module-data-pattern-complete-the-phase-1-defaults-abolition.md](./specs/007-variant-module-data-pattern-complete-the-phase-1-defaults-abolition.md) — APPROVED
-  - 📄 [008-distro-data-to-inventory-group-vars-distro-yml-selector-group-membership.md](./specs/008-distro-data-to-inventory-group-vars-distro-yml-selector-group-membership.md) — APPROVED
-
-- 📁 decisions/
-  - 📄 [adr-001-ansible-domain-layout-manifest-as-single-source-of-truth.md](./decisions/adr-001-ansible-domain-layout-manifest-as-single-source-of-truth.md) — Accepted — backlinks: docs/specs/001-ansible-play-1-live-usb-install-through-first-reboot-phase-0-1.md
-  - 📄 [adr-002-distro-data-single-source-of-truth-var-layering-variant-module-pattern-inventory-group-selection.md](./decisions/adr-002-distro-data-single-source-of-truth-var-layering-variant-module-pattern-inventory-group-selection.md) — Accepted — backlinks: docs/specs/001-ansible-play-1-live-usb-install-through-first-reboot-phase-0-1.md
-  - 📄 [adr-003-drive-selection-model-store-all-target-selected.md](./decisions/adr-003-drive-selection-model-store-all-target-selected.md) — Accepted — backlinks: docs/specs/001-ansible-play-1-live-usb-install-through-first-reboot-phase-0-1.md
-  - 📄 [adr-004-gpu-module-is-vendor-agnostic-and-expandable.md](./decisions/adr-004-gpu-module-is-vendor-agnostic-and-expandable.md) — Accepted — backlinks: docs/specs/004-ansible-play-2-phase-2-system-hardening-boot-system-selectable-modules.md
-  - 📄 [adr-004-play-execution-model-live-usb-two-stage-install-single-play-with-become-split-on-the-booted-system.md](./decisions/adr-004-play-execution-model-live-usb-two-stage-install-single-play-with-become-split-on-the-booted-system.md) — Accepted — backlinks: docs/specs/001-ansible-play-1-live-usb-install-through-first-reboot-phase-0-1.md
-  - 📄 [adr-005-interactive-steps-become-explicit-gates-and-printed-artifacts.md](./decisions/adr-005-interactive-steps-become-explicit-gates-and-printed-artifacts.md) — Accepted — backlinks: docs/specs/004-ansible-play-2-phase-2-system-hardening-boot-system-selectable-modules.md
-  - 📄 [adr-005-phase-0-as-a-verification-gate-not-an-action.md](./decisions/adr-005-phase-0-as-a-verification-gate-not-an-action.md) — Accepted — backlinks: docs/specs/001-ansible-play-1-live-usb-install-through-first-reboot-phase-0-1.md
-  - 📄 [adr-006-verification-harness-lint-syntax-check-parity-manual-bring-up-no-ci.md](./decisions/adr-006-verification-harness-lint-syntax-check-parity-manual-bring-up-no-ci.md) — Accepted — backlinks: docs/specs/001-ansible-play-1-live-usb-install-through-first-reboot-phase-0-1.md
-  - 📄 [adr-007-placeholder-phase-4-modules-get-thin-manifest-driven-roles.md](./decisions/adr-007-placeholder-phase-4-modules-get-thin-manifest-driven-roles.md) — Accepted — backlinks: docs/specs/006-ansible-play-4-phase-4-workflow-booted-system-profile-selectable-modules-system-level-only.md
-  - 📄 [adr-008-play-4-aur-installs-reuse-the-phase-2-yay-binary-with-a-presence-gate.md](./decisions/adr-008-play-4-aur-installs-reuse-the-phase-2-yay-binary-with-a-presence-gate.md) — Accepted — backlinks: docs/specs/006-ansible-play-4-phase-4-workflow-booted-system-profile-selectable-modules-system-level-only.md
-  - 📄 [adr-009-ai-model-downloads-are-flag-gated-and-resume-safe.md](./decisions/adr-009-ai-model-downloads-are-flag-gated-and-resume-safe.md) — Accepted — backlinks: docs/specs/006-ansible-play-4-phase-4-workflow-booted-system-profile-selectable-modules-system-level-only.md
-  - 📄 [adr-010-per-module-selectability-inventory-flag-plus-ansible-tag-profile-vars-fold-into-flags.md](./decisions/adr-010-per-module-selectability-inventory-flag-plus-ansible-tag-profile-vars-fold-into-flags.md) — Accepted — backlinks: docs/specs/004-ansible-play-2-phase-2-system-hardening-boot-system-selectable-modules.md
-  - 📄 [adr-011-config-ownership-no-user-dotfiles-from-automation-named-system-artifact-exception-dotfiles-backup-bootstrap.md](./decisions/adr-011-config-ownership-no-user-dotfiles-from-automation-named-system-artifact-exception-dotfiles-backup-bootstrap.md) — Accepted — backlinks: docs/specs/005-ansible-play-3-phase-3-desktop-boot-system-selectable-modules-config-free.md
+  - 📄 [001-declarative-ansible-provisioning-tree-the-pattern.md](./specs/001-declarative-ansible-provisioning-tree-the-pattern.md) — APPROVED
 <!-- TOC:END -->
 
 ## Frontmatter conventions
