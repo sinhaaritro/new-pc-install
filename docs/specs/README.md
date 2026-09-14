@@ -17,6 +17,7 @@ Every spec carries `tags: [lowercase-kebab, ...]`; the promotion gate runs
 ## Index
 - 📁 specs/
   - 📄 [001-declarative-ansible-provisioning-tree-the-pattern.md](./001-declarative-ansible-provisioning-tree-the-pattern.md) — APPROVED
+  - 📄 [002-plays-and-roles-current-target-arch-hyprland-dev-ai.md](./002-plays-and-roles-current-target-arch-hyprland-dev-ai.md) — APPROVED
 <!-- TOC:END -->
 
 <!-- TAG-INDEX:START -->
