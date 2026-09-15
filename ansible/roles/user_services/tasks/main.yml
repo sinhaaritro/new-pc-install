@@ -1,0 +1,22 @@
+---
+# Enable linger and registered user units (spec 002 section 4; spec 001
+# decision 2.15: enable, never start — starting a unit from a play races the
+# display manager at boot).
+- name: Enable lingering for target user
+  ansible.builtin.command: "loginctl enable-linger {{ target_user }}"
+  changed_when: false
+  # noqa: var-naming[no-role-prefix]
+  register: linger_rc
+  failed_when: "'linger' not in (linger_rc.stdout | default('')) and linger_rc.rc != 0"
+
+- name: Enable registered user units
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: true
+    scope: user
+    state: stopped
+  become: true
+  become_user: "{{ target_user }}"
+  loop: "{{ user_units | default([]) }}"
+  loop_control:
+    label: "{{ item }}"

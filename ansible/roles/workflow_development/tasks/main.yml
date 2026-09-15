@@ -1,0 +1,12 @@
+---
+# Loops the roster null-filtered (ADR-003): `~` in inventory subtracts, absence
+# takes the default. The roster itself was already ui_mode-gated in defaults.
+- name: Development apps
+  ansible.builtin.include_role:
+    name: "app_{{ item.key }}"
+  vars:
+    app_params: "{{ item.value }}"
+    module_roster: "{{ module_cli | combine(module_gui if ui_mode == 'gui' else {}) | combine(app_overrides | default({}), recursive=True) }}"
+  loop: "{{ module_roster | dict2items | rejectattr('value', 'none') | list }}"
+  loop_control:
+    label: "{{ item.key }}"

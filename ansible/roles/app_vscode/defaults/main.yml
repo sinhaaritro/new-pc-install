@@ -1,0 +1,5 @@
+---
+app_vscode_defaults:
+  extensions: []
+  stow: vscode
+app_vscode_config: "{{ app_vscode_defaults | combine(app_params | default({}), recursive=True) }}"

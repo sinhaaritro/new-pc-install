@@ -10,6 +10,7 @@
   args:
     chdir: "/home/{{ target_user }}/dotfiles"
     creates: "/home/{{ target_user }}/.config/hyprlock"
+  become: true
   become_user: "{{ target_user }}"
 
 - name: Enable lock user unit (never start)
@@ -18,6 +19,7 @@
     scope: user
     enabled: true
     state: stopped
+  become: true
   become_user: "{{ target_user }}"
   environment:
     XDG_RUNTIME_DIR: "/run/user/{{ target_uid.pw.uid }}"

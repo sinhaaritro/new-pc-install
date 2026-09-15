@@ -1,0 +1,14 @@
+---
+# Re-runnable workflow play. Loops `modules` with the null filter (ADR-003):
+# `~` subtracts, absence takes the role default. Each workflow role carries its
+# own ui_mode-gated roster (ADR-021).
+- name: Workflows
+  hosts: thispc
+  become: true
+  tasks:
+    - name: Workflows
+      ansible.builtin.include_role:
+        name: "workflow_{{ item.key }}"
+      loop: "{{ (modules | default({})) | dict2items | rejectattr('value', 'none') | list }}"
+      loop_control:
+        label: "{{ item.key }}"

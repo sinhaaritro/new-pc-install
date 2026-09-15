@@ -1,0 +1,20 @@
+---
+# Installs the prebuilt AUR binary package (spec 002 decision 2.9) and stows
+# its config. Requires `aur_helper` to have completed (play 02 ordering).
+- name: Install opencode from AUR
+  ansible.builtin.include_role:
+    name: install_packages
+  # noqa: var-naming[no-role-prefix]
+  vars:
+    package_source: "{{ packages.app_opencode }}"
+
+- name: Stow opencode config
+  ansible.builtin.command: "stow -R {{ item }}"
+  args:
+    chdir: "/home/{{ target_user }}/dotfiles"
+    creates: "/home/{{ target_user }}/.config/{{ item }}"
+  become: true
+  become_user: "{{ target_user }}"
+  loop: "{{ opencode_stow_targets }}"
+  loop_control:
+    label: "{{ item }}"

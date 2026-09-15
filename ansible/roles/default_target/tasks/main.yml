@@ -1,0 +1,13 @@
+---
+# Select the default systemd target from ui_mode (spec 002 decision 2.1):
+# the desktop box boots to the graphical unit, a cli box to multi-user.
+# The inactive unit is masked so a stray `systemctl isolate` cannot win.
+- name: Set default systemd target
+  ansible.builtin.systemd:
+    name: "{{ 'graphical.target' if ui_mode == 'gui' else 'multi-user.target' }}"
+    enabled: true
+
+- name: Mask the inactive default target
+  ansible.builtin.systemd:
+    name: "{{ 'multi-user.target' if ui_mode == 'gui' else 'graphical.target' }}"
+    masked: true

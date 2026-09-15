@@ -10,6 +10,7 @@
     src: gtk-3.0.settings.ini.j2
     dest: "/home/{{ target_user }}/.config/gtk-3.0/settings.ini"
     mode: "0644"
+  become: true
   become_user: "{{ target_user }}"
 
 - name: Render qt5ct rc
@@ -17,6 +18,7 @@
     src: qt5ct.conf.j2
     dest: "/home/{{ target_user }}/.config/qt5ct/qt5ct.conf"
     mode: "0644"
+  become: true
   become_user: "{{ target_user }}"
 
 - name: Stow theme config
@@ -24,4 +26,5 @@
   args:
     chdir: "/home/{{ target_user }}/dotfiles"
     creates: "/home/{{ target_user }}/.config/theme"
+  become: true
   become_user: "{{ target_user }}"

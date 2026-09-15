@@ -1,0 +1,30 @@
+---
+# Only reachable via module_gui in workflow_development (ADR-021); on a cli box
+# this role does not exist in the roster, so no task here gates on ui_mode.
+- name: Install app packages
+  ansible.builtin.include_role:
+    name: install_packages
+  # noqa: var-naming[no-role-prefix]
+  vars:
+    package_source: "{{ packages.app_vscode }}"
+
+- name: Stow vscode settings
+  ansible.builtin.command: "stow -R {{ item }}"
+  args:
+    chdir: "/home/{{ target_user }}/dotfiles"
+    creates: "/home/{{ target_user }}/.config/{{ item }}"
+  become: true
+  become_user: "{{ target_user }}"
+  loop: "{{ app_vscode_config.stow }}"
+  loop_control:
+    label: "{{ item }}"
+
+- name: Install vscode extensions
+  ansible.builtin.command: "code --install-extension {{ item }}"
+  become: true
+  become_user: "{{ target_user }}"
+  loop: "{{ app_vscode_config.extensions }}"
+  loop_control:
+    label: "{{ item }}"
+  register: app_vscode_ext_rc
+  changed_when: "'already installed' not in (app_vscode_ext_rc.stdout | default(''))"

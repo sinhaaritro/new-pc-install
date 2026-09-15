@@ -1,0 +1,17 @@
+---
+- name: Install app packages
+  ansible.builtin.include_role:
+    name: install_packages
+  vars:
+    package_source: "{{ packages.app_git }}"
+
+- name: Render .gitconfig
+  ansible.builtin.template:
+    src: gitconfig.j2
+    dest: "/home/{{ target_user }}/.gitconfig"
+    mode: "0600"
+  become: true
+  become_user: "{{ target_user }}"
+  when:
+    - git_config.user_name | length > 0
+    - git_config.user_email | length > 0

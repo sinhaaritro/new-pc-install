@@ -10,4 +10,5 @@
   args:
     chdir: "/home/{{ target_user }}/dotfiles"
     creates: "/home/{{ target_user }}/.config/mako"
+  become: true
   become_user: "{{ target_user }}"

@@ -6,114 +6,114 @@ commands:
   aur:
     install: paru
 packages:
-    base:
+  base:
+    pacman:
+      - base
+      - linux
+      - linux-headers
+      - vim
+      - git
+      - networkmanager
+      - sudo
+      - stow
+      - grub
+      - efibootmgr
+      - systemd-sysusers
+      - systemd-resolved
+  gpu:
+    nvidia_open:
       pacman:
-        - base
-        - linux
-        - linux-headers
-        - vim
-        - git
-        - networkmanager
-        - sudo
-        - stow
-        - grub
-        - efibootmgr
-        - systemd-sysusers
-        - systemd-resolved
-    gpu:
-      nvidia_open:
-        pacman:
-          - nvidia-dkms
-          - nvidia-utils
-          - nvidia-open-dkms
-      nvidia:
-        pacman:
-          - nvidia-dkms
-          - nvidia-utils
-    audio:
-      pipewire:
-        pacman:
-          - pipewire
-          - pipewire-alsa
-          - pipewire-pulse
-          - wireplumber
-    network:
+        - nvidia-dkms
+        - nvidia-utils
+        - nvidia-open-dkms
+    nvidia:
       pacman:
-        - networkmanager
-        - networkmanager-dbus
-    firewall:
+        - nvidia-dkms
+        - nvidia-utils
+  audio:
+    pipewire:
       pacman:
-        - ufw
-    ssh:
-      pacman:
-        - openssh
-    dotfiles:
-      pacman:
-        - stow
-    external_drives:
-      pacman: []
-    shell:
-      pacman:
-        - bash
-    desktop_hyprland:
-      pacman:
-        - hyprland
-        - hyprutils
-        - hyprland-protocols
-        - wayland
-        - wl-clipboard
-        - xdg-desktop-portal-hyprland
-    component_bar:
-      pacman:
-        - waybar
-    component_notification:
-      pacman:
-        - mako
-    component_screenshot:
-      pacman:
-        - grim
-        - slur
-    component_launcher:
-      pacman:
-        - rofi
-    component_lock:
-      pacman:
-        - hyprlock
-    component_idle:
-      pacman:
-        - hypridle
-    component_clipboard:
-      pacman:
-        - wl-clipboard
-    component_portal:
-      pacman:
-        - xdg-desktop-portal
-        - xdg-desktop-portal-hyprland
-    app_git:
-      pacman:
-        - git
-    app_neovim:
-      pacman:
-        - neovim
-        - ripgrep
-        - fd
-    app_vscode:
-      pacman:
-        - code
-    app_docker:
-      pacman:
-        - docker
-        - docker-compose
-    app_lang_toolchains:
-      pacman:
-        - base-devel
-    app_llamacpp:
-      pacman:
-        - cmake
-        - base-devel
-        - git
-        - cuda
-        - curl
-    app_opencode:
-      aur:
-        - opencode-bin
+        - pipewire
+        - pipewire-alsa
+        - pipewire-pulse
+        - wireplumber
+  network:
+    pacman:
+      - networkmanager
+      - networkmanager-dbus
+  firewall:
+    pacman:
+      - ufw
+  ssh:
+    pacman:
+      - openssh
+  dotfiles:
+    pacman:
+      - stow
+  external_drives:
+    pacman: []
+  shell:
+    pacman:
+      - bash
+  desktop_hyprland:
+    pacman:
+      - hyprland
+      - hyprutils
+      - hyprland-protocols
+      - wayland
+      - wl-clipboard
+      - xdg-desktop-portal-hyprland
+  component_bar:
+    pacman:
+      - waybar
+  component_notification:
+    pacman:
+      - mako
+  component_screenshot:
+    pacman:
+      - grim
+      - slur
+  component_launcher:
+    pacman:
+      - rofi
+  component_lock:
+    pacman:
+      - hyprlock
+  component_idle:
+    pacman:
+      - hypridle
+  component_clipboard:
+    pacman:
+      - wl-clipboard
+  component_portal:
+    pacman:
+      - xdg-desktop-portal
+      - xdg-desktop-portal-hyprland
+  app_git:
+    pacman:
+      - git
+  app_neovim:
+    pacman:
+      - neovim
+      - ripgrep
+      - fd
+  app_vscode:
+    pacman:
+      - code
+  app_docker:
+    pacman:
+      - docker
+      - docker-compose
+  app_lang_toolchains:
+    pacman:
+      - base-devel
+  app_llamacpp:
+    pacman:
+      - cmake
+      - base-devel
+      - git
+      - cuda
+      - curl
+  app_opencode:
+    aur:
+      - opencode-bin

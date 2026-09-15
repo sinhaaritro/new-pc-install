@@ -10,4 +10,5 @@
     src: hyprland.conf.j2
     dest: "/home/{{ target_user }}/.config/hypr/hyprland.conf"
     mode: "0644"
+  become: true
   become_user: "{{ target_user }}"

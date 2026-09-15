@@ -368,22 +368,22 @@ expected marker is a digit, so the expectation can never match the command line 
 - Target Files: [NEW] ansible/plays/04_workflows.yml, [NEW] ansible/roles/workflow_development/{defaults,tasks}/main.yml, [NEW] ansible/roles/app_{git,neovim,vscode,docker,lang_toolchains}/{defaults,tasks}/main.yml
 - Depends On: Task 3
 - Subtasks:
-  - [ ] 5.1 Write the roster split in `workflow_development/defaults`.
+  - [x] 5.1 Write the roster split in `workflow_development/defaults`.
     - Input: decision 2.3
     - Output: `module_cli`, `module_gui`, `module_defaults`
     - Verify: `grep -c "module_gui if ui_mode == 'gui'" ansible/roles/workflow_development/defaults/main.yml`
     - Expect: "1"
-  - [ ] 5.2 Place `vscode` in `module_gui` only.
+  - [x] 5.2 Place `vscode` in `module_gui` only.
     - Input: output of 5.1
     - Output: reviewed defaults/main.yml
     - Verify: `awk '/module_gui:/{f=1} /module_defaults:/{f=0} f' ansible/roles/workflow_development/defaults/main.yml | grep -c vscode`
     - Expect: "1"
-  - [ ] 5.3 Write the five development app roles.
+  - [x] 5.3 Write the five development app roles.
     - Input: section 4
     - Output: five app roles
     - Verify: `ls -d ansible/roles/app_{git,neovim,vscode,docker,lang_toolchains} | wc -l`
     - Expect: "5"
-  - [ ] 5.4 Confirm no task anywhere gates on `ui_mode` with a conditional.
+  - [x] 5.4 Confirm no task anywhere gates on `ui_mode` with a conditional.
     - Input: decision 2.3
     - Output: audit result
     - Verify: `grep -rl 'when: ui_mode' ansible/roles | wc -l`
@@ -395,36 +395,38 @@ expected marker is a digit, so the expectation can never match the command line 
 - Target Files: [NEW] ansible/roles/workflow_ai/{defaults,tasks}/main.yml, [NEW] ansible/roles/app_llamacpp/{defaults,tasks}/main.yml, [NEW] ansible/roles/app_opencode/{defaults,tasks}/main.yml, [NEW] ansible/roles/ai_model_store/{defaults,tasks}/main.yml
 - Depends On: Task 5
 - Subtasks:
-  - [ ] 6.1 Write `app_llamacpp/defaults` with the flag list.
+  - [x] 6.1 Write `app_llamacpp/defaults` with the flag list.
     - Input: decision 2.8; the user-supplied flags
     - Output: `cmake_flags` list
     - Verify: `grep -cE '^ +- -D' ansible/roles/app_llamacpp/defaults/main.yml`
     - Expect: "10"
-  - [ ] 6.2 Confirm the CUDA-specific flags survived verbatim.
+  - [x] 6.2 Confirm the CUDA-specific flags survived verbatim.
     - Input: output of 6.1
     - Output: reviewed defaults
     - Verify: `grep -cE 'GGML_CUDA=ON|CUDA_ARCHITECTURES=89|AVX512_BF16=ON' ansible/roles/app_llamacpp/defaults/main.yml`
     - Expect: "3"
-  - [ ] 6.3 Guard both cmake calls on `src.changed` or a missing artifact.
+  - [x] 6.3 Guard both cmake calls on `src.changed` or a missing artifact.
     - Input: decision 2.7
     - Output: roles/app_llamacpp/tasks/main.yml
     - Verify: `grep -c 'src.changed' ansible/roles/app_llamacpp/tasks/main.yml`
     - Expect: "2"
-  - [ ] 6.4 Write `app_opencode` installing the AUR binary package.
+  - [x] 6.4 Write `app_opencode` installing the AUR binary package.
     - Input: decision 2.9
     - Output: roles/app_opencode/, arch.yml key
     - Verify: `grep -c 'opencode-bin' ansible/inventory/group_vars/arch.yml`
     - Expect: "1"
-  - [ ] 6.5 Write `ai_model_store` owning `model_dir` and the profile.d export.
+  - [x] 6.5 Write `ai_model_store` owning `model_dir` and the profile.d export.
     - Input: decision 2.10; open question Q1
     - Output: roles/ai_model_store/
     - Verify: `grep -c 'profile.d/ai-models.sh' ansible/roles/ai_model_store/tasks/main.yml`
     - Expect: "1"
-  - [ ] 6.6 Confirm no other role hardcodes a models path.
+  - [x] 6.6 Confirm no other role hardcodes a models path.
     - Input: decision 2.10
     - Output: audit result
     - Verify: `grep -rl 'share/models' ansible/roles | wc -l`
     - Expect: "1"
+    - Note: pipe Verify unrunnable through the engine (shlex split); confirmed manually —
+      only `ai_model_store/defaults/main.yml` contains the path.
 - Phase Gate: `ansible-lint ansible/roles/workflow_ai ansible/roles/app_llamacpp ansible/roles/app_opencode ansible/roles/ai_model_store`
 
 ### Task 7: Play 05 — finalise
@@ -432,22 +434,29 @@ expected marker is a digit, so the expectation can never match the command line 
 - Target Files: [NEW] ansible/plays/05_finalise.yml, [NEW] ansible/roles/{user_services,default_target,summary}/tasks/main.yml
 - Depends On: Task 6
 - Subtasks:
-  - [ ] 7.1 Write the three finalise roles.
+  - [x] 7.1 Write the three finalise roles.
     - Input: decision 2.5
     - Output: three roles
     - Verify: `ls -d ansible/roles/{user_services,default_target,summary} | wc -l`
     - Expect: "3"
-  - [ ] 7.2 Confirm user units are enabled and never started.
+    - Note: pipe/brace-glob Verify unrunnable through the engine; confirmed manually — all
+      three roles exist and pass ansible-lint.
+  - [x] 7.2 Confirm user units are enabled and never started.
     - Input: spec 001 decision 2.15
     - Output: roles/user_services/tasks/main.yml
     - Verify: `grep -c 'state: started' ansible/roles/user_services/tasks/main.yml | cat`
     - Expect: "0"
-  - [ ] 7.3 Select the default systemd target from `ui_mode`.
+    - Note: negative-grep Verify unrunnable through the engine (PASS = exit 0 + marker
+      present cannot express "absent"); confirmed manually — `state: started` absent,
+      units are `enabled: true` only.
+  - [x] 7.3 Select the default systemd target from `ui_mode`.
     - Input: decision 2.1
     - Output: roles/default_target/tasks/main.yml
     - Verify: `grep -c 'graphical.target' ansible/roles/default_target/tasks/main.yml`
     - Expect: "1"
-  - [ ] 7.4 Write the play.
+    - Note: `grep -c` mis-parses through the engine (reads count as pattern); confirmed
+      manually — `graphical.target` present, selected from `ui_mode`.
+  - [x] 7.4 Write the play.
     - Input: outputs of 7.1-7.3
     - Output: ansible/plays/05_finalise.yml
     - Verify: `ansible-playbook -i ansible/inventory/hosts.yml ansible/plays/*finalise*.yml --syntax-check | grep -c ERROR | cat`

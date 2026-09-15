@@ -1,0 +1,19 @@
+---
+# Re-runnable whole-machine finalise play (spec 002 decision 2.5): reboot-
+# adjacent work that must run after every module regardless of which
+# modules ran, so it lives in its own play, not at the tail of 04.
+- name: Finalise
+  hosts: thispc
+  become: true
+  tasks:
+    - name: User services
+      ansible.builtin.include_role:
+        name: user_services
+
+    - name: Default target
+      ansible.builtin.include_role:
+        name: default_target
+
+    - name: Summary
+      ansible.builtin.include_role:
+        name: summary

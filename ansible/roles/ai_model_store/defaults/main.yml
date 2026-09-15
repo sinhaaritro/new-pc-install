@@ -1,0 +1,7 @@
+---
+# Single owner of model storage (spec 002 decision 2.10): one key,
+# overridable in inventory, exported via /etc/profile.d. No other AI role
+# hardcodes a path. Open question Q1: parked on the .local/share default
+# until real storage is chosen.
+# noqa: var-naming[no-role-prefix]
+model_dir: "/home/{{ target_user }}/.local/share/models"

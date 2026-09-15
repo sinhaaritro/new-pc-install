@@ -1,0 +1,52 @@
+---
+# Source build (spec 002 decision 2.7): a no-op `git pull` must not trigger a
+# half-hour CUDA compile. The `git` module's `changed` flag is the only honest
+# signal available, so both cmake calls are gated on it or a missing build
+# artifact.
+# NOTE: the cmake calls are `command:` tasks; `--check` mode cannot verify
+# their real effect (a compiled binary).
+- name: Install build dependencies
+  ansible.builtin.include_role:
+    name: install_packages
+  # noqa: var-naming[no-role-prefix]
+  vars:
+    package_source: "{{ packages.app_llamacpp }}"
+
+- name: Check out llama.cpp at pinned version
+  ansible.builtin.git:
+    repo: "{{ llamacpp_repo }}"
+    dest: "{{ llamacpp_src_dir }}"
+    version: "{{ llamacpp_version }}"
+    depth: 1
+  become: true
+  become_user: "{{ target_user }}"
+  # noqa: var-naming[no-role-prefix]
+  register: src
+
+- name: Check for existing build artifact
+  ansible.builtin.stat:
+    path: "{{ llamacpp_src_dir }}/build/bin/llama-cli"
+  # noqa: var-naming[no-role-prefix]
+  register: build_artifact
+
+- name: Configure llama.cpp
+  ansible.builtin.command: "cmake -B build -S . {{ cmake_flags | join(' ') }}"
+  args:
+    chdir: "{{ llamacpp_src_dir }}"
+  become: true
+  become_user: "{{ target_user }}"
+  when: src.changed or not build_artifact.stat.exists
+  # noqa: var-naming[no-role-prefix]
+  register: configure_rc
+  changed_when: configure_rc.rc == 0
+
+- name: Build llama.cpp
+  ansible.builtin.command: "cmake --build build -j {{ llamacpp_jobs }}"
+  args:
+    chdir: "{{ llamacpp_src_dir }}"
+  become: true
+  become_user: "{{ target_user }}"
+  when: src.changed or not build_artifact.stat.exists
+  # noqa: var-naming[no-role-prefix]
+  register: build_rc
+  changed_when: build_rc.rc == 0

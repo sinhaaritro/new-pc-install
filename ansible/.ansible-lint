@@ -1,0 +1,9 @@
+---
+# workflow_development/defaults and workflow_ai/defaults carry the spec 002
+# roster contract verbatim (module_cli / module_gui / module_defaults + the
+# Task 5/6 audit greps). module_defaults is an Ansible reserved name, so the
+# vars schema and naming rules are waived for those files only: they are
+# linted as plain yaml.
+kinds:
+  - yaml: "roles/workflow_development/defaults/main.yml"
+  - yaml: "roles/workflow_ai/defaults/main.yml"
