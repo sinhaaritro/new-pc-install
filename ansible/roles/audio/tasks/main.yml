@@ -1,0 +1,7 @@
+---
+# Variant-selected: inventory audio_variant names the packages.audio key; ~ disables the role.
+- name: Install audio packages ({{ audio_variant }})
+  ansible.builtin.include_role:
+    name: install_packages
+    vars:
+      package_source: "{{ packages.audio[audio_variant] }}"

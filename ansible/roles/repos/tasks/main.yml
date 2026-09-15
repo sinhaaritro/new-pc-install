@@ -1,0 +1,18 @@
+---
+# Converge-path repo configuration: enables multilib and any extra repos the distro
+# file declares (inventory `extra_repos`); a no-op when the key is absent.
+- name: Enable multilib
+  ansible.builtin.lineinfile:
+    path: /etc/pacman.conf
+    regexp: "^#?Multilib$"
+    line: "Multilib"
+    firstmatch: true
+
+- name: Enable declared extra repos
+  ansible.builtin.replace:
+    path: /etc/pacman.conf
+    regexp: "^#?({{ item }})$"
+    replace: "{{ item }}"
+  loop: "{{ extra_repos | default([]) }}"
+  loop_control:
+    label: "{{ item }}"

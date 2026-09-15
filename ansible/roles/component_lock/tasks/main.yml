@@ -1,0 +1,23 @@
+---
+- name: Install component packages
+  ansible.builtin.include_role:
+    name: install_packages
+    vars:
+      package_source: "{{ packages.component_lock }}"
+
+- name: Stow component config
+  ansible.builtin.command: "stow -R hyprlock"
+  args:
+    chdir: "/home/{{ target_user }}/dotfiles"
+    creates: "/home/{{ target_user }}/.config/hyprlock"
+  become_user: "{{ target_user }}"
+
+- name: Enable lock user unit (never start)
+  ansible.builtin.systemd:
+    name: hyprlock.service
+    scope: user
+    enabled: true
+    state: stopped
+  become_user: "{{ target_user }}"
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ target_uid.pw.uid }}"

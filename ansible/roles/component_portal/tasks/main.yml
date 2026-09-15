@@ -1,0 +1,25 @@
+---
+- name: Install component packages
+  ansible.builtin.include_role:
+    name: install_packages
+    vars:
+      package_source: "{{ packages.component_portal }}"
+
+- name: Enable xdg-desktop-portal
+  ansible.builtin.systemd:
+    name: xdg-desktop-portal.service
+    enabled: true
+    state: started
+
+- name: Enable xdg-desktop-portal-hyprland
+  ansible.builtin.systemd:
+    name: xdg-desktop-portal-hyprland.service
+    enabled: true
+    state: started
+
+- name: Stow component config
+  ansible.builtin.command: "stow -R portal"
+  args:
+    chdir: "/home/{{ target_user }}/dotfiles"
+    creates: "/home/{{ target_user }}/.config/portal"
+  become_user: "{{ target_user }}"

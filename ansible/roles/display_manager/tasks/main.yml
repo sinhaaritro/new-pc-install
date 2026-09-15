@@ -1,0 +1,7 @@
+---
+# Q2 default (`display_manager: ~`): start Hyprland from a tty, no system unit.
+# Variant implementations (greetd/tuigreet, loginctl-based autostart) are added
+# here as variants/<display_manager>.yml per ADR-018 once the question is answered.
+- name: Include display manager variant
+  ansible.builtin.include_tasks: "variants/{{ display_manager }}.yml"
+  when: display_manager is not none

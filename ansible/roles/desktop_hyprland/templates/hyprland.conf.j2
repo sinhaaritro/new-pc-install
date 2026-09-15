@@ -1,0 +1,19 @@
+# Hyprland config — rendered from desktop_config (profile | combine(overrides)).
+# Do not hand-edit; change the profile in the role or desktop_overrides in inventory.
+monitor = ,preferred,auto,1
+
+{% for key, value in (desktop_config.env | default({})).items() %}
+env = {{ key }},{{ value }}
+{% endfor %}
+{% for item in desktop_config.general | default({}) %}
+general:{{ item.key }} = {{ item.value }}
+{% endfor %}
+{% for item in desktop_config.decoration | default({}) %}
+decoration:{{ item.key }} = {{ item.value }}
+{% endfor %}
+{% for item in desktop_config.bind | default([]) %}
+{{ item }}
+{% endfor %}
+{% for item in desktop_config.bindexec | default([]) %}
+{{ item }}
+{% endfor %}

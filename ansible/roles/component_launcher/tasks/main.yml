@@ -1,0 +1,13 @@
+---
+- name: Install component packages
+  ansible.builtin.include_role:
+    name: install_packages
+    vars:
+      package_source: "{{ packages.component_launcher }}"
+
+- name: Stow component config
+  ansible.builtin.command: "stow -R rofi"
+  args:
+    chdir: "/home/{{ target_user }}/dotfiles"
+    creates: "/home/{{ target_user }}/.config/rofi"
+  become_user: "{{ target_user }}"

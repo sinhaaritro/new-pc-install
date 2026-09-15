@@ -1,0 +1,17 @@
+---
+theme_defaults:
+  gtk_theme: "Adwaita"
+  qt_theme: "Adwaita"
+  icon_theme: "Adwaita"
+  cursor_theme: "Adwaita"
+theme_overrides: {}
+theme: "{{ theme_defaults | combine(theme_overrides | default({}), recursive=True) }}"
+theme_packages:
+  pacman:
+    - gtk3
+    - gtk4
+    - qt5ct
+    - adwaita-icon-theme
+    - adwaita-cursors
+    - font-hack-ttf
+    - font-dejavu

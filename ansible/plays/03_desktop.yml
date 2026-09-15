@@ -1,0 +1,29 @@
+---
+# Re-runnable desktop play; a no-op when `wm_choice: ~`. The desktop role runs
+# first, then the null-filtered component roster, then theming and the display
+# manager. The play-level no-op is a roster gate (the whole desktop roster is
+# derived from wm_choice), not a per-task `when:` (ADR-021).
+- name: Desktop
+  hosts: thispc
+  become: true
+  tasks:
+    - name: Desktop {{ wm_choice }}
+      ansible.builtin.include_role:
+        name: "desktop_{{ wm_choice }}"
+
+    - name: Components
+      ansible.builtin.include_role:
+        name: "component_{{ item.key }}"
+      vars:
+        component_roster: "{{ (desktop_config.components | default({})) | combine(component_overrides | default({}), recursive=True) | dict2items | rejectattr('value','none') | list }}"
+      loop: "{{ component_roster }}"
+      loop_control:
+        label: "{{ item.key }}"
+
+    - name: Theming
+      ansible.builtin.include_role:
+        name: theming
+
+    - name: Display manager
+      ansible.builtin.include_role:
+        name: display_manager

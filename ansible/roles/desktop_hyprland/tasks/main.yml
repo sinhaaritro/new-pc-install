@@ -1,0 +1,13 @@
+---
+- name: Install desktop packages
+  ansible.builtin.include_role:
+    name: install_packages
+    vars:
+      package_source: "{{ packages.desktop_hyprland }}"
+
+- name: Render Hyprland user config
+  ansible.builtin.template:
+    src: hyprland.conf.j2
+    dest: "/home/{{ target_user }}/.config/hypr/hyprland.conf"
+    mode: "0644"
+  become_user: "{{ target_user }}"

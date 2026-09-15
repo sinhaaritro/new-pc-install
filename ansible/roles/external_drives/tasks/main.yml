@@ -1,0 +1,14 @@
+---
+# Writes fstab entries from the inventory `mounts` dict:
+#   mounts:
+#     /mnt/tank: {device: /dev/nvme1n1p1, fstype: btrfs, opts: defaults,noatime}
+# A no-op when the key is absent.
+- name: Write fstab entries for external drives
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    line: "{{ item.value.device }} {{ item.key }} {{ item.value.fstype }} {{ item.value.opts | default('defaults') }} 0 0"
+    regexp: "^[^#]*\\s{{ item.key }}\\s"
+    state: present
+  loop: "{{ mounts | default({}) | dict2items }}"
+  loop_control:
+    label: "{{ item.key }}"

@@ -1,0 +1,31 @@
+---
+# btrfs-only; never reachable while the root filesystem is ext4 (Q3).
+- name: Install snapper packages
+  ansible.builtin.pacman:
+    name:
+      - snapper
+      - btrfs-progs
+    state: present
+    update_cache: true
+
+- name: Configure snapper for root
+  ansible.builtin.copy:
+    dest: /etc/snapper/configs/root
+    content: |
+      ALLOW_GROUPS=root
+      NUMBER_CLEANUP=yes
+      NUMBER_MIN_AGE=0
+      NUMBER_MAX_AGE=0
+      NUMBER_LIMIT=10
+      TIMELINE_CREATE=0:05:00,10:42:00,11:15:00
+      TIMELINE_LIMIT_DAILY=10
+      TIMELINE_LIMIT_WEEKLY=0
+      TIMELINE_LIMIT_MONTHLY=0
+      TIMELINE_LIMIT_YEARLY=0
+    mode: "0644"
+
+- name: Enable snapper-timeline service
+  ansible.builtin.systemd:
+    name: snapper-timeline.timer
+    enabled: true
+    state: started

@@ -1,0 +1,7 @@
+---
+# Variant-selected per ADR-018: the role ships every snapshot implementation and
+# inventory `snapshot_variant` names one. `snapshot_variant: ~` makes play 02 skip
+# the role entirely (open question Q3).
+- name: Include snapshot variant
+  ansible.builtin.include_tasks: "variants/{{ snapshot_variant }}.yml"
+  when: snapshot_variant is not none

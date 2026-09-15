@@ -1,0 +1,25 @@
+---
+- name: Install greetd
+  ansible.builtin.pacman:
+    name:
+      - greetd
+    state: present
+    update_cache: true
+
+- name: Render greetd config
+  ansible.builtin.copy:
+    dest: /etc/greetd/config.toml
+    content: |
+      [terminal]
+      vt = 1
+
+      [default_session]
+      command = "tuigreet --time --cmd hyprland"
+      user = greetd
+    mode: "0644"
+
+- name: Enable greetd
+  ansible.builtin.systemd:
+    name: greetd
+    enabled: true
+    state: started

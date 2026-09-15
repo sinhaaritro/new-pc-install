@@ -1,0 +1,57 @@
+---
+# Re-runnable system play. Load-bearing orderings (see site.yml header):
+# repos -> aur_helper -> any aur package; user_create (play 01) -> any become_user.
+- name: System
+  hosts: thispc
+  become: true
+  tasks:
+    - name: Repos
+      ansible.builtin.include_role:
+        name: repos
+
+    - name: Aur helper
+      ansible.builtin.include_role:
+        name: aur_helper
+
+    - name: Base packages
+      ansible.builtin.include_role:
+        name: base_packages
+
+    - name: Gpu
+      ansible.builtin.include_role:
+        name: gpu
+      when: gpu_variant is not none
+
+    - name: Audio
+      ansible.builtin.include_role:
+        name: audio
+      when: audio_variant is not none
+
+    - name: Network
+      ansible.builtin.include_role:
+        name: network
+
+    - name: Firewall
+      ansible.builtin.include_role:
+        name: firewall
+
+    - name: Ssh
+      ansible.builtin.include_role:
+        name: ssh
+
+    - name: Snapshots
+      ansible.builtin.include_role:
+        name: snapshots
+      when: snapshot_variant is not none
+
+    - name: External drives
+      ansible.builtin.include_role:
+        name: external_drives
+
+    - name: Dotfiles
+      ansible.builtin.include_role:
+        name: dotfiles
+
+    - name: Shell
+      ansible.builtin.include_role:
+        name: shell

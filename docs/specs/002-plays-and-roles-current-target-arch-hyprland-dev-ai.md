@@ -314,22 +314,22 @@ expected marker is a digit, so the expectation can never match the command line 
 - Target Files: [NEW] ansible/plays/02_system.yml, [NEW] ansible/roles/{repos,aur_helper,base_packages,gpu,audio,network,firewall,ssh,snapshots,external_drives,dotfiles,shell}/tasks/main.yml
 - Depends On: Task 2
 - Subtasks:
-  - [ ] 3.1 Write the twelve system roles.
+  - [x] 3.1 Write the twelve system roles.
     - Input: section 4; spec 001 decisions 2.8, 2.18
     - Output: twelve roles under ansible/roles/
     - Verify: `ls -d ansible/roles/{repos,aur_helper,base_packages,gpu,audio,network,firewall,ssh,snapshots,external_drives,dotfiles,shell} | wc -l`
     - Expect: "12"
-  - [ ] 3.2 Guard the `paru` build so it is a no-op once installed.
+  - [x] 3.2 Guard the `paru` build so it is a no-op once installed.
     - Input: decision on ordering (`repos` → `aur_helper` → aur packages)
     - Output: roles/aur_helper/tasks/main.yml
     - Verify: `grep -c 'creates:' ansible/roles/aur_helper/tasks/main.yml`
     - Expect: "1"
-  - [ ] 3.3 Write the play with `repos` ahead of `aur_helper`.
+  - [x] 3.3 Write the play with `repos` ahead of `aur_helper`.
     - Input: output of 3.1
     - Output: ansible/plays/02_system.yml
     - Verify: `awk '/repos/{r=NR} /aur_helper/{a=NR} END{print (r<a)}' ansible/plays/*system*.yml`
     - Expect: "1"
-  - [ ] 3.4 Make `external_drives` a no-op when the inventory has no `mounts` key.
+  - [x] 3.4 Make `external_drives` a no-op when the inventory has no `mounts` key.
     - Input: spec 001 decision 2.2
     - Output: roles/external_drives/tasks/main.yml
     - Verify: `grep -c 'mounts | default({})' ansible/roles/external_drives/tasks/main.yml`
@@ -341,22 +341,22 @@ expected marker is a digit, so the expectation can never match the command line 
 - Target Files: [NEW] ansible/plays/03_desktop.yml, [NEW] ansible/roles/desktop_hyprland/{defaults,tasks}/main.yml, [NEW] ansible/roles/component_{bar,notification,screenshot,launcher,lock,idle,clipboard,portal}/tasks/main.yml, [NEW] ansible/roles/{theming,display_manager}/tasks/main.yml
 - Depends On: Task 3
 - Subtasks:
-  - [ ] 4.1 Write the eight component roles.
+  - [x] 4.1 Write the eight component roles.
     - Input: section 4
     - Output: eight component roles
     - Verify: `ls -d ansible/roles/component_* | wc -l`
     - Expect: "8"
-  - [ ] 4.2 Write `desktop_hyprland` with the profile/overrides pair.
+  - [x] 4.2 Write `desktop_hyprland` with the profile/overrides pair.
     - Input: spec 001 decision 2.7
     - Output: roles/desktop_hyprland/defaults/main.yml
     - Verify: `grep -c 'desktop_profile | combine(desktop_overrides' ansible/roles/desktop_hyprland/defaults/main.yml`
     - Expect: "1"
-  - [ ] 4.3 Write `theming` and `display_manager` (Q2 decides the latter's variant).
+  - [x] 4.3 Write `theming` and `display_manager` (Q2 decides the latter's variant).
     - Input: open question Q2
     - Output: two roles
     - Verify: `ls -d ansible/roles/theming ansible/roles/display_manager | wc -l`
     - Expect: "2"
-  - [ ] 4.4 Write the play: desktop include first, then the null-filtered component loop.
+  - [x] 4.4 Write the play: desktop include first, then the null-filtered component loop.
     - Input: spec 001 decisions 2.3, 2.12
     - Output: ansible/plays/03_desktop.yml
     - Verify: `grep -c "rejectattr('value','none')" ansible/plays/*desktop*.yml`

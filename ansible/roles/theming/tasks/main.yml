@@ -1,0 +1,27 @@
+---
+- name: Install theme packages
+  ansible.builtin.include_role:
+    name: install_packages
+    vars:
+      package_source: "{{ theme_packages | combine(packages.theming | default({}), recursive=True) }}"
+
+- name: Render gtk-3.0 settings
+  ansible.builtin.template:
+    src: gtk-3.0.settings.ini.j2
+    dest: "/home/{{ target_user }}/.config/gtk-3.0/settings.ini"
+    mode: "0644"
+  become_user: "{{ target_user }}"
+
+- name: Render qt5ct rc
+  ansible.builtin.template:
+    src: qt5ct.conf.j2
+    dest: "/home/{{ target_user }}/.config/qt5ct/qt5ct.conf"
+    mode: "0644"
+  become_user: "{{ target_user }}"
+
+- name: Stow theme config
+  ansible.builtin.command: "stow -R theming"
+  args:
+    chdir: "/home/{{ target_user }}/dotfiles"
+    creates: "/home/{{ target_user }}/.config/theme"
+  become_user: "{{ target_user }}"
