@@ -1,0 +1,43 @@
+---
+- name: Set hostname in chroot
+  ansible.builtin.copy:
+    dest: "{{ target_root }}/etc/hostname"
+    content: "{{ hostname }}\n"
+    mode: "0644"
+
+- name: Set timezone in chroot
+  ansible.builtin.file:
+    src: "/usr/share/zoneinfo/{{ timezone }}"
+    dest: "{{ target_root }}/etc/localtime"
+    state: link
+
+- name: Enable generated locales in chroot
+  ansible.builtin.command: >
+    chroot {{ target_root }}
+    sed -i 's/^# {{ locale }}/{{ locale }}/' /etc/locale.gen
+  changed_when: true
+
+- name: Generate locales in chroot
+  ansible.builtin.command: chroot {{ target_root }} locale-gen
+  changed_when: true
+
+- name: Set locale in chroot
+  ansible.builtin.copy:
+    dest: "{{ target_root }}/etc/locale.conf"
+    content: "LANG={{ locale }}\n"
+    mode: "0644"
+
+- name: Set keymap in chroot
+  ansible.builtin.copy:
+    dest: "{{ target_root }}/etc/vconsole.conf"
+    content: "KEYMAP={{ keymap }}\n"
+    mode: "0644"
+
+- name: Set /etc/hosts in chroot
+  ansible.builtin.copy:
+    dest: "{{ target_root }}/etc/hosts"
+    content: |
+      127.0.0.1 localhost
+      127.0.1.1 {{ hostname }}
+      ::1 localhost ip6-localhost ip6-loopback
+    mode: "0644"

@@ -50,6 +50,9 @@ untouched.
   - 📄 [adr-026-adr-nnn-cmake-flags-are-a-yaml-list-in-role-defaults.md](./decisions/adr-026-adr-nnn-cmake-flags-are-a-yaml-list-in-role-defaults.md) — Accepted — backlinks: docs/specs/002-plays-and-roles-current-target-arch-hyprland-dev-ai.md
   - 📄 [adr-027-adr-nnn-prefer-the-prebuilt-aur-package-where-upstream-ships-one.md](./decisions/adr-027-adr-nnn-prefer-the-prebuilt-aur-package-where-upstream-ships-one.md) — Accepted — backlinks: docs/specs/002-plays-and-roles-current-target-arch-hyprland-dev-ai.md
   - 📄 [adr-028-adr-nnn-model-storage-is-one-key-owned-by-ai-model-store.md](./decisions/adr-028-adr-nnn-model-storage-is-one-key-owned-by-ai-model-store.md) — Accepted — backlinks: docs/specs/002-plays-and-roles-current-target-arch-hyprland-dev-ai.md
+
+- 📁 reference/
+  - 📄 [ansible-bck-vs-specs-impl-wins.md](./reference/ansible-bck-vs-specs-impl-wins.md)
 <!-- TOC:END -->
 
 ## Frontmatter conventions

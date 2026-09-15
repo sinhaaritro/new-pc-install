@@ -1,0 +1,93 @@
+---
+# Derives the GPT layout from the inventory `partitions` list (layer-1 data):
+#   - {size: 1G,   type: efi}    -> ESP
+#   - {size: 8G,   type: swap}
+#   - {size: 100%, type: ext4}   -> root
+# Sizes are resolved sequentially; the final entry must be 100% (or fill to end).
+
+- name: Confirm wiping the target disk
+  ansible.builtin.pause:
+    prompt: "About to wipe {{ target_disk }} - type YES to continue"
+  register: wipe_answer
+  when: not auto_wipe | default(false)
+
+- name: Refuse to continue on wrong answer
+  ansible.builtin.fail:
+    msg: "Aborted: answer was not YES"
+  when:
+    - not auto_wipe | default(false)
+    - wipe_answer | default('') | regex_search('^YES$') is none
+
+- name: Resolve sequential partition layout from inventory
+  ansible.builtin.set_fact:
+    part_layout: "{{ part_layout | default([]) + [layout_item] }}"
+  vars:
+    prev_end: "{{ (part_layout | default([]) | last).end if (part_layout | default([])) else '1MiB' }}"
+    layout_item:
+      number: "{{ (part_layout | default([]) | length) + 1 }}"
+      start: "{{ prev_end }}"
+      end: "{{ item.size if item.size != '100%' else '100%' }}"
+      name: "{{ item.label | default(item.type) }}"
+      type: "{{ item.type }}"
+      flags: "{{ ['boot', 'esp'] if item.type == 'efi' else [] }}"
+  loop: "{{ partitions }}"
+
+- name: Wipe existing signatures from the target disk
+  ansible.builtin.command: wipefs -a {{ target_disk }}
+  changed_when: true
+
+- name: Create GPT partition table
+  community.general.parted:
+    device: "{{ target_disk }}"
+    number: 1
+    label: gpt
+    state: present
+
+- name: Create partitions
+  community.general.parted:
+    device: "{{ target_disk }}"
+    number: "{{ item.number }}"
+    start: "{{ item.start }}"
+    end: "{{ item.end }}"
+    name: "{{ item.name }}"
+    flags: "{{ item.flags }}"
+    state: present
+  loop: "{{ part_layout }}"
+  loop_control:
+    label: "partition {{ item.number }} ({{ item.name }})"
+
+- name: Format ESP
+  ansible.builtin.command: "mkfs.fat -F32 {{ target_disk }}{{ esp.number }}"
+  vars:
+    esp: "{{ part_layout | selectattr('type', 'equalto', 'efi') | first }}"
+  changed_when: true
+
+- name: Format swap
+  ansible.builtin.command: "mkswap {{ target_disk }}{{ swap.number }}"
+  vars:
+    swap: "{{ part_layout | selectattr('type', 'equalto', 'swap') | first }}"
+  changed_when: true
+
+- name: Format root
+  ansible.builtin.command: "mkfs.ext4 -F {{ target_disk }}{{ root.number }}"
+  vars:
+    root: "{{ part_layout | selectattr('type', 'equalto', 'ext4') | first }}"
+  changed_when: true
+
+- name: Mount root filesystem
+  ansible.posix.mount:
+    src: "{{ target_disk }}{{ (part_layout | selectattr('type', 'equalto', 'ext4') | first).number }}"
+    path: "{{ target_root }}"
+    state: mounted
+    fstype: ext4
+
+- name: Mount ESP for boot
+  ansible.posix.mount:
+    src: "{{ target_disk }}{{ (part_layout | selectattr('type', 'equalto', 'efi') | first).number }}"
+    path: "{{ target_root }}/boot/efi"
+    state: mounted
+    fstype: vfat
+
+- name: Activate swap
+  ansible.builtin.command: "swapon {{ target_disk }}{{ (part_layout | selectattr('type', 'equalto', 'swap') | first).number }}"
+  changed_when: false

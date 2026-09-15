@@ -1,0 +1,1 @@
+ui_mode: "{{ 'gui' if (wm_choice | default(None)) is not none else 'cli' }}"

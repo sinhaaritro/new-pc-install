@@ -1,0 +1,37 @@
+---
+- name: Base install into chroot
+  ansible.builtin.command: >
+    {{ bootstrap_cmd }}
+    -r {{ target_root }}
+    -b
+    -S
+    -w
+    -k
+    -p
+    {{ packages.base.pacman | join(' ') }}
+  changed_when: true
+
+- name: Ensure /boot/efi exists in chroot
+  ansible.builtin.file:
+    path: "{{ target_root }}/boot/efi"
+    state: directory
+    mode: "0755"
+
+- name: Collect filesystem UUIDs
+  ansible.builtin.command: "blkid -s UUID -o value {{ target_disk }}{{ item.number }}"
+  register: base_install_uuids
+  changed_when: false
+  loop:
+    - "{{ part_layout | selectattr('type', 'equalto', 'efi') | first }}"
+    - "{{ part_layout | selectattr('type', 'equalto', 'ext4') | first }}"
+  loop_control:
+    label: "partition {{ item.number }} ({{ item.type }})"
+
+- name: Generate fstab
+  ansible.builtin.copy:
+    dest: "{{ target_root }}/etc/fstab"
+    content: |
+      # <file system> <mount point> <type> <options> <dump> <pass>
+      UUID={{ base_install_uuids.results[1].stdout }} / ext4 defaults 0 1
+      UUID={{ base_install_uuids.results[0].stdout }} /boot/efi vfat umask=0077 0 2
+    mode: "0644"

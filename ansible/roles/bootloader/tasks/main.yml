@@ -1,0 +1,33 @@
+---
+- name: Install kernel and bootloader packages
+  ansible.builtin.command: >
+    chroot {{ target_root }}
+    pacman -S --noconfirm --needed linux linux-headers grub efibootmgr
+  changed_when: true
+
+- name: Configure GRUB kernel parameters
+  ansible.builtin.copy:
+    dest: "{{ target_root }}/etc/default/grub"
+    content: |
+      GRUB_DEFAULT=0
+      GRUB_TIMEOUT=3
+      GRUB_DISTRIBUTOR="Arch"
+      GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 {{ (['nvidia_drm.modeset=1'] if gpu_variant | default('') == 'nvidia_open' else []) | join(' ') }}"
+      GRUB_CMDLINE_LINUX=""
+      GRUB_PRELOAD_MODULES="part_gpt"
+      GRUB_USE_LINUX_kernel=y
+      GRUB_USE_LINUX_INITRD=y
+      GRUB_GFXMODE=auto
+    mode: "0644"
+
+- name: Install GRUB to ESP
+  ansible.builtin.command: >
+    chroot {{ target_root }}
+    grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --recheck
+  changed_when: true
+
+- name: Generate GRUB config
+  ansible.builtin.command: >
+    chroot {{ target_root }}
+    grub-mkconfig -o /boot/grub/grub.cfg
+  changed_when: true

@@ -1,0 +1,6 @@
+---
+- name: Install dnf packages
+  ansible.builtin.dnf:
+    name: "{{ pkg_list }}"
+    state: present
+  become: true

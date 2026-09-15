@@ -5,6 +5,7 @@ tags: [ansible, plays, roles, arch-linux, hyprland, llama-cpp, ui-mode]
 # 002: Plays and Roles — Current Target: Arch + Hyprland + Dev + AI
 
 Status: APPROVED
+Phase: 2-Build
 Handoff: 2026-09-15
 
 ## 1. Goal & Context
@@ -106,7 +107,7 @@ out of scope (spec 001, decision 2.17).
 
 - Deleted: none
 
-### [NEW] ansible/group_vars/all.yml
+### [NEW] ansible/inventory/group_vars/all.yml
 
 Cross-distro derivations only (decision 2.2). Currently one key.
 
@@ -123,7 +124,7 @@ The `thispc` entry for this machine: `wm_choice: hyprland`, `gpu_variant: nvidia
 - Contract:
   - every module key is either `{}` (take defaults), a params dict, or `~` (subtract)
 
-### [MODIFY] ansible/group_vars/arch.yml
+### [MODIFY] ansible/inventory/group_vars/arch.yml
 
 Adds the package keys this roster needs.
 
@@ -255,29 +256,29 @@ expected marker is a digit, so the expectation can never match the command line 
 
 ### Task 1: The variable layer — `ui_mode`, inventory, package keys
 
-- Target Files: [NEW] ansible/group_vars/all.yml, [MODIFY] ansible/inventory/hosts.yml, [MODIFY] ansible/group_vars/arch.yml
+- Target Files: [NEW] ansible/inventory/group_vars/all.yml, [MODIFY] ansible/inventory/hosts.yml, [MODIFY] ansible/inventory/group_vars/arch.yml
 - Depends On: None
 - Subtasks:
-  - [ ] 1.1 Write `all.yml` carrying only the `ui_mode` derivation.
+  - [x] 1.1 Write `all.yml` carrying only the `ui_mode` derivation.
     - Input: decision 2.1
-    - Output: ansible/group_vars/all.yml
-    - Verify: `grep -c 'ui_mode' ansible/group_vars/all.yml`
+    - Output: ansible/inventory/group_vars/all.yml
+    - Verify: `grep -c 'ui_mode' ansible/inventory/group_vars/all.yml`
     - Expect: "1"
-  - [ ] 1.2 Confirm `all.yml` holds no distro vocabulary (the decision 2.2 restriction).
+  - [x] 1.2 Confirm `all.yml` holds no distro vocabulary (the decision 2.2 restriction).
     - Input: output of 1.1
     - Output: reviewed all.yml
-    - Verify: `grep -cE '^(packages|commands):' ansible/group_vars/all.yml | cat`
+    - Verify: `grep -cE '^(packages|commands):' ansible/inventory/group_vars/all.yml | cat`
     - Expect: "0"
-  - [ ] 1.3 Write the `thispc` inventory entry with `wm_choice: hyprland` and the `modules` tree
+  - [x] 1.3 Write the `thispc` inventory entry with `wm_choice: hyprland` and the `modules` tree
         (`development: {vscode: {}, docker: ~}`, `ai: {llamacpp: {}, opencode: {}}`).
     - Input: decision 2.3; spec 001 decisions 2.1, 2.2
     - Output: ansible/inventory/hosts.yml
     - Verify: `ansible-inventory -i ansible/inventory/hosts.yml --host thispc | grep -c opencode`
     - Expect: "1"
-  - [ ] 1.4 Add the three new package keys to `arch.yml`.
+  - [x] 1.4 Add the three new package keys to `arch.yml`.
     - Input: decision 2.9; spec 001 decision 2.8
     - Output: `packages.app_llamacpp`, `packages.app_opencode`, `packages.app_vscode`
-    - Verify: `grep -cE '^    app_(llamacpp|opencode|vscode):' ansible/group_vars/arch.yml`
+    - Verify: `grep -cE '^    app_(llamacpp|opencode|vscode):' ansible/inventory/group_vars/arch.yml`
     - Expect: "3"
 - Phase Gate: `ansible-inventory -i ansible/inventory/hosts.yml --host thispc | grep ui_mode`
 
@@ -286,22 +287,22 @@ expected marker is a digit, so the expectation can never match the command line 
 - Target Files: [NEW] ansible/plays/01_bootstrap.yml, [NEW] ansible/roles/bootstrap_arch/tasks/main.yml, [NEW] ansible/roles/{disk_partition,base_install,system_identity,user_create,bootloader,initial_network}/tasks/main.yml
 - Depends On: Task 1
 - Subtasks:
-  - [ ] 2.1 Write the six sub-roles.
+  - [x] 2.1 Write the six sub-roles.
     - Input: decision 2.6
     - Output: six roles under ansible/roles/
     - Verify: `ls -d ansible/roles/{disk_partition,base_install,system_identity,user_create,bootloader,initial_network} | wc -l`
     - Expect: "6"
-  - [ ] 2.2 Write `bootstrap_arch` as an orchestrator including them in order.
+  - [x] 2.2 Write `bootstrap_arch` as an orchestrator including them in order.
     - Input: output of 2.1
     - Output: roles/bootstrap_arch/tasks/main.yml
     - Verify: `grep -c 'include_role' ansible/roles/bootstrap_arch/tasks/main.yml`
     - Expect: "6"
-  - [ ] 2.3 Register `target_uid` in `user_create`.
+  - [x] 2.3 Register `target_uid` in `user_create`.
     - Input: the `become_user` ordering constraint
     - Output: roles/user_create/tasks/main.yml
     - Verify: `grep -c getent ansible/roles/user_create/tasks/main.yml`
     - Expect: "1"
-  - [ ] 2.4 Write the play; it dispatches `bootstrap_{{ distro }}` and carries no `become`.
+  - [x] 2.4 Write the play; it dispatches `bootstrap_{{ distro }}` and carries no `become`.
     - Input: spec 001 decision 2.13
     - Output: ansible/plays/01_bootstrap.yml
     - Verify: `grep -cE 'become' ansible/plays/*bootstrap*.yml | cat`
@@ -412,7 +413,7 @@ expected marker is a digit, so the expectation can never match the command line 
   - [ ] 6.4 Write `app_opencode` installing the AUR binary package.
     - Input: decision 2.9
     - Output: roles/app_opencode/, arch.yml key
-    - Verify: `grep -c 'opencode-bin' ansible/group_vars/arch.yml`
+    - Verify: `grep -c 'opencode-bin' ansible/inventory/group_vars/arch.yml`
     - Expect: "1"
   - [ ] 6.5 Write `ai_model_store` owning `model_dir` and the profile.d export.
     - Input: decision 2.10; open question Q1
@@ -496,7 +497,7 @@ expected marker is a digit, so the expectation can never match the command line 
 Revert edits in reverse Task DAG order: Task 8 (site.yml/docs) → Task 7 (play 05) → Task 6
 (workflow_ai) → Task 5 (workflow_development) → Task 4 (play 03) → Task 3 (play 02) → Task 2
 (play 01) → Task 1 (variable layer). Everything except the two `[MODIFY]` files is additive, so
-`git rm -r ansible/plays ansible/roles ansible/site.yml ansible/group_vars/all.yml && git checkout -- ansible/inventory/hosts.yml ansible/group_vars/arch.yml`
+`git rm -r ansible/plays ansible/roles ansible/site.yml ansible/inventory/group_vars/all.yml && git checkout -- ansible/inventory/hosts.yml ansible/inventory/group_vars/arch.yml`
 restores the pre-spec tree. If any subtask fails verification 3 consecutive times the circuit
 breaker fires (`docs/temp/escalation.md`), dirty edits are reverted and the subtask reverts to
 `[ ]`.

@@ -1,0 +1,11 @@
+---
+# Live-ISO play: runs as root on the ISO, no privilege escalation. Not re-runnable.
+- name: Bootstrap live-ISO target
+  hosts: thispc
+  gather_facts: false
+  vars:
+    ansible_connection: local
+  tasks:
+    - name: Bootstrap {{ distro }}
+      ansible.builtin.include_role:
+        name: "bootstrap_{{ distro }}"

@@ -1,0 +1,24 @@
+---
+- name: Partition and mount the target disk
+  ansible.builtin.include_role:
+    name: disk_partition
+
+- name: Base install into chroot
+  ansible.builtin.include_role:
+    name: base_install
+
+- name: Configure hostname, timezone, locale, keymap
+  ansible.builtin.include_role:
+    name: system_identity
+
+- name: Create the target user
+  ansible.builtin.include_role:
+    name: user_create
+
+- name: Install the bootloader
+  ansible.builtin.include_role:
+    name: bootloader
+
+- name: Install initial networking
+  ansible.builtin.include_role:
+    name: initial_network

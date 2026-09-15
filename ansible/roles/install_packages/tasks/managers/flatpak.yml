@@ -1,0 +1,6 @@
+---
+- name: Install flatpak packages
+  community.general.flatpak:
+    name: "{{ pkg_list }}"
+    state: present
+  become: true
