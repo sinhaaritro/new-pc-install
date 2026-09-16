@@ -31,6 +31,10 @@
       ansible.builtin.include_role:
         name: network
 
+    - name: Clock sync
+      ansible.builtin.include_role:
+        name: clock_sync
+
     - name: Firewall
       ansible.builtin.include_role:
         name: firewall
