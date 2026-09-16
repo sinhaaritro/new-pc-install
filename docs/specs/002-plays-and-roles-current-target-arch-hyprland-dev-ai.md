@@ -468,22 +468,31 @@ expected marker is a digit, so the expectation can never match the command line 
 - Target Files: [NEW] ansible/site.yml, [NEW] ansible/README.md, [MODIFY] AGENTS.md
 - Depends On: Task 7
 - Subtasks:
-  - [ ] 8.1 Write `site.yml` importing all five plays.
+  - [x] 8.1 Write `site.yml` importing all five plays.
     - Input: decision 2.5
     - Output: ansible/site.yml
     - Verify: `grep -c 'import_playbook' ansible/site.yml`
     - Expect: "5"
-  - [ ] 8.2 Record the four load-bearing orderings as header comments.
+  - [x] 8.2 Record the four load-bearing orderings as header comments.
     - Input: section 4
     - Output: ansible/site.yml header
     - Verify: `grep -c '^# order:' ansible/site.yml`
     - Expect: "4"
-  - [ ] 8.3 Document the five-play structure and the `ui_mode` contract.
+  - [x] 8.3 Document the five-play structure and the `ui_mode` contract.
     - Input: sections 1-4
     - Output: ansible/README.md, AGENTS.md
     - Verify: `grep -c '05_finalise' ansible/README.md`
     - Expect: "1"
+    - Note: AGENTS.md skipped by explicit human decision — it is the Dev Agent
+      framework contract, not project docs; the five-play + ui_mode contract lives in
+      ansible/README.md only.
 - Phase Gate: `ansible-lint ansible/ && for p in ansible/plays/*.yml; do ansible-playbook -i ansible/inventory/hosts.yml "$p" --syntax-check; done`
+  - Status: syntax-check half green (all five plays, engine-recorded `002-T8-gate`);
+    `ansible-lint ansible/` reports 52 pre-existing findings, all in plays 01-05 /
+    Task 1-5 roles (never linted green in this spec — its gates linted roles only).
+    Task 8's own files (site.yml, README.md) add zero new findings, and the
+    session-built Task 6+7 roles pass `ansible-lint` clean. Whole-tree lint is a
+    pre-existing debt item, not a Task 8 defect.
 
 ### Completion rules
 

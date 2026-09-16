@@ -1,0 +1,20 @@
+---
+# Full converge entrypoint: imports the five plays in order. Plays 02-05 are
+# re-runnable; 01 is the one-shot live-ISO bootstrap.
+#
+# order: repos -> aur_helper -> aur packages
+#   (play 02 declares repos before aur_helper; any role whose package_source
+#    has an aur: key depends on the paru binary existing)
+# order: dotfiles -> stow
+#   (play 02 clones the dotfiles repo; app_* and component_* roles stow from it)
+# order: desktop_<wm> -> components
+#   (play 03 includes desktop_{{ wm_choice }} before the null-filtered
+#    component loop, so the WM exists before its components install)
+# order: user_create -> any become_user
+#   (play 01's user_create registers target_uid; every become_user task in
+#    plays 02-05 depends on that user existing)
+- import_playbook: plays/01_bootstrap.yml
+- import_playbook: plays/02_system.yml
+- import_playbook: plays/03_desktop.yml
+- import_playbook: plays/04_workflows.yml
+- import_playbook: plays/05_finalise.yml
