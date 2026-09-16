@@ -2,8 +2,8 @@
 - name: Install component packages
   ansible.builtin.include_role:
     name: install_packages
-    vars:
-      package_source: "{{ packages.component_clipboard }}"
+  vars:
+    package_source: "{{ packages.component_clipboard }}"
 
 - name: Stow component config
   ansible.builtin.command: "stow -R clipboard"

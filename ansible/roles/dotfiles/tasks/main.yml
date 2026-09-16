@@ -4,8 +4,8 @@
 - name: Install dotfiles tooling
   ansible.builtin.include_role:
     name: install_packages
-    vars:
-      package_source: "{{ packages.dotfiles }}"
+  vars:
+    package_source: "{{ packages.dotfiles }}"
 
 - name: Clone or update the dotfiles repo
   ansible.builtin.git:
@@ -13,6 +13,7 @@
     dest: "/home/{{ target_user }}/dotfiles"
     version: "{{ dotfiles_branch | default('main') }}"
     force: true
+  become: true
   become_user: "{{ target_user }}"
 
 - name: Stow dotfiles packages
@@ -20,6 +21,7 @@
   args:
     chdir: "/home/{{ target_user }}/dotfiles"
     creates: "/home/{{ target_user }}/.{{ item }}"
+  become: true
   become_user: "{{ target_user }}"
   loop: "{{ stow_packages | default([]) }}"
   loop_control:

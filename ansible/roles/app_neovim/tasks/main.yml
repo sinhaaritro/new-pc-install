@@ -12,6 +12,6 @@
     creates: "/home/{{ target_user }}/.config/{{ item }}"
   become: true
   become_user: "{{ target_user }}"
-  loop: "{{ nvim_stow_packages | combine((app_params | default({}).stow) | default([])) }}"
+  loop: "{{ nvim_stow_packages | combine((app_params | default({})).stow | default([])) }}"
   loop_control:
     label: "{{ item }}"

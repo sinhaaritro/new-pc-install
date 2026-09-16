@@ -3,5 +3,5 @@
 - name: Install base packages
   ansible.builtin.include_role:
     name: install_packages
-    vars:
-      package_source: "{{ packages.base }}"
+  vars:
+    package_source: "{{ packages.base }}"

@@ -3,5 +3,5 @@
 - name: Install audio packages ({{ audio_variant }})
   ansible.builtin.include_role:
     name: install_packages
-    vars:
-      package_source: "{{ packages.audio[audio_variant] }}"
+  vars:
+    package_source: "{{ packages.audio[audio_variant] }}"

@@ -1,6 +1,7 @@
 ---
 - name: Install AUR packages via {{ commands.aur.install }}
   ansible.builtin.command: "{{ commands.aur.install }} -S --needsys --noconfirm {{ pkg_list | join(' ') }}"
+  become: true
   become_user: "{{ target_user }}"
   register: aur_rc
   changed_when: "'there is nothing to do' not in (aur_rc.stdout | default(''))"

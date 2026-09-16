@@ -3,8 +3,8 @@
 - name: Install gpu packages ({{ gpu_variant }})
   ansible.builtin.include_role:
     name: install_packages
-    vars:
-      package_source: "{{ packages.gpu[gpu_variant] }}"
+  vars:
+    package_source: "{{ packages.gpu[gpu_variant] }}"
 
 - name: Enable nvidia-persistenced
   ansible.builtin.systemd:

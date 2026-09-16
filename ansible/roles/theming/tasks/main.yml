@@ -2,8 +2,8 @@
 - name: Install theme packages
   ansible.builtin.include_role:
     name: install_packages
-    vars:
-      package_source: "{{ theme_packages | combine(packages.theming | default({}), recursive=True) }}"
+  vars:
+    package_source: "{{ theme_packages | combine(packages.theming | default({}), recursive=True) }}"
 
 - name: Render gtk-3.0 settings
   ansible.builtin.template:

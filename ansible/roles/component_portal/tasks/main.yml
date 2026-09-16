@@ -2,8 +2,8 @@
 - name: Install component packages
   ansible.builtin.include_role:
     name: install_packages
-    vars:
-      package_source: "{{ packages.component_portal }}"
+  vars:
+    package_source: "{{ packages.component_portal }}"
 
 - name: Enable xdg-desktop-portal
   ansible.builtin.systemd:

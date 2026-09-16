@@ -2,8 +2,8 @@
 - name: Install app packages
   ansible.builtin.include_role:
     name: install_packages
-    vars:
-      package_source: "{{ packages.app_lang_toolchains }}"
+  vars:
+    package_source: "{{ packages.app_lang_toolchains }}"
 
 - name: Install declared toolchains
   ansible.builtin.pacman:

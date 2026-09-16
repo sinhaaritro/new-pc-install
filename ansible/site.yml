@@ -13,8 +13,13 @@
 # order: user_create -> any become_user
 #   (play 01's user_create registers target_uid; every become_user task in
 #    plays 02-05 depends on that user existing)
-- import_playbook: plays/01_bootstrap.yml
-- import_playbook: plays/02_system.yml
-- import_playbook: plays/03_desktop.yml
-- import_playbook: plays/04_workflows.yml
-- import_playbook: plays/05_finalise.yml
+- name: Bootstrap
+  import_playbook: plays/01_bootstrap.yml
+- name: System
+  import_playbook: plays/02_system.yml
+- name: Desktop
+  import_playbook: plays/03_desktop.yml
+- name: Workflows
+  import_playbook: plays/04_workflows.yml
+- name: Finalise
+  import_playbook: plays/05_finalise.yml

@@ -2,8 +2,8 @@
 - name: Install ssh packages
   ansible.builtin.include_role:
     name: install_packages
-    vars:
-      package_source: "{{ packages.ssh }}"
+  vars:
+    package_source: "{{ packages.ssh }}"
 
 - name: Harden sshd config
   ansible.builtin.lineinfile:

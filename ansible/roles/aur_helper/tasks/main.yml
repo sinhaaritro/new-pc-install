@@ -4,7 +4,9 @@
 - name: Build {{ commands.aur.install }}
   ansible.builtin.command: >
     makepkg -si --noconfirm
-  chdir: /home/{{ target_user }}/.cache/paru/clone/paru
-  creates: /usr/bin/paru
+  args:
+    chdir: /home/{{ target_user }}/.cache/paru/clone/paru
+    creates: /usr/bin/paru
+  become: true
   become_user: "{{ target_user }}"
   changed_when: true

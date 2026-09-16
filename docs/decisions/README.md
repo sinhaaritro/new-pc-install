@@ -41,6 +41,9 @@ Every ADR carries `tags: [lowercase-kebab, ...]`.
   - 📄 [adr-026-adr-nnn-cmake-flags-are-a-yaml-list-in-role-defaults.md](./adr-026-adr-nnn-cmake-flags-are-a-yaml-list-in-role-defaults.md) — Accepted — backlinks: docs/specs/002-plays-and-roles-current-target-arch-hyprland-dev-ai.md
   - 📄 [adr-027-adr-nnn-prefer-the-prebuilt-aur-package-where-upstream-ships-one.md](./adr-027-adr-nnn-prefer-the-prebuilt-aur-package-where-upstream-ships-one.md) — Accepted — backlinks: docs/specs/002-plays-and-roles-current-target-arch-hyprland-dev-ai.md
   - 📄 [adr-028-adr-nnn-model-storage-is-one-key-owned-by-ai-model-store.md](./adr-028-adr-nnn-model-storage-is-one-key-owned-by-ai-model-store.md) — Accepted — backlinks: docs/specs/002-plays-and-roles-current-target-arch-hyprland-dev-ai.md
+  - 📄 [adr-029-adr-nnn-pass-per-include-role-vars-via-apply-not-include-tasks.md](./adr-029-adr-nnn-pass-per-include-role-vars-via-apply-not-include-tasks.md) — Accepted — backlinks: docs/specs/003-ansible-lint-remediation.md
+  - 📄 [adr-030-adr-nnn-exclude-var-naming-no-role-prefix-instead-of-renaming.md](./adr-030-adr-nnn-exclude-var-naming-no-role-prefix-instead-of-renaming.md) — Accepted — backlinks: docs/specs/003-ansible-lint-remediation.md
+  - 📄 [adr-031-adr-nnn-exclude-fqcn-canonical-for-pacman-instead-of-adding-the-collection.md](./adr-031-adr-nnn-exclude-fqcn-canonical-for-pacman-instead-of-adding-the-collection.md) — Accepted — backlinks: docs/specs/003-ansible-lint-remediation.md
 <!-- TOC:END -->
 
 <!-- TAG-INDEX:START -->

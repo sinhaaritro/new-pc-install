@@ -15,7 +15,10 @@
       ansible.builtin.include_role:
         name: "component_{{ item.key }}"
       vars:
-        component_roster: "{{ (desktop_config.components | default({})) | combine(component_overrides | default({}), recursive=True) | dict2items | rejectattr('value','none') | list }}"
+        component_roster: >-
+          {{ (desktop_config.components | default({}))
+             | combine(component_overrides | default({}), recursive=True)
+             | dict2items | rejectattr('value', 'none') | list }}
       loop: "{{ component_roster }}"
       loop_control:
         label: "{{ item.key }}"

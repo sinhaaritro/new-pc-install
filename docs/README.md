@@ -20,6 +20,7 @@ untouched.
 - 📁 specs/
   - 📄 [001-declarative-ansible-provisioning-tree-the-pattern.md](./specs/001-declarative-ansible-provisioning-tree-the-pattern.md) — APPROVED
   - 📄 [002-plays-and-roles-current-target-arch-hyprland-dev-ai.md](./specs/002-plays-and-roles-current-target-arch-hyprland-dev-ai.md) — APPROVED
+  - 📄 [003-ansible-lint-remediation.md](./specs/003-ansible-lint-remediation.md) — APPROVED
 
 - 📁 decisions/
   - 📄 [adr-001-adr-nnn-presence-over-flags.md](./decisions/adr-001-adr-nnn-presence-over-flags.md) — Accepted — backlinks: docs/specs/001-declarative-ansible-provisioning-tree-the-pattern.md
@@ -50,6 +51,9 @@ untouched.
   - 📄 [adr-026-adr-nnn-cmake-flags-are-a-yaml-list-in-role-defaults.md](./decisions/adr-026-adr-nnn-cmake-flags-are-a-yaml-list-in-role-defaults.md) — Accepted — backlinks: docs/specs/002-plays-and-roles-current-target-arch-hyprland-dev-ai.md
   - 📄 [adr-027-adr-nnn-prefer-the-prebuilt-aur-package-where-upstream-ships-one.md](./decisions/adr-027-adr-nnn-prefer-the-prebuilt-aur-package-where-upstream-ships-one.md) — Accepted — backlinks: docs/specs/002-plays-and-roles-current-target-arch-hyprland-dev-ai.md
   - 📄 [adr-028-adr-nnn-model-storage-is-one-key-owned-by-ai-model-store.md](./decisions/adr-028-adr-nnn-model-storage-is-one-key-owned-by-ai-model-store.md) — Accepted — backlinks: docs/specs/002-plays-and-roles-current-target-arch-hyprland-dev-ai.md
+  - 📄 [adr-029-adr-nnn-pass-per-include-role-vars-via-apply-not-include-tasks.md](./decisions/adr-029-adr-nnn-pass-per-include-role-vars-via-apply-not-include-tasks.md) — Accepted — backlinks: docs/specs/003-ansible-lint-remediation.md
+  - 📄 [adr-030-adr-nnn-exclude-var-naming-no-role-prefix-instead-of-renaming.md](./decisions/adr-030-adr-nnn-exclude-var-naming-no-role-prefix-instead-of-renaming.md) — Accepted — backlinks: docs/specs/003-ansible-lint-remediation.md
+  - 📄 [adr-031-adr-nnn-exclude-fqcn-canonical-for-pacman-instead-of-adding-the-collection.md](./decisions/adr-031-adr-nnn-exclude-fqcn-canonical-for-pacman-instead-of-adding-the-collection.md) — Accepted — backlinks: docs/specs/003-ansible-lint-remediation.md
 
 - 📁 reference/
   - 📄 [ansible-bck-vs-specs-impl-wins.md](./reference/ansible-bck-vs-specs-impl-wins.md)

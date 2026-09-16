@@ -2,8 +2,8 @@
 - name: Install shell packages
   ansible.builtin.include_role:
     name: install_packages
-    vars:
-      package_source: "{{ packages.shell }}"
+  vars:
+    package_source: "{{ packages.shell }}"
 
 - name: Set the target user shell
   ansible.builtin.user:
@@ -15,4 +15,5 @@
   args:
     chdir: "/home/{{ target_user }}/dotfiles"
     creates: "/home/{{ target_user }}/.{{ shell_stow_name | default('bashrc') }}"
+  become: true
   become_user: "{{ target_user }}"

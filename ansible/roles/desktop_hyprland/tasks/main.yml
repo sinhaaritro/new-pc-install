@@ -2,8 +2,8 @@
 - name: Install desktop packages
   ansible.builtin.include_role:
     name: install_packages
-    vars:
-      package_source: "{{ packages.desktop_hyprland }}"
+  vars:
+    package_source: "{{ packages.desktop_hyprland }}"
 
 - name: Render Hyprland user config
   ansible.builtin.template:

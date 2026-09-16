@@ -2,8 +2,8 @@
 - name: Install firewall packages
   ansible.builtin.include_role:
     name: install_packages
-    vars:
-      package_source: "{{ packages.firewall }}"
+  vars:
+    package_source: "{{ packages.firewall }}"
 
 - name: Allow SSH on the default zone
   ansible.builtin.ufw:
