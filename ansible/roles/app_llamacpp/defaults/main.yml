@@ -1,21 +1,15 @@
 ---
-# Source-build role (spec 002 decisions 2.7, 2.8). The build is machine-specific:
-# -DGGML_NATIVE=ON bakes in this CPU's feature set and CUDA arch 89 is Ada-only,
-# so artifacts are never portable and never cache-shared between boxes.
-# Flags live as a YAML list so inventory can replace or extend the set for a
-# different GPU without editing this role.
+# Source-build role (spec 002 decisions 2.7, 2.8). Flags are layered: portable
+# defaults live here, machine-specific flags (GPU arch, CPU feature set) are
+# carried in inventory under ai.llamacpp.cmake_flags. The combine below lets
+# inventory replace the default list — with recursive=True a list value in
+# app_params overwrites the default (no list concat), so an empty slot falls
+# back to the portable set and a populated slot fully drives the build.
 app_llamacpp_repo: https://github.com/ggml-org/llama.cpp
 app_llamacpp_version: master
-app_llamacpp_src_dir: "{{ '/home/' + x_target_user + '/app_llamacpp_src/llama.cpp' }}"
+app_llamacpp_src_dir: "{{ '/home/' + x_target_user + '/aur/llama.cpp' }}"
 app_llamacpp_jobs: "{{ (ansible_processor_vcpus | default(1)) // 2 | int if (ansible_processor_vcpus | default(2)) | int > 1 else 1 }}"
-app_llamacpp_cmake_flags:
-  - -DCMAKE_BUILD_TYPE=Release
-  - -DGGML_CUDA=ON
-  - -DCMAKE_CUDA_ARCHITECTURES=89
-  - -DGGML_CUDA_FA_ALL_QUANTS=ON
-  - -DGGML_CUDA_F16=ON
-  - -DGGML_NATIVE=ON
-  - -DGGML_AVX512=ON
-  - -DGGML_AVX512_VBMI=ON
-  - -DGGML_AVX512_VNNI=ON
-  - -DGGML_AVX512_BF16=ON
+app_llamacpp_defaults:
+  cmake_flags:
+    - -DCMAKE_BUILD_TYPE=Release
+app_llamacpp_config: "{{ app_llamacpp_defaults | combine(app_params | default({}), recursive=True) }}"

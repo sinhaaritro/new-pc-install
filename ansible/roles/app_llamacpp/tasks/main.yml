@@ -27,7 +27,7 @@
   register: app_llamacpp_build_artifact
 
 - name: Configure llama.cpp
-  ansible.builtin.command: "cmake -B build -S . {{ app_llamacpp_cmake_flags | join(' ') }}"
+  ansible.builtin.command: "cmake -B build -S . {{ app_llamacpp_config.cmake_flags | join(' ') }}"
   args:
     chdir: "{{ app_llamacpp_src_dir }}"
   become: true
