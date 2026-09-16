@@ -1,7 +1,7 @@
 ---
 # btrfs-only; never reachable while the root filesystem is ext4 (Q3).
 - name: Install snapper packages
-  ansible.builtin.pacman:
+  community.general.pacman:
     name:
       - snapper
       - btrfs-progs

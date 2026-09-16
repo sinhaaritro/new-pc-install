@@ -19,6 +19,7 @@ Every spec carries `tags: [lowercase-kebab, ...]`; the promotion gate runs
   - 📄 [001-declarative-ansible-provisioning-tree-the-pattern.md](./001-declarative-ansible-provisioning-tree-the-pattern.md) — APPROVED
   - 📄 [002-plays-and-roles-current-target-arch-hyprland-dev-ai.md](./002-plays-and-roles-current-target-arch-hyprland-dev-ai.md) — APPROVED
   - 📄 [003-ansible-lint-remediation.md](./003-ansible-lint-remediation.md) — APPROVED
+  - 📄 [004-ansible-lint-zero-finding-without-config-waivers.md](./004-ansible-lint-zero-finding-without-config-waivers.md) — APPROVED
 <!-- TOC:END -->
 
 <!-- TAG-INDEX:START -->

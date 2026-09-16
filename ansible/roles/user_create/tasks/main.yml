@@ -2,14 +2,14 @@
 - name: Create target user in chroot
   ansible.builtin.command: >
     chroot {{ target_root }}
-    useradd -m -G wheel -s /usr/bin/bash {{ target_user }}
+    useradd -m -G wheel -s /usr/bin/bash {{ x_target_user }}
   register: user_create_useradd
   changed_when: "'already exists' not in (user_create_useradd.stderr | default(''))"
 
 - name: Set password for target user in chroot
   ansible.builtin.command: >
     chroot {{ target_root }}
-    usermod -p '{{ user_password_hash }}' {{ target_user }}
+    usermod -p '{{ user_password_hash }}' {{ x_target_user }}
   no_log: true
   changed_when: true
   when: user_password_hash | default('') | length > 0
@@ -21,9 +21,9 @@
     mode: "0440"
     validate: "chroot {{ target_root }} visudo -cf %s"
 
-- name: Register target_uid
+- name: Register user_create_target_uid
   ansible.builtin.getent:
     database: passwd
-    key: "{{ target_user }}"
-  register: target_uid
+    key: "{{ x_target_user }}"
+  register: user_create_target_uid
   changed_when: false

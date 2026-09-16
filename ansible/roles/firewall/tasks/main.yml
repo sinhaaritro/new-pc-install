@@ -1,22 +1,22 @@
 ---
-- name: Install firewall packages
+- name: Install firewall x_packages
   ansible.builtin.include_role:
     name: install_packages
   vars:
-    package_source: "{{ packages.firewall }}"
+    install_packages_source: "{{ x_packages.firewall }}"
 
 - name: Allow SSH on the default zone
-  ansible.builtin.ufw:
+  community.general.ufw:
     rule: allow
     port: "22"
     proto: tcp
-  register: ufw_ssh
+  register: firewall_ufw_ssh
   failed_when: false
 
 - name: Enable ufw
-  ansible.builtin.ufw:
+  community.general.ufw:
     state: enabled
     policy: deny
-  when: ufw_ssh is success
-  register: ufw_enable
+  when: firewall_ufw_ssh is success
+  register: firewall_ufw_enable
   failed_when: false

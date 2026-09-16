@@ -1,3 +1,3 @@
 ---
-nvim_stow_packages:
+app_neovim_nvim_stow_packages:
   - nvim

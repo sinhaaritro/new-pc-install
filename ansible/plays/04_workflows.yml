@@ -1,7 +1,7 @@
 ---
 # Re-runnable workflow play. Loops `modules` with the null filter (ADR-003):
 # `~` subtracts, absence takes the role default. Each workflow role carries its
-# own ui_mode-gated roster (ADR-021).
+# own x_ui_mode-gated roster (ADR-021).
 - name: Workflows
   hosts: thispc
   become: true

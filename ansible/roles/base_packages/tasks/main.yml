@@ -1,7 +1,7 @@
 ---
-# Converge-path counterpart of base_install: installs packages.base on a live system.
-- name: Install base packages
+# Converge-path counterpart of base_install: installs x_packages.base on a live system.
+- name: Install base x_packages
   ansible.builtin.include_role:
     name: install_packages
   vars:
-    package_source: "{{ packages.base }}"
+    install_packages_source: "{{ x_packages.base }}"

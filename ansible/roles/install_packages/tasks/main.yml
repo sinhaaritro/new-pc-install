@@ -1,12 +1,12 @@
 ---
 # Shared package installer: dispatches one file per manager key.
-# Input: package_source: {<manager>: [<pkg>, ...]}
-- name: Install packages via {{ mgr.key }}
+# Input: install_packages_source: {<manager>: [<pkg>, ...]}
+- name: Install x_packages via {{ mgr.key }}
   ansible.builtin.include_tasks:
     file: "managers/{{ mgr.key }}.yml"
   vars:
     pkg_list: "{{ mgr.value }}"
-  loop: "{{ package_source | dict2items }}"
+  loop: "{{ install_packages_source | dict2items }}"
   loop_control:
     loop_var: mgr
     label: "{{ mgr.key }}"

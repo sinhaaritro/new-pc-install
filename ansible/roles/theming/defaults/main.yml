@@ -1,12 +1,12 @@
 ---
-theme_defaults:
+theming_theme_defaults:
   gtk_theme: "Adwaita"
   qt_theme: "Adwaita"
   icon_theme: "Adwaita"
   cursor_theme: "Adwaita"
-theme_overrides: {}
-theme: "{{ theme_defaults | combine(theme_overrides | default({}), recursive=True) }}"
-theme_packages:
+theming_theme_overrides: {}
+theming_theme: "{{ theming_theme_defaults | combine(theming_theme_overrides | default({}), recursive=True) }}"
+theming_theme_packages:
   pacman:
     - gtk3
     - gtk4

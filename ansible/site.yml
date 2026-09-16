@@ -3,7 +3,7 @@
 # re-runnable; 01 is the one-shot live-ISO bootstrap.
 #
 # order: repos -> aur_helper -> aur packages
-#   (play 02 declares repos before aur_helper; any role whose package_source
+#   (play 02 declares repos before aur_helper; any role whose install_packages_source
 #    has an aur: key depends on the paru binary existing)
 # order: dotfiles -> stow
 #   (play 02 clones the dotfiles repo; app_* and component_* roles stow from it)
@@ -11,7 +11,7 @@
 #   (play 03 includes desktop_{{ wm_choice }} before the null-filtered
 #    component loop, so the WM exists before its components install)
 # order: user_create -> any become_user
-#   (play 01's user_create registers target_uid; every become_user task in
+#   (play 01's user_create registers user_create_target_uid; every become_user task in
 #    plays 02-05 depends on that user existing)
 - name: Bootstrap
   import_playbook: plays/01_bootstrap.yml

@@ -8,45 +8,40 @@
 - name: Install build dependencies
   ansible.builtin.include_role:
     name: install_packages
-  # noqa: var-naming[no-role-prefix]
   vars:
-    package_source: "{{ packages.app_llamacpp }}"
+    install_packages_source: "{{ x_packages.app_llamacpp }}"
 
 - name: Check out llama.cpp at pinned version
   ansible.builtin.git:
-    repo: "{{ llamacpp_repo }}"
-    dest: "{{ llamacpp_src_dir }}"
-    version: "{{ llamacpp_version }}"
+    repo: "{{ app_llamacpp_repo }}"
+    dest: "{{ app_llamacpp_src_dir }}"
+    version: "{{ app_llamacpp_version }}"
     depth: 1
   become: true
-  become_user: "{{ target_user }}"
-  # noqa: var-naming[no-role-prefix]
-  register: src
+  become_user: "{{ x_target_user }}"
+  register: app_llamacpp_src
 
 - name: Check for existing build artifact
   ansible.builtin.stat:
-    path: "{{ llamacpp_src_dir }}/build/bin/llama-cli"
-  # noqa: var-naming[no-role-prefix]
-  register: build_artifact
+    path: "{{ app_llamacpp_src_dir }}/build/bin/llama-cli"
+  register: app_llamacpp_build_artifact
 
 - name: Configure llama.cpp
-  ansible.builtin.command: "cmake -B build -S . {{ cmake_flags | join(' ') }}"
+  ansible.builtin.command: "cmake -B build -S . {{ app_llamacpp_cmake_flags | join(' ') }}"
   args:
-    chdir: "{{ llamacpp_src_dir }}"
+    chdir: "{{ app_llamacpp_src_dir }}"
   become: true
-  become_user: "{{ target_user }}"
-  when: src.changed or not build_artifact.stat.exists
-  # noqa: var-naming[no-role-prefix]
-  register: configure_rc
-  changed_when: configure_rc.rc == 0
+  become_user: "{{ x_target_user }}"
+  when: app_llamacpp_src.changed or not app_llamacpp_build_artifact.stat.exists
+  register: app_llamacpp_configure_rc
+  changed_when: app_llamacpp_configure_rc.rc == 0
 
 - name: Build llama.cpp
-  ansible.builtin.command: "cmake --build build -j {{ llamacpp_jobs }}"
+  ansible.builtin.command: "cmake --build build -j {{ app_llamacpp_jobs }}"
   args:
-    chdir: "{{ llamacpp_src_dir }}"
+    chdir: "{{ app_llamacpp_src_dir }}"
   become: true
-  become_user: "{{ target_user }}"
-  when: src.changed or not build_artifact.stat.exists
-  # noqa: var-naming[no-role-prefix]
-  register: build_rc
-  changed_when: build_rc.rc == 0
+  become_user: "{{ x_target_user }}"
+  when: app_llamacpp_src.changed or not app_llamacpp_build_artifact.stat.exists
+  register: app_llamacpp_build_rc
+  changed_when: app_llamacpp_build_rc.rc == 0

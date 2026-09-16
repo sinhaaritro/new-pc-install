@@ -1,6 +1,6 @@
 ---
 - name: Install greetd
-  ansible.builtin.pacman:
+  community.general.pacman:
     name:
       - greetd
     state: present

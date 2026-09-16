@@ -7,7 +7,10 @@
     name: "{{ 'app_' ~ item.key if item.key != 'model_store' else 'ai_model_store' }}"
   vars:
     app_params: "{{ item.value }}"
-    module_roster: "{{ module_cli | combine(module_gui if ui_mode == 'gui' else {}) | combine(app_overrides | default({}), recursive=True) }}"
-  loop: "{{ module_roster | dict2items | rejectattr('value', 'none') | list }}"
+    workflow_roster: >-
+      {{ workflow_ai_module_cli
+         | combine(workflow_ai_module_gui if x_ui_mode == 'gui' else {})
+         | combine(app_overrides | default({}), recursive=True) }}
+  loop: "{{ workflow_roster | dict2items | rejectattr('value', 'none') | list }}"
   loop_control:
     label: "{{ item.key }}"

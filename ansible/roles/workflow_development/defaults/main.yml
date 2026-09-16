@@ -1,19 +1,14 @@
 ---
 # ADR-021 roster split: desktop-only apps live in module_gui and simply do not
-# exist on a cli box; no task anywhere gates on ui_mode with a conditional.
+# exist on a cli box; no task anywhere gates on x_ui_mode with a conditional.
 # Key names are load-bearing (spec 002 section 4 contract + Task 5 audit
-# greps). module_defaults collides with an Ansible reserved name and with the
-# vars schema (ansible-lint and the IDE both enforce it); its expression is
-# also evaluated in tasks/main.yml, so the schema is waived for this file.
-# yaml-language-server: $schema=https://json.schemastore.org/base.json
-# noqa: var-naming[no-reserved] schema[vars]
-module_defaults: "{{ module_cli | combine(module_gui if ui_mode == 'gui' else {}) }}"
-# noqa: var-naming[no-role-prefix]
-module_cli:
+# greps). The derived roster is computed in tasks/main.yml under
+# module_roster (the defaults-file key `module_defaults` is an Ansible
+# reserved name and cannot legally appear in a vars file - spec 004 / ADR-033).
+workflow_development_module_cli:
   git: {}
   neovim: {}
   docker: {}
   lang_toolchains: {}
-# noqa: var-naming[no-role-prefix]
-module_gui:
+workflow_development_module_gui:
   vscode: {}

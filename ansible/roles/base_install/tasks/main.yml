@@ -8,7 +8,7 @@
     -w
     -k
     -p
-    {{ packages.base.pacman | join(' ') }}
+    {{ x_packages.base.pacman | join(' ') }}
   changed_when: true
 
 - name: Ensure /boot/efi exists in chroot
@@ -22,8 +22,8 @@
   register: base_install_uuids
   changed_when: false
   loop:
-    - "{{ part_layout | selectattr('type', 'equalto', 'efi') | first }}"
-    - "{{ part_layout | selectattr('type', 'equalto', 'ext4') | first }}"
+    - "{{ disk_partition_part_layout | selectattr('type', 'equalto', 'efi') | first }}"
+    - "{{ disk_partition_part_layout | selectattr('type', 'equalto', 'ext4') | first }}"
   loop_control:
     label: "partition {{ item.number }} ({{ item.type }})"
 

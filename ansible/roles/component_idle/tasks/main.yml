@@ -1,17 +1,17 @@
 ---
-- name: Install component packages
+- name: Install component x_packages
   ansible.builtin.include_role:
     name: install_packages
   vars:
-    package_source: "{{ packages.component_idle }}"
+    install_packages_source: "{{ x_packages.component_idle }}"
 
 - name: Stow component config
   ansible.builtin.command: "stow -R hypridle"
   args:
-    chdir: "/home/{{ target_user }}/dotfiles"
-    creates: "/home/{{ target_user }}/.config/hypridle"
+    chdir: "/home/{{ x_target_user }}/dotfiles"
+    creates: "/home/{{ x_target_user }}/.config/hypridle"
   become: true
-  become_user: "{{ target_user }}"
+  become_user: "{{ x_target_user }}"
 
 - name: Enable idle user unit (never start)
   ansible.builtin.systemd:
@@ -20,6 +20,6 @@
     enabled: true
     state: stopped
   become: true
-  become_user: "{{ target_user }}"
+  become_user: "{{ x_target_user }}"
   environment:
-    XDG_RUNTIME_DIR: "/run/user/{{ target_uid.pw.uid }}"
+    XDG_RUNTIME_DIR: "/run/user/{{ user_create_target_uid.pw.uid }}"

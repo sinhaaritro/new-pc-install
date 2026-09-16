@@ -3,5 +3,5 @@
 #   lang_toolchains:
 #     golang: {package: golang}
 #     rust: {package: rust}
-toolchain_defaults: {}
-toolchains: "{{ toolchain_defaults | combine(app_params | default({})) }}"
+app_lang_toolchains_toolchain_defaults: {}
+app_lang_toolchains_toolchains: "{{ app_lang_toolchains_toolchain_defaults | combine(app_params | default({})) }}"

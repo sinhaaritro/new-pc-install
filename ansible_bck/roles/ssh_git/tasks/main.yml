@@ -84,7 +84,7 @@
   register: ssh_git_gitemail_prompt
   when: (ssh_git_gitemail | length) == 0
 
-- name: Set the global git identity (module ssh)  # noqa: command-instead-of-module
+- name: Set the global git identity (module ssh)
   ansible.builtin.shell: >-
     git config --global user.name "{{ (ssh_git_name | length) > 0 and ssh_git_name or ssh_git_name_prompt.user_input }}"
     && git config --global user.email "{{ (ssh_git_gitemail | length) > 0 and ssh_git_gitemail or ssh_git_gitemail_prompt.user_input }}"

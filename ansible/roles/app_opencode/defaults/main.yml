@@ -1,6 +1,5 @@
 ---
 # Prebuilt AUR package (spec 002 decision 2.9): upstream ships `opencode-bin`,
 # so a source AUR build buys nothing for a shipped binary.
-# noqa: var-naming[no-role-prefix]
-opencode_stow_targets:
+app_opencode_stow_targets:
   - opencode

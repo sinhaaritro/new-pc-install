@@ -44,6 +44,9 @@ Every ADR carries `tags: [lowercase-kebab, ...]`.
   - 📄 [adr-029-adr-nnn-pass-per-include-role-vars-via-apply-not-include-tasks.md](./adr-029-adr-nnn-pass-per-include-role-vars-via-apply-not-include-tasks.md) — Accepted — backlinks: docs/specs/003-ansible-lint-remediation.md
   - 📄 [adr-030-adr-nnn-exclude-var-naming-no-role-prefix-instead-of-renaming.md](./adr-030-adr-nnn-exclude-var-naming-no-role-prefix-instead-of-renaming.md) — Accepted — backlinks: docs/specs/003-ansible-lint-remediation.md
   - 📄 [adr-031-adr-nnn-exclude-fqcn-canonical-for-pacman-instead-of-adding-the-collection.md](./adr-031-adr-nnn-exclude-fqcn-canonical-for-pacman-instead-of-adding-the-collection.md) — Accepted — backlinks: docs/specs/003-ansible-lint-remediation.md
+  - 📄 [adr-032-adr-nnn-rename-shared-and-role-local-vars-to-satisfy-var-naming.md](./adr-032-adr-nnn-rename-shared-and-role-local-vars-to-satisfy-var-naming.md) — Accepted — backlinks: docs/specs/004-ansible-lint-zero-finding-without-config-waivers.md
+  - 📄 [adr-033-adr-nnn-rename-reserved-module-defaults-key-in-workflow-roles.md](./adr-033-adr-nnn-rename-reserved-module-defaults-key-in-workflow-roles.md) — Accepted — backlinks: docs/specs/004-ansible-lint-zero-finding-without-config-waivers.md
+  - 📄 [adr-034-adr-nnn-delete-the-ansible-lint-config-file-after-reaching-zero-findings.md](./adr-034-adr-nnn-delete-the-ansible-lint-config-file-after-reaching-zero-findings.md) — Accepted — backlinks: docs/specs/004-ansible-lint-zero-finding-without-config-waivers.md
 <!-- TOC:END -->
 
 <!-- TAG-INDEX:START -->

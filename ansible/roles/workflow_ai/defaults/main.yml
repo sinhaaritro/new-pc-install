@@ -1,17 +1,12 @@
 ---
 # Roster split (spec 002 section 4 contract): all AI apps work headless, so
-# module_cli holds the whole roster and module_gui is empty. The combine
-# mirrors workflow_development (ADR-021); no task gates on ui_mode.
-# module_defaults collides with an Ansible reserved name and with the vars
-# schema (ansible-lint and the IDE both enforce it), so the schema is waived
-# for this file.
-# yaml-language-server: $schema=https://json.schemastore.org/base.json
-# noqa: var-naming[no-reserved] schema[vars]
-module_defaults: "{{ module_cli | combine(module_gui if ui_mode == 'gui' else {}) }}"
-# noqa: var-naming[no-role-prefix]
-module_cli:
+# module_cli holds the whole roster and module_gui is empty. The derived
+# roster is computed in tasks/main.yml under module_roster (the
+# defaults-file key `module_defaults` is an Ansible reserved name and cannot
+# legally appear in a vars file - spec 004 / ADR-033); no task gates on
+# x_ui_mode.
+workflow_ai_module_cli:
   llamacpp: {}
   opencode: {}
   model_store: {}
-# noqa: var-naming[no-role-prefix]
-module_gui: {}
+workflow_ai_module_gui: {}

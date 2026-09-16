@@ -1,28 +1,28 @@
 ---
 # Distro-independent (ADR-014): the repo URL is layer-1 inventory data; the
-# packages.dotfiles key selects which managers provide the tooling (stow).
+# x_packages.dotfiles key selects which managers provide the tooling (stow).
 - name: Install dotfiles tooling
   ansible.builtin.include_role:
     name: install_packages
   vars:
-    package_source: "{{ packages.dotfiles }}"
+    install_packages_source: "{{ x_packages.dotfiles }}"
 
 - name: Clone or update the dotfiles repo
   ansible.builtin.git:
     repo: "{{ dotfiles_repo }}"
-    dest: "/home/{{ target_user }}/dotfiles"
+    dest: "/home/{{ x_target_user }}/dotfiles"
     version: "{{ dotfiles_branch | default('main') }}"
     force: true
   become: true
-  become_user: "{{ target_user }}"
+  become_user: "{{ x_target_user }}"
 
-- name: Stow dotfiles packages
+- name: Stow dotfiles x_packages
   ansible.builtin.command: "stow -R {{ item }}"
   args:
-    chdir: "/home/{{ target_user }}/dotfiles"
-    creates: "/home/{{ target_user }}/.{{ item }}"
+    chdir: "/home/{{ x_target_user }}/dotfiles"
+    creates: "/home/{{ x_target_user }}/.{{ item }}"
   become: true
-  become_user: "{{ target_user }}"
+  become_user: "{{ x_target_user }}"
   loop: "{{ stow_packages | default([]) }}"
   loop_control:
     label: "{{ item }}"

@@ -1,5 +1,5 @@
 ---
-docker_defaults:
+app_docker_defaults:
   rootless: false
   enable_service: true
-docker_config: "{{ docker_defaults | combine(app_params | default({}), recursive=True) }}"
+app_docker_config: "{{ app_docker_defaults | combine(app_params | default({}), recursive=True) }}"

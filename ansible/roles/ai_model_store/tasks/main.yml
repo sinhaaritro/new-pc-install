@@ -1,18 +1,18 @@
 ---
-# Owns model_dir (spec 002 decision 2.10) and exports it for login shells via
+# Owns ai_model_store_model_dir (spec 002 decision 2.10) and exports it for login shells via
 # /etc/profile.d; no AI role hardcodes a models path.
 - name: Create model storage directory
   ansible.builtin.file:
-    path: "{{ model_dir }}"
+    path: "{{ ai_model_store_model_dir }}"
     state: directory
-    owner: "{{ target_user }}"
-    group: "{{ target_user }}"
+    owner: "{{ x_target_user }}"
+    group: "{{ x_target_user }}"
     mode: "0755"
 
 - name: Export AI_MODEL_DIR for login shells
   ansible.builtin.copy:
     dest: /etc/profile.d/ai-models.sh
-    content: "export AI_MODEL_DIR={{ model_dir }}\n"
+    content: "export AI_MODEL_DIR={{ ai_model_store_model_dir }}\n"
     owner: root
     group: root
     mode: "0644"

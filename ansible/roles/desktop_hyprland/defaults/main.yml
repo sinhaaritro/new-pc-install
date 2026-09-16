@@ -1,8 +1,8 @@
 ---
 # ADR-007 two-variable trick: the profile is the full set, inventory
-# `desktop_overrides` (empty by default) is the per-machine delta, and the
-# lazily-evaluated `desktop_config` is what tasks consume.
-desktop_profile:
+# `desktop_hyprland_overrides` (empty by default) is the per-machine delta, and the
+# lazily-evaluated `desktop_hyprland_config` is what tasks consume.
+desktop_hyprland_profile:
   env:
     XDG_CURRENT_DESKTOP: "HYPRLAND"
     XDG_SESSION_TYPE: "wayland"
@@ -20,9 +20,9 @@ desktop_profile:
     active_opacity: "1.0"
     inactive_opacity: "0.85"
   bind:
-    - "SUPER, Return, exec, {{ desktop_profile.exec.terminal }}"
+    - "SUPER, Return, exec, {{ desktop_hyprland_profile.exec.terminal }}"
     - "SUPER, Q, killactive, "
-    - "SUPER, M, exec, {{ desktop_profile.exec.browser }}"
+    - "SUPER, M, exec, {{ desktop_hyprland_profile.exec.browser }}"
     - "SUPER, C, exec, rofi -show drun"
     - "SUPER, P, exec, grim -g \"$(slur)\" /tmp/shots/shot-$(date +%s).png"
     - "SUPER SHIFT, L, exec, hyprlock"
@@ -38,5 +38,5 @@ desktop_profile:
     idle: {}
     clipboard: {}
     portal: {}
-desktop_overrides: {}
-desktop_config: "{{ desktop_profile | combine(desktop_overrides | default({}), recursive=True) }}"
+desktop_hyprland_overrides: {}
+desktop_hyprland_config: "{{ desktop_hyprland_profile | combine(desktop_hyprland_overrides | default({}), recursive=True) }}"

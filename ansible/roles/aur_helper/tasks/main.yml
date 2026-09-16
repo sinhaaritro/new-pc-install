@@ -1,12 +1,12 @@
 ---
 # Builds paru as the target user. The entire build is one guarded command: once
 # /usr/bin/paru exists the task is a no-op and never re-triggers.
-- name: Build {{ commands.aur.install }}
+- name: Build {{ x_commands.aur.install }}
   ansible.builtin.command: >
     makepkg -si --noconfirm
   args:
-    chdir: /home/{{ target_user }}/.cache/paru/clone/paru
+    chdir: /home/{{ x_target_user }}/.cache/paru/clone/paru
     creates: /usr/bin/paru
   become: true
-  become_user: "{{ target_user }}"
+  become_user: "{{ x_target_user }}"
   changed_when: true

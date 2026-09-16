@@ -4,16 +4,11 @@
 # so artifacts are never portable and never cache-shared between boxes.
 # Flags live as a YAML list so inventory can replace or extend the set for a
 # different GPU without editing this role.
-# noqa: var-naming[no-role-prefix]
-llamacpp_repo: https://github.com/ggml-org/llama.cpp
-# noqa: var-naming[no-role-prefix]
-llamacpp_version: master
-# noqa: var-naming[no-role-prefix]
-llamacpp_src_dir: "{{ '/home/' + target_user + '/src/llama.cpp' }}"
-# noqa: var-naming[no-role-prefix]
-llamacpp_jobs: "{{ (ansible_processor_vcpus | default(1)) // 2 | int if (ansible_processor_vcpus | default(2)) | int > 1 else 1 }}"
-# noqa: var-naming[no-role-prefix]
-cmake_flags:
+app_llamacpp_repo: https://github.com/ggml-org/llama.cpp
+app_llamacpp_version: master
+app_llamacpp_src_dir: "{{ '/home/' + x_target_user + '/app_llamacpp_src/llama.cpp' }}"
+app_llamacpp_jobs: "{{ (ansible_processor_vcpus | default(1)) // 2 | int if (ansible_processor_vcpus | default(2)) | int > 1 else 1 }}"
+app_llamacpp_cmake_flags:
   - -DCMAKE_BUILD_TYPE=Release
   - -DGGML_CUDA=ON
   - -DCMAKE_CUDA_ARCHITECTURES=89

@@ -1,10 +1,10 @@
 ---
-# Variant-selected: inventory gpu_variant names the packages.gpu key; ~ disables the role.
-- name: Install gpu packages ({{ gpu_variant }})
+# Variant-selected: inventory gpu_variant names the x_packages.gpu key; ~ disables the role.
+- name: Install gpu x_packages ({{ gpu_variant }})
   ansible.builtin.include_role:
     name: install_packages
   vars:
-    package_source: "{{ packages.gpu[gpu_variant] }}"
+    install_packages_source: "{{ x_packages.gpu[gpu_variant] }}"
 
 - name: Enable nvidia-persistenced
   ansible.builtin.systemd:

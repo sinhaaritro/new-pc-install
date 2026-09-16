@@ -1,19 +1,19 @@
 ---
-- name: Install shell packages
+- name: Install shell x_packages
   ansible.builtin.include_role:
     name: install_packages
   vars:
-    package_source: "{{ packages.shell }}"
+    install_packages_source: "{{ x_packages.shell }}"
 
 - name: Set the target user shell
   ansible.builtin.user:
-    name: "{{ target_user }}"
+    name: "{{ x_target_user }}"
     shell: "{{ user_shell | default('/usr/bin/bash') }}"
 
 - name: Stow shell config
   ansible.builtin.command: "stow -R shell"
   args:
-    chdir: "/home/{{ target_user }}/dotfiles"
-    creates: "/home/{{ target_user }}/.{{ shell_stow_name | default('bashrc') }}"
+    chdir: "/home/{{ x_target_user }}/dotfiles"
+    creates: "/home/{{ x_target_user }}/.{{ shell_stow_name | default('bashrc') }}"
   become: true
-  become_user: "{{ target_user }}"
+  become_user: "{{ x_target_user }}"

@@ -3,5 +3,4 @@
 # overridable in inventory, exported via /etc/profile.d. No other AI role
 # hardcodes a path. Open question Q1: parked on the .local/share default
 # until real storage is chosen.
-# noqa: var-naming[no-role-prefix]
-model_dir: "/home/{{ target_user }}/.local/share/models"
+ai_model_store_model_dir: "/home/{{ x_target_user }}/.local/share/models"

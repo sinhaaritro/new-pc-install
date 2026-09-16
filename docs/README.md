@@ -21,6 +21,7 @@ untouched.
   - 📄 [001-declarative-ansible-provisioning-tree-the-pattern.md](./specs/001-declarative-ansible-provisioning-tree-the-pattern.md) — APPROVED
   - 📄 [002-plays-and-roles-current-target-arch-hyprland-dev-ai.md](./specs/002-plays-and-roles-current-target-arch-hyprland-dev-ai.md) — APPROVED
   - 📄 [003-ansible-lint-remediation.md](./specs/003-ansible-lint-remediation.md) — APPROVED
+  - 📄 [004-ansible-lint-zero-finding-without-config-waivers.md](./specs/004-ansible-lint-zero-finding-without-config-waivers.md) — APPROVED
 
 - 📁 decisions/
   - 📄 [adr-001-adr-nnn-presence-over-flags.md](./decisions/adr-001-adr-nnn-presence-over-flags.md) — Accepted — backlinks: docs/specs/001-declarative-ansible-provisioning-tree-the-pattern.md
@@ -54,6 +55,9 @@ untouched.
   - 📄 [adr-029-adr-nnn-pass-per-include-role-vars-via-apply-not-include-tasks.md](./decisions/adr-029-adr-nnn-pass-per-include-role-vars-via-apply-not-include-tasks.md) — Accepted — backlinks: docs/specs/003-ansible-lint-remediation.md
   - 📄 [adr-030-adr-nnn-exclude-var-naming-no-role-prefix-instead-of-renaming.md](./decisions/adr-030-adr-nnn-exclude-var-naming-no-role-prefix-instead-of-renaming.md) — Accepted — backlinks: docs/specs/003-ansible-lint-remediation.md
   - 📄 [adr-031-adr-nnn-exclude-fqcn-canonical-for-pacman-instead-of-adding-the-collection.md](./decisions/adr-031-adr-nnn-exclude-fqcn-canonical-for-pacman-instead-of-adding-the-collection.md) — Accepted — backlinks: docs/specs/003-ansible-lint-remediation.md
+  - 📄 [adr-032-adr-nnn-rename-shared-and-role-local-vars-to-satisfy-var-naming.md](./decisions/adr-032-adr-nnn-rename-shared-and-role-local-vars-to-satisfy-var-naming.md) — Accepted — backlinks: docs/specs/004-ansible-lint-zero-finding-without-config-waivers.md
+  - 📄 [adr-033-adr-nnn-rename-reserved-module-defaults-key-in-workflow-roles.md](./decisions/adr-033-adr-nnn-rename-reserved-module-defaults-key-in-workflow-roles.md) — Accepted — backlinks: docs/specs/004-ansible-lint-zero-finding-without-config-waivers.md
+  - 📄 [adr-034-adr-nnn-delete-the-ansible-lint-config-file-after-reaching-zero-findings.md](./decisions/adr-034-adr-nnn-delete-the-ansible-lint-config-file-after-reaching-zero-findings.md) — Accepted — backlinks: docs/specs/004-ansible-lint-zero-finding-without-config-waivers.md
 
 - 📁 reference/
   - 📄 [ansible-bck-vs-specs-impl-wins.md](./reference/ansible-bck-vs-specs-impl-wins.md)

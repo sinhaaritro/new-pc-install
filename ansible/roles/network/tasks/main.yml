@@ -1,9 +1,9 @@
 ---
-- name: Install network packages
+- name: Install network x_packages
   ansible.builtin.include_role:
     name: install_packages
   vars:
-    package_source: "{{ packages.network }}"
+    install_packages_source: "{{ x_packages.network }}"
 
 - name: Enable NetworkManager
   ansible.builtin.systemd:

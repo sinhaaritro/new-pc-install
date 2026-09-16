@@ -1,7 +1,7 @@
 ---
-git_defaults:
+app_git_defaults:
   user_name: ""
   user_email: ""
   init_default_branch: main
-git_overrides: {}
-git_config: "{{ git_defaults | combine(app_params | default({}), recursive=True) }}"
+app_git_overrides: {}
+app_git_config: "{{ app_git_defaults | combine(app_params | default({}), recursive=True) }}"

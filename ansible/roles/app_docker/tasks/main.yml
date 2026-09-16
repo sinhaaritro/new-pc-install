@@ -1,19 +1,19 @@
 ---
-- name: Install app packages
+- name: Install app x_packages
   ansible.builtin.include_role:
     name: install_packages
   vars:
-    package_source: "{{ packages.app_docker }}"
+    install_packages_source: "{{ x_packages.app_docker }}"
 
 - name: Enable docker service
   ansible.builtin.systemd:
     name: docker
     enabled: true
     state: started
-  when: docker_config.enable_service
+  when: app_docker_config.enable_service
 
 - name: Add target user to docker group
   ansible.builtin.user:
-    name: "{{ target_user }}"
+    name: "{{ x_target_user }}"
     groups: docker
     append: true

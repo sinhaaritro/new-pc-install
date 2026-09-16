@@ -5,7 +5,7 @@
   ansible.builtin.debug:
     msg:
       - "wm_choice: {{ wm_choice | default('~') }}"
-      - "ui_mode: {{ ui_mode }}"
+      - "x_ui_mode: {{ x_ui_mode }}"
       - "active modules: {{ (modules | default({})) | dict2items | rejectattr('value', 'none') | map(attribute='key') | list }}"
-      - "active components: {{ (desktop_config.components | default({})) | dict2items | rejectattr('value', 'none') | map(attribute='key') | list }}"
-      - "model_dir: {{ model_dir | default('n/a') }}"
+      - "active components: {{ (desktop_hyprland_config.components | default({})) | dict2items | rejectattr('value', 'none') | map(attribute='key') | list }}"
+      - "ai_model_store_model_dir: {{ ai_model_store_model_dir | default('n/a') }}"

@@ -1,15 +1,15 @@
 ---
-- name: Install app packages
+- name: Install app x_packages
   ansible.builtin.include_role:
     name: install_packages
   vars:
-    package_source: "{{ packages.app_lang_toolchains }}"
+    install_packages_source: "{{ x_packages.app_lang_toolchains }}"
 
-- name: Install declared toolchains
-  ansible.builtin.pacman:
+- name: Install declared app_lang_toolchains_toolchains
+  community.general.pacman:
     name: "{{ item.value.package }}"
     state: present
     update_cache: true
-  loop: "{{ toolchains | dict2items }}"
+  loop: "{{ app_lang_toolchains_toolchains | dict2items }}"
   loop_control:
     label: "{{ item.key }}"
