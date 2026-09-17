@@ -1,12 +1,7 @@
 ---
-# Builds paru as the target user. The entire build is one guarded command: once
-# /usr/bin/paru exists the task is a no-op and never re-triggers.
-- name: Build {{ x_commands.aur.install }}
-  ansible.builtin.command: >
-    makepkg -si --noconfirm
-  args:
-    chdir: /home/{{ x_target_user }}/.cache/paru/clone/paru
-    creates: /usr/bin/paru
-  become: true
-  become_user: "{{ x_target_user }}"
-  changed_when: true
+# Variant-selected per ADR-018: the role ships every helper implementation and
+# inventory `aur_variant` names one. `aur_variant: ~` makes play 02 skip
+# the role entirely.
+- name: Include AUR helper variant
+  ansible.builtin.include_tasks: "helpers/{{ aur_variant }}.yml"
+  when: aur_variant is not none

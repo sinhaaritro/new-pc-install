@@ -2,9 +2,6 @@ distro: arch
 target_root: /mnt
 chroot_prefix: /mnt
 bootstrap_cmd: pacman -b
-x_commands:
-  aur:
-    install: paru
 x_packages:
   base:
     pacman:

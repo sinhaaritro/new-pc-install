@@ -1,0 +1,17 @@
+---
+- name: Clone paru AUR repo
+  ansible.builtin.git:
+    repo: https://aur.archlinux.org/paru.git
+    dest: "{{ aur_helper_src_dir }}"
+    version: master
+  become: true
+  become_user: "{{ x_target_user }}"
+
+- name: Build and install paru
+  ansible.builtin.command: "makepkg -si --noconfirm"
+  args:
+    chdir: "{{ aur_helper_src_dir }}"
+    creates: /usr/bin/paru
+  become: true
+  become_user: "{{ x_target_user }}"
+  changed_when: true

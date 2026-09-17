@@ -1,0 +1,17 @@
+---
+- name: Clone yay AUR repo
+  ansible.builtin.git:
+    repo: https://aur.archlinux.org/yay.git
+    dest: "{{ aur_helper_src_dir }}"
+    version: master
+  become: true
+  become_user: "{{ x_target_user }}"
+
+- name: Build and install yay
+  ansible.builtin.command: "makepkg -si --noconfirm"
+  args:
+    chdir: "{{ aur_helper_src_dir }}"
+    creates: /usr/local/bin/yay
+  become: true
+  become_user: "{{ x_target_user }}"
+  changed_when: true

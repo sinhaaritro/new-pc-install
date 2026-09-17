@@ -15,7 +15,7 @@ map of the tree and the `ui_mode` contract.
   `install_packages` role dispatches by package-manager filename.
 - `inventory/hosts.yml` — one host, distro as the group name.
 - `inventory/group_vars/arch.yml` — distro vocabulary: `packages.<role>` keyed
-  by manager, `commands.aur.install`.
+  by manager.
 - `inventory/group_vars/all.yml` — cross-distro **derivations only** (currently
   just `ui_mode`); no packages, no distro or machine facts.
 
@@ -61,6 +61,13 @@ The `module_defaults` / `module_cli` / `module_gui` names are load-bearing
 is an Ansible reserved name, so `workflow_development/defaults` and
 `workflow_ai/defaults` are linted as plain yaml via the `kinds:` waiver in
 `.ansible-lint`.
+
+## AUR helper selection
+
+`aur_variant` (`paru` | `yay` | `~`) is a single-select inventory key, the same
+vocabulary as the other `*_variant` keys (ADR-018). The `aur_helper` role
+dispatches by filename; the install side invokes the helper by its variant
+name. `~` skips the role in play 02.
 
 ## Load-bearing orderings
 

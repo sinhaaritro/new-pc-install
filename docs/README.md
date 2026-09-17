@@ -22,6 +22,7 @@ untouched.
   - 📄 [002-plays-and-roles-current-target-arch-hyprland-dev-ai.md](./specs/002-plays-and-roles-current-target-arch-hyprland-dev-ai.md) — APPROVED
   - 📄 [003-ansible-lint-remediation.md](./specs/003-ansible-lint-remediation.md) — APPROVED
   - 📄 [004-ansible-lint-zero-finding-without-config-waivers.md](./specs/004-ansible-lint-zero-finding-without-config-waivers.md) — APPROVED
+  - 📄 [005-aur-helper-selection-as-an-inventory-selected-variant.md](./specs/005-aur-helper-selection-as-an-inventory-selected-variant.md) — APPROVED
 
 - 📁 decisions/
   - 📄 [adr-001-adr-nnn-presence-over-flags.md](./decisions/adr-001-adr-nnn-presence-over-flags.md) — Accepted — backlinks: docs/specs/001-declarative-ansible-provisioning-tree-the-pattern.md

@@ -20,6 +20,7 @@ Every spec carries `tags: [lowercase-kebab, ...]`; the promotion gate runs
   - 📄 [002-plays-and-roles-current-target-arch-hyprland-dev-ai.md](./002-plays-and-roles-current-target-arch-hyprland-dev-ai.md) — APPROVED
   - 📄 [003-ansible-lint-remediation.md](./003-ansible-lint-remediation.md) — APPROVED
   - 📄 [004-ansible-lint-zero-finding-without-config-waivers.md](./004-ansible-lint-zero-finding-without-config-waivers.md) — APPROVED
+  - 📄 [005-aur-helper-selection-as-an-inventory-selected-variant.md](./005-aur-helper-selection-as-an-inventory-selected-variant.md) — APPROVED
 <!-- TOC:END -->
 
 <!-- TAG-INDEX:START -->

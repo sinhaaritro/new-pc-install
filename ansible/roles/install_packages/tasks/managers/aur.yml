@@ -1,6 +1,8 @@
 ---
-- name: Install AUR x_packages via {{ x_commands.aur.install }}
-  ansible.builtin.command: "{{ x_commands.aur.install }} -S --needsys --noconfirm {{ pkg_list | join(' ') }}"
+- name: "Install AUR x_packages via helper"
+  vars:
+    install_packages_aur_helper: "{{ aur_variant }}"
+  ansible.builtin.command: "{{ install_packages_aur_helper }} -S --needsys --noconfirm {{ pkg_list | join(' ') }}"
   become: true
   become_user: "{{ x_target_user }}"
   register: install_packages_aur_rc

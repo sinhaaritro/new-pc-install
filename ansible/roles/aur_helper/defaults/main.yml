@@ -1,0 +1,2 @@
+---
+aur_helper_src_dir: "/home/{{ x_target_user }}/aur/{{ aur_variant }}"

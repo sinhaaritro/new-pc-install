@@ -12,6 +12,7 @@
     - name: Aur helper
       ansible.builtin.include_role:
         name: aur_helper
+      when: aur_variant is not none
 
     - name: Base packages
       ansible.builtin.include_role:
