@@ -1,0 +1,9 @@
+[Trigger]
+Type=Package
+Operation=Install
+Operation=Upgrade
+Operation=Remove
+Target=pacman:{{ hook_target }}
+
+[Install]
+Execute=/bin/sh -c "mkinitcpio -P linux || true"

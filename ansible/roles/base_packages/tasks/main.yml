@@ -5,3 +5,10 @@
     name: install_packages
   vars:
     install_packages_source: "{{ x_packages.base }}"
+
+- name: Install cpu microcode x_packages
+  ansible.builtin.include_role:
+    name: install_packages
+  vars:
+    install_packages_source: "{{ x_packages.ucode[cpu_vendor] }}"
+  when: cpu_vendor is not none and cpu_vendor in x_packages.ucode

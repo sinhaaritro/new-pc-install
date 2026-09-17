@@ -1,0 +1,21 @@
+---
+# Fonts role: install the resolved font packages, render the system-wide
+# fontconfig, and rebuild the cache. Packages/profile are resolved across three
+# levels (host -> arch-group -> role default) in defaults/main.yml.
+- name: Install fonts x_packages
+  ansible.builtin.include_role:
+    name: install_packages
+  vars:
+    install_packages_source: "{{ fonts_packages }}"
+
+- name: Render system fontconfig
+  ansible.builtin.template:
+    src: local.conf.j2
+    dest: /etc/fonts/local.conf
+    mode: "0644"
+  become: true
+
+- name: Rebuild font cache
+  ansible.builtin.command: fc-cache -fv
+  become: true
+  changed_when: true

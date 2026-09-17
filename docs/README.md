@@ -23,6 +23,7 @@ untouched.
   - 📄 [003-ansible-lint-remediation.md](./specs/003-ansible-lint-remediation.md) — APPROVED
   - 📄 [004-ansible-lint-zero-finding-without-config-waivers.md](./specs/004-ansible-lint-zero-finding-without-config-waivers.md) — APPROVED
   - 📄 [005-aur-helper-selection-as-an-inventory-selected-variant.md](./specs/005-aur-helper-selection-as-an-inventory-selected-variant.md) — APPROVED
+  - 📄 [006-cpu-microcode-nvidia-initramfs-robustness-and-host-overridable-fonts.md](./specs/006-cpu-microcode-nvidia-initramfs-robustness-and-host-overridable-fonts.md) — APPROVED
 
 - 📁 decisions/
   - 📄 [adr-001-adr-nnn-presence-over-flags.md](./decisions/adr-001-adr-nnn-presence-over-flags.md) — Accepted — backlinks: docs/specs/001-declarative-ansible-provisioning-tree-the-pattern.md
@@ -59,6 +60,9 @@ untouched.
   - 📄 [adr-032-adr-nnn-rename-shared-and-role-local-vars-to-satisfy-var-naming.md](./decisions/adr-032-adr-nnn-rename-shared-and-role-local-vars-to-satisfy-var-naming.md) — Accepted — backlinks: docs/specs/004-ansible-lint-zero-finding-without-config-waivers.md
   - 📄 [adr-033-adr-nnn-rename-reserved-module-defaults-key-in-workflow-roles.md](./decisions/adr-033-adr-nnn-rename-reserved-module-defaults-key-in-workflow-roles.md) — Accepted — backlinks: docs/specs/004-ansible-lint-zero-finding-without-config-waivers.md
   - 📄 [adr-034-adr-nnn-delete-the-ansible-lint-config-file-after-reaching-zero-findings.md](./decisions/adr-034-adr-nnn-delete-the-ansible-lint-config-file-after-reaching-zero-findings.md) — Accepted — backlinks: docs/specs/004-ansible-lint-zero-finding-without-config-waivers.md
+  - 📄 [adr-035-adr-nnn-cpu-microcode-is-an-optional-inventory-selected-vendor-variant.md](./decisions/adr-035-adr-nnn-cpu-microcode-is-an-optional-inventory-selected-vendor-variant.md) — Accepted — backlinks: docs/specs/006-cpu-microcode-nvidia-initramfs-robustness-and-host-overridable-fonts.md
+  - 📄 [adr-036-adr-nnn-the-entire-nvidia-setup-is-owned-by-the-single-gpu-role.md](./decisions/adr-036-adr-nnn-the-entire-nvidia-setup-is-owned-by-the-single-gpu-role.md) — Accepted — backlinks: docs/specs/006-cpu-microcode-nvidia-initramfs-robustness-and-host-overridable-fonts.md
+  - 📄 [adr-037-adr-nnn-fonts-resolve-across-three-levels-host-arch-group-role-default.md](./decisions/adr-037-adr-nnn-fonts-resolve-across-three-levels-host-arch-group-role-default.md) — Accepted — backlinks: docs/specs/006-cpu-microcode-nvidia-initramfs-robustness-and-host-overridable-fonts.md
 
 - 📁 reference/
   - 📄 [ansible-bck-vs-specs-impl-wins.md](./reference/ansible-bck-vs-specs-impl-wins.md)

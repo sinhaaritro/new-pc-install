@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+<!-- System-wide fontconfig, rendered by the fonts role from the resolved
+     fonts_config (three-level: host -> arch-group -> role default). -->
+<fontconfig>
+  <match target="pattern">
+    <test qual="any" name="family"><const>monospace</const></test>
+    <edit name="family" mode="assign" binding="same">
+      <string>{{ fonts_config.mono }}</string>
+    </edit>
+  </match>
+  <match target="pattern">
+    <test qual="any" name="family"><const>sans-serif</const></test>
+    <edit name="family" mode="assign" binding="same">
+      <string>{{ fonts_config.sans }}</string>
+    </edit>
+  </match>
+  <match target="font">
+    <edit name="antialias" mode="assign"><bool>true</bool></edit>
+    <edit name="hinting" mode="assign"><bool>true</bool></edit>
+    <edit name="hintstyle" mode="assign"><const>hintslight</const></edit>
+    <edit name="rgba" mode="assign"><const>rgb</const></edit>
+  </match>
+  <match target="pattern">
+    <test name="family" qual="any"><string>monospace</string></test>
+    <test name="family" qual="any"><string>sans-serif</string></test>
+    <edit name="family" mode="prepend_last" binding="same">
+{% for family in fonts_config.fallback %}
+      <string>{{ family }}</string>
+{% endfor %}
+    </edit>
+  </match>
+</fontconfig>

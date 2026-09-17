@@ -3,114 +3,143 @@ target_root: /mnt
 chroot_prefix: /mnt
 bootstrap_cmd: pacman -b
 x_packages:
+  ucode:
+    amd:
+      pacman:
+      - amd-ucode
+    intel:
+      pacman:
+      - intel-ucode
   base:
     pacman:
-      - base
-      - linux
-      - linux-headers
-      - vim
-      - git
-      - networkmanager
-      - sudo
-      - stow
-      - grub
-      - efibootmgr
-      - systemd-sysusers
-      - systemd-resolved
+    - base
+    - linux
+    - linux-headers
+    - vim
+    - git
+    - networkmanager
+    - sudo
+    - stow
+    - grub
+    - efibootmgr
+    - systemd-sysusers
+    - systemd-resolved
   gpu:
     nvidia_open:
       pacman:
-        - nvidia-dkms
-        - nvidia-utils
-        - nvidia-open-dkms
+      - nvidia-dkms
+      - nvidia-utils
+      - nvidia-open-dkms
     nvidia:
       pacman:
-        - nvidia-dkms
-        - nvidia-utils
+      - nvidia-dkms
+      - nvidia-utils
   audio:
     pipewire:
       pacman:
-        - pipewire
-        - pipewire-alsa
-        - pipewire-pulse
-        - wireplumber
+      - pipewire
+      - pipewire-alsa
+      - pipewire-pulse
+      - wireplumber
   network:
     pacman:
-      - networkmanager
-      - networkmanager-dbus
+    - networkmanager
+    - networkmanager-dbus
   firewall:
     pacman:
-      - ufw
+    - ufw
   ssh:
     pacman:
-      - openssh
+    - openssh
   dotfiles:
     pacman:
-      - stow
+    - stow
   external_drives:
     pacman: []
   shell:
     pacman:
-      - bash
+    - bash
   desktop_hyprland:
     pacman:
-      - hyprland
-      - hyprutils
-      - hyprland-protocols
-      - wayland
-      - wl-clipboard
-      - xdg-desktop-portal-hyprland
+    - hyprland
+    - hyprutils
+    - hyprland-protocols
+    - wayland
+    - wl-clipboard
+    - xdg-desktop-portal-hyprland
   component_bar:
     pacman:
-      - waybar
+    - waybar
   component_notification:
     pacman:
-      - mako
+    - mako
   component_screenshot:
     pacman:
-      - grim
-      - slur
+    - grim
+    - slur
   component_launcher:
     pacman:
-      - rofi
+    - rofi
   component_lock:
     pacman:
-      - hyprlock
+    - hyprlock
   component_idle:
     pacman:
-      - hypridle
+    - hypridle
   component_clipboard:
     pacman:
-      - wl-clipboard
+    - wl-clipboard
   component_portal:
     pacman:
-      - xdg-desktop-portal
-      - xdg-desktop-portal-hyprland
+    - xdg-desktop-portal
+    - xdg-desktop-portal-hyprland
   app_git:
     pacman:
-      - git
+    - git
   app_neovim:
     pacman:
-      - neovim
-      - ripgrep
-      - fd
+    - neovim
+    - ripgrep
+    - fd
   app_vscode:
     pacman:
-      - code
+    - code
   app_docker:
     pacman:
-      - docker
-      - docker-compose
+    - docker
+    - docker-compose
   app_lang_toolchains:
     pacman:
-      - base-devel
+    - base-devel
   app_llamacpp:
     pacman:
-      - cmake
-      - base-devel
-      - git
-      - cuda
-      - curl
+    - cmake
+    - base-devel
+    - git
+    - cuda
+    - curl
   app_opencode:
     aur:
-      - opencode-bin
+    - opencode-bin
+  fonts:
+    pacman:
+    - fontconfig
+    - font-manager
+    aur:
+    - maplemono-ttf
+    profile:
+      mono: Maple Mono
+      sans: Cantarell
+      fallback:
+      - Noto Sans CJK SC
+      - DejaVu Sans
+gpu_nvidia:
+  grub_cmdline: nvidia_drm.modeset=1 nvidia_drm.fbdev=1
+  mkinitcpio_modules:
+  - nvidia
+  - nvidia_modeset
+  - nvidia_uvm
+  - nvidia_drm
+  hook_target:
+    nvidia_open: nvidia-open-dkms
+    nvidia: nvidia-dkms

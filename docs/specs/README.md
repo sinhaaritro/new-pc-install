@@ -21,6 +21,7 @@ Every spec carries `tags: [lowercase-kebab, ...]`; the promotion gate runs
   - 📄 [003-ansible-lint-remediation.md](./003-ansible-lint-remediation.md) — APPROVED
   - 📄 [004-ansible-lint-zero-finding-without-config-waivers.md](./004-ansible-lint-zero-finding-without-config-waivers.md) — APPROVED
   - 📄 [005-aur-helper-selection-as-an-inventory-selected-variant.md](./005-aur-helper-selection-as-an-inventory-selected-variant.md) — APPROVED
+  - 📄 [006-cpu-microcode-nvidia-initramfs-robustness-and-host-overridable-fonts.md](./006-cpu-microcode-nvidia-initramfs-robustness-and-host-overridable-fonts.md) — APPROVED
 <!-- TOC:END -->
 
 <!-- TAG-INDEX:START -->

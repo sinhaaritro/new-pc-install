@@ -12,3 +12,59 @@
     enabled: true
     state: stopped
   when: gpu_variant | default('') | string is match('nvidia.*')
+
+# --- Task 2.2: NVIDIA initramfs wiring (boot-time module load) ---
+
+- name: Add nvidia_drm.modeset=1 nvidia_drm.fbdev=1 to GRUB_CMDLINE_LINUX_DEFAULT
+  ansible.builtin.lineinfile:
+    path: /etc/default/grub
+    regexp: '^GRUB_CMDLINE_LINUX_DEFAULT='
+    line: "GRUB_CMDLINE_LINUX_DEFAULT=\"{{ x_packages.gpu_nvidia.grub_cmdline }}\""
+  when:
+    - gpu_variant | default('') | string is match('nvidia.*')
+    - not ansible_check_mode
+
+- name: Append nvidia modules to MODULES= in mkinitcpio.conf
+  ansible.builtin.blockinfile:
+    path: /etc/mkinitcpio.conf
+    marker: "# {mark} ANSIBLE MANAGED: nvidia modules"
+    insertafter: "^MODULES="
+    block: "{{ x_packages.gpu_nvidia.mkinitcpio_modules | join(' ') }}"
+  when:
+    - gpu_variant | default('') | string is match('nvidia.*')
+    - not ansible_check_mode
+
+- name: Drop nvidia pacman hook (rebuild initramfs on driver change)
+  ansible.builtin.template:
+    src: nvidia.hook.j2
+    dest: /etc/pacman.d/hooks/nvidia.hook
+    mode: "0644"
+  vars:
+    hook_target: "{{ x_packages.gpu_nvidia.hook_target[gpu_variant] }}"
+  when:
+    - gpu_variant in x_packages.gpu_nvidia.hook_target.keys()
+    - not ansible_check_mode
+
+- name: Regenerate GRUB config (best-effort)
+  ansible.builtin.shell: |
+    set -o pipefail
+    grub-mkconfig -o /boot/grub/grub.cfg 2>/dev/null || true
+  args:
+    executable: /bin/bash
+  register: gpu_grub_result
+  changed_when: "'Generating grub configuration file' in gpu_grub_result.stdout"
+  when:
+    - gpu_variant | default('') | string is match('nvidia.*')
+    - not ansible_check_mode
+
+- name: Rebuild initramfs (best-effort)
+  ansible.builtin.shell: |
+    set -o pipefail
+    mkinitcpio -P linux 2>/dev/null || true
+  args:
+    executable: /bin/bash
+  register: gpu_mkinitcpio_result
+  changed_when: "'Building image' in gpu_mkinitcpio_result.stdout"
+  when:
+    - gpu_variant | default('') | string is match('nvidia.*')
+    - not ansible_check_mode

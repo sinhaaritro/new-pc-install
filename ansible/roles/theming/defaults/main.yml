@@ -13,5 +13,3 @@ theming_theme_packages:
     - qt5ct
     - adwaita-icon-theme
     - adwaita-cursors
-    - font-hack-ttf
-    - font-dejavu

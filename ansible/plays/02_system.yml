@@ -14,6 +14,10 @@
         name: aur_helper
       when: aur_variant is not none
 
+    - name: Fonts
+      ansible.builtin.include_role:
+        name: fonts
+
     - name: Base packages
       ansible.builtin.include_role:
         name: base_packages

@@ -1,0 +1,51 @@
+---
+# Three-level font resolution, highest priority first:
+#   host      (fonts_overrides / fonts_packages_overrides in hosts.yml)
+#   arch group (x_packages.fonts in group_vars/arch.yml)
+#   role default (the values below)
+
+# Role-default (lowest-priority) fontconfig profile.
+fonts_profile:
+  mono: "JetBrains Mono"
+  sans: "Cantarell"
+  fallback:
+    - "DejaVu Sans"
+
+# Role-default (lowest-priority) font packages, per manager.
+fonts_packages_defaults:
+  pacman:
+    - fontconfig
+  aur: []
+
+# --- resolvers ---------------------------------------------------------------
+# Main font: first non-empty value walking host -> group -> role.
+fonts_config:
+  mono: >-
+    {{ (fonts_overrides | default({})).get('mono')
+       or (x_packages.fonts | default({})).get('profile', {}).get('mono')
+       or fonts_profile.mono }}
+  sans: >-
+    {{ (fonts_overrides | default({})).get('sans')
+       or (x_packages.fonts | default({})).get('profile', {}).get('sans')
+       or fonts_profile.sans }}
+  # Fallback chain: host + group + role lists concatenated, deduped by name,
+  # first-seen (highest-priority) order preserved.
+  fallback: >-
+    {{ (((fonts_overrides | default({})).get('fallback', [])
+        + (x_packages.fonts | default({})).get('profile', {}).get('fallback', [])
+        + fonts_profile.fallback)
+       | list | unique) }}
+
+# Packages: merged per manager (host overrides a manager list; managers the host
+# omits fall back to arch-group, then role).
+fonts_packages:
+  pacman: >-
+    {{ (fonts_packages_overrides | default({})).get('pacman')
+       or (x_packages.fonts | default({})).get('pacman', [])
+       or fonts_packages_defaults.pacman
+       | list | unique }}
+  aur: >-
+    {{ (fonts_packages_overrides | default({})).get('aur')
+       or (x_packages.fonts | default({})).get('aur', [])
+       or fonts_packages_defaults.aur
+       | list | unique }}

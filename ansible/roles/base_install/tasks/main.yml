@@ -9,6 +9,7 @@
     -k
     -p
     {{ x_packages.base.pacman | join(' ') }}
+    {{ (x_packages.ucode[cpu_vendor].pacman | join(' ')) if cpu_vendor is not none and cpu_vendor in x_packages.ucode else '' }}
   changed_when: true
 
 - name: Ensure /boot/efi exists in chroot
